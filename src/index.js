@@ -1,16 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter} from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import MafSiteNavbar from './components/MafSiteNavbar';
+import IntroScreen from './components/IntroScreen';
+import FourOFour from './components/FourOFour';
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <Routes>  
+        <Route path="/" element={<MafSiteNavbar />}>
+          <Route index element={<IntroScreen/>} />
+          <Route path="malarkey" element={<MafSiteNavbar />} />
+          <Route path="*" element={<FourOFour/>} />
+        </Route>
+      </Routes>
     </BrowserRouter>
-    
   </React.StrictMode>,
   document.getElementById('root')
 );
