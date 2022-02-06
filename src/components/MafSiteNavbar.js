@@ -1,5 +1,5 @@
 import React from 'react';
-import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import {Navbar, Nav} from 'react-bootstrap';
 import { Outlet, Link} from 'react-router-dom';
 import axios from 'axios';
 
@@ -15,7 +15,6 @@ class MafSiteNavbar extends React.Component {
 
     handleTestClick() {
         console.log('Click test!');
-        //fetch('/auth/facebook')
         axios.get('/auth/facebook');
     }
 

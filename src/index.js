@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import './index.css';
 
 import io from 'socket.io-client';
 
@@ -10,7 +9,8 @@ import MafSiteNavbar from './components/MafSiteNavbar';
 import IntroScreen from './components/IntroScreen';
 import FourOFour from './components/FourOFour';
 import FAQPage from './components/FAQPage';
-import SettingPage from './components/SettingPage'
+import SettingPage from './components/SettingPage';
+import PlayPage from './components/PlayPage'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -18,7 +18,8 @@ ReactDOM.render(
       <Routes>  
         <Route path="/" element={<MafSiteNavbar />}>
           <Route index element={<IntroScreen/>} />
-          <Route path="malarkey" element={<MafSiteNavbar />} />
+
+          <Route path="play" element={<PlayPage />} />
           <Route path="faq" element={<FAQPage />} />
           <Route path="settings" element={<SettingPage />} />
 
