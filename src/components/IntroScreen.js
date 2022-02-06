@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card} from 'react-bootstrap';
 
-class IntroScreen extends React.Component {
+class IntroScreen extends React.Component {    
     render() {
         return (
             <div style={{padding: '2vh'}}>
@@ -9,15 +9,15 @@ class IntroScreen extends React.Component {
                     <Card.Body>
                         <Card.Title>Welcome to MERN Mafia!</Card.Title>
                         <Card.Text>
-                            <p>This is a practice project, where I attempt to create a mafia-style game using a MERN Stack and SocketJS.</p>
-                            <p>Created by Lachlan Wright</p>
+                            This is a practice project, where I attempt to create a mafia-style game using a MERN Stack and SocketJS.
                         </Card.Text>
-                        
+                        <Card.Text>
+                            Created by Lachlan Wright
+                        </Card.Text>  
                     </Card.Body>
                 </Card>   
             </div>
         )
-
     }
 }
 

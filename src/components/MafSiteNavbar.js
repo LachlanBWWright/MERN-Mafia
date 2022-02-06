@@ -1,6 +1,7 @@
 import React from 'react';
-import {Navbar, Nav} from 'react-bootstrap';
-import { Outlet, Link } from 'react-router-dom';
+import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import { Outlet, Link} from 'react-router-dom';
+import axios from 'axios';
 
 
 class MafSiteNavbar extends React.Component {
@@ -12,40 +13,37 @@ class MafSiteNavbar extends React.Component {
         picture: ''
     }
 
+    handleTestClick() {
+        console.log('Click test!');
+        //fetch('/auth/facebook')
+        axios.get('/auth/facebook');
+    }
 
     render() {
         return (
-            <>            
-                <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">                              
-                    <Link to="/">
-                        <Navbar.Brand href="#home">MERN Mafia</Navbar.Brand>        
-                    </Link>  
+            <div>            
+                <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
+                    <Nav>
+                            <Navbar.Brand as={Link} to="/">MERN Mafia</Navbar.Brand>         
+                    </Nav>                              
+
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Link to="/play">
-                                <Nav.Link href="/link">Play</Nav.Link>
-                            </Link>
-                            <Link to="/faq">
-                                <Nav.Link href="/link">FAQ</Nav.Link>
-                            </Link>
-                            <Link to="/settings">
-                                <Nav.Link href="/link">Settings</Nav.Link>
-                            </Link>      
+                            <Nav.Link as={Link} to="/play">Play</Nav.Link>                  
+                            <Nav.Link as={Link} to="/faq">FAQ</Nav.Link>
+                            <Nav.Link as={Link} to="/settings">Settings</Nav.Link> 
                         </Nav>
                     </Navbar.Collapse>
                     <Nav>
-                        {
-
-
-                        }
-                        <Link to="/facebook">
-                            <Nav.Link href="/link">Sign In With Facebook</Nav.Link>
-                        </Link>
+                        <Nav.Link onClick={this.handleTestClick} >                 
+                            Sign In With Facebook               
+                        </Nav.Link>
                     </Nav>   
-            </Navbar>
-            <Outlet/>
-            </>
+                </Navbar>
+                
+                <Outlet/>
+            </div>
         )
     }
 }
