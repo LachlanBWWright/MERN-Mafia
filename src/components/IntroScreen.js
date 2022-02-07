@@ -7,7 +7,7 @@ class IntroScreen extends React.Component {
             <div style={{padding: '2vh'}}>
                 <Card style={{width: '30rem', margin: 'auto'}}>
                     <Card.Body>
-                        <Card.Title>Welcome to MERN Mafia!</Card.Title>
+                        <Card.Title className='text-center'>Welcome to MERN Mafia!</Card.Title>
                         <Card.Text>
                             This is a practice project, where I attempt to create a mafia-style game using a MERN Stack and SocketJS.
                         </Card.Text>

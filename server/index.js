@@ -1,14 +1,33 @@
-import express from 'express';
 import 'dotenv/config';
-import {Server} from 'socket.io';
+import express from 'express';
 import cors from 'cors';
+import {Server} from 'socket.io';
+import {createServer} from 'http';
+
 import auth from './routes/auth.js';
 
-const app = express();
 const port = process.env.PORT;
-
-
+const app = express();
 app.use(cors());
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: ['http://localhost:3000']
+    }
+});
+
+io.on('connection', socket => {
+    console.log(socket.id); //Prints randomly generated ID to console
+
+    socket.on('messageSentByUser', () => {
+        console.log('Message sent text')
+    })
+})
+
+
+
+/* httpServer.listen(process.env.PORT); */
 
 app.get('/', (req, res) => {
     res.send('Hi! This is the base directory.');
@@ -19,6 +38,6 @@ app.get('/backend_test', (req, res) => {
     res.send('Hi!');
 })
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);
 })

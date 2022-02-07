@@ -7,7 +7,7 @@ class SettingPage extends React.Component {
             <div style={{padding: '2vh'}}>
                 <Card style={{width: '30rem', margin: 'auto'}}>
                     <Card.Body>
-                        <Card.Title>Settings</Card.Title>
+                        <Card.Title className='text-center'>Settings</Card.Title>
                         <Card.Text>
                             Settings page.
                         </Card.Text>  

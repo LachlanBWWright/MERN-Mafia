@@ -7,7 +7,7 @@ class FAQPage extends React.Component {
             <div style={{padding: '2vh'}}>
                 <Card style={{width: '30rem', margin: 'auto'}}>
                     <Card.Body>
-                        <Card.Title>Frequently Asked Questions</Card.Title>
+                        <Card.Title className='text-center'>Frequently Asked Questions</Card.Title>
                         <Card.Text>
                             Nobody's asked me any questions.
                         </Card.Text>  

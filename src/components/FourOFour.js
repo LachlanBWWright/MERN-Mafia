@@ -7,7 +7,7 @@ class FourOFour extends React.Component {
             <div style={{padding: '2vh'}}>
                 <Card style={{width: '30rem', margin: 'auto'}}>
                     <Card.Body>
-                        <Card.Title>404</Card.Title>
+                        <Card.Title className='text-center'>404</Card.Title>
                         <Card.Text>
                             This is the 404 screen. Cool!     
                         </Card.Text>

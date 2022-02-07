@@ -20,7 +20,7 @@ class MafSiteNavbar extends React.Component {
 
     render() {
         return (
-            <div>            
+            <>            
                 <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
                     <Nav>
                             <Navbar.Brand as={Link} to="/">MERN Mafia</Navbar.Brand>         
@@ -42,7 +42,7 @@ class MafSiteNavbar extends React.Component {
                 </Navbar>
                 
                 <Outlet/>
-            </div>
+            </>
         )
     }
 }

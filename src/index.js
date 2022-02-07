@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 
 import reportWebVitals from './reportWebVitals';
 import MafSiteNavbar from './components/MafSiteNavbar';
@@ -11,6 +11,12 @@ import FourOFour from './components/FourOFour';
 import FAQPage from './components/FAQPage';
 import SettingPage from './components/SettingPage';
 import PlayPage from './components/PlayPage'
+
+/* const socket=io('http://localhost:5000');
+
+socket.on('connect', () => {
+  console.log('You connected to the socket with ID ' + socket.id);
+}) */
 
 ReactDOM.render(
   <React.StrictMode>
