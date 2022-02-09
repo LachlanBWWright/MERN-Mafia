@@ -7,7 +7,8 @@ class Room extends React.Component {
         super(props); //Needed to call React.Components constructor
 
         this.state = {
-            textMessage: ''
+            textMessage: '',
+            messages: []
         };
 
         this.changeText = this.changeText.bind(this);
@@ -17,17 +18,15 @@ class Room extends React.Component {
     render() {
         return (
             <>
-                <div style={{height: '75vh', overflowY: 'scroll'}}>
-                    {/* Insert messages here */}
-                    <p>Chat log goes here!</p>
-                    <p>Chat log goes here!</p>
+                <div style={{height: '65vh', overflowY: 'scroll'}}>
+                    {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}  
                 </div>
                 <hr></hr>
                 <Form>
                     <Container fluid>
                         <Row className="justify-content-xl-center" xs="auto">
                             <Col md={8}>
-                                <Form.Control onChange={this.changeText}/>
+                                <Form.Control value={this.state.textMessage} onChange={this.changeText} />
                             </Col>
                             <Col md={2}>
                                 <Button variant='danger' onClick={this.sendMessage} className="btn-block">Submit</Button> 
@@ -42,14 +41,13 @@ class Room extends React.Component {
 
     changeText(event) {
         this.setState({textMessage: event.target.value})
-        //console.log('Changed text: ' + this.state.textMessage)
-        
+        //console.log('Changed text: ' + this.state.textMessage)  
     }
 
     sendMessage() {
-        console.log('Input: ' + this.state.textMessage)
-        console.log('Message sent.');
-        socket.emit('messageSentByUser', this.state.textMessage);
+        this.setState({messages: [...this.state.messages, this.state.textMessage]}); //Append to the messages array
+        socket.emit('messageSentByUser', this.state.textMessage); //Sends to server
+        this.setState({textMessage: ''})
     }
 
     componentDidMount() {
@@ -57,6 +55,11 @@ class Room extends React.Component {
             console.log('You connected to the socket with ID ' + socket.id);
           })
         
+        socket.on('receive-message', (inMsg) => {
+            console.log('Message recieved: ' + inMsg);
+            this.setState({messages: [...this.state.messages, inMsg]});
+        })
+
     }
 }
 
