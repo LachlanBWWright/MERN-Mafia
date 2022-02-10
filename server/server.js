@@ -3,12 +3,19 @@ import express from 'express';
 import cors from 'cors';
 import {Server} from 'socket.io';
 import {createServer} from 'http';
+import Room from './model/rooms/room.js';
 
-import auth from './routes/auth.js';
-
+//Server setup
 const port = process.env.PORT;
 const app = express();
 app.use(cors());
+
+//Gameplay objects
+var roomList = [];
+for(let i = 0; i < 10; i++) {
+    console.log('Creating a room!');
+    roomList.push(new Room(10));
+}
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -35,6 +42,15 @@ app.get('/backend_test', (req, res) => {
     res.send('Hi!');
 })
 
+/* 
+ROOMS
+ */
+
+app.get('/getRooms', (req, res) => {
+    console.log(roomList.length + ' ' + JSON.stringify(roomList));
+    res.json(roomList);
+    //res.send(JSON.stringify(roomList))
+});
 
 httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);

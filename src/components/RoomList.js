@@ -6,7 +6,7 @@ class RoomList extends React.Component {
         super(props);
 
         this.state = {
-            roomlist: []
+            roomList: []
         }
 
         this.setRoom = this.setRoom.bind(this);
@@ -16,6 +16,9 @@ class RoomList extends React.Component {
         return (
             <ListGroup>
                 {/*      {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)} */}
+
+                {this.state.roomList && this.state.roomList.map(room => <ListGroup.Item>{{/* Placeholder */}}</ListGroup.Item>)}
+
                 <ListGroup.Item onClick={this.setRoom} action >
                     Link 1
                 </ListGroup.Item>
@@ -30,6 +33,12 @@ class RoomList extends React.Component {
     //Get the list of open rooms from the server
     componentDidMount() {
         console.log('Mounted!');
+        //fetch('/backend_test')
+
+        fetch('/getRooms')
+            .then(res => res.json())
+            .then(res => console.log('Test: ' + JSON.stringify(res)))
+            
     }
 
     setRoom(event) {
