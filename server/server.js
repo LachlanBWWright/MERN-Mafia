@@ -47,7 +47,7 @@ ROOMS
  */
 
 app.get('/getRooms', (req, res) => {
-    console.log(roomList.length + ' ' + JSON.stringify(roomList));
+    console.log(roomList.length + '\n ' + JSON.stringify(roomList));
     res.json(roomList);
     //res.send(JSON.stringify(roomList))
 });

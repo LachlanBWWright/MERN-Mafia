@@ -6,6 +6,7 @@ class RoomList extends React.Component {
         super(props);
 
         this.state = {
+            dataLoading: true,
             roomList: []
         }
 
@@ -15,30 +16,30 @@ class RoomList extends React.Component {
     render() {
         return (
             <ListGroup>
-                {/*      {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)} */}
-
-                {this.state.roomList && this.state.roomList.map(room => <ListGroup.Item>{{/* Placeholder */}}</ListGroup.Item>)}
-
-                <ListGroup.Item onClick={this.setRoom} action >
-                    Link 1
-                </ListGroup.Item>
-                <ListGroup.Item onClick={this.setRoom} action>
-                    Link 2
-                </ListGroup.Item>
-
+                { this.state.dataLoading ? 
+                    <p>Loading</p> 
+                : 
+                    this.state.roomList.map((room, index) => {
+                        return(
+                            
+                            <ListGroup.Item key={index}>
+                            Room Capacity: {room.size} | People In Room: {room.playerCount}
+                            </ListGroup.Item>
+                        )
+                    })}
             </ListGroup>
         )
     }
 
     //Get the list of open rooms from the server
-    componentDidMount() {
-        console.log('Mounted!');
-        //fetch('/backend_test')
-
-        fetch('/getRooms')
-            .then(res => res.json())
-            .then(res => console.log('Test: ' + JSON.stringify(res)))
-            
+    async componentDidMount() {
+        let response = await fetch('/getRooms');
+        let data = await response.json();
+        console.log('Number of rooms found: ' + data.length);
+        console.log('Sample data:' + data[9].size)
+        await this.setState({roomList: data})
+        await this.setState({dataLoading: false})
+        
     }
 
     setRoom(event) {
