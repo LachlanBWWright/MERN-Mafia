@@ -21,9 +21,10 @@ class RoomList extends React.Component {
                 : 
                     this.state.roomList.map((room, index) => {
                         return(
-                            
-                            <ListGroup.Item key={index}>
-                            Room Capacity: {room.size} | People In Room: {room.playerCount}
+                            room.playerCount !== room.size //Stop full rooms from appearing
+                            &&
+                            <ListGroup.Item key={index} action onClick={() => this.setRoom(room.name)}>
+                            Room Name: {room.name} | Room Capacity: {room.size} | People In Room: {room.playerCount}
                             </ListGroup.Item>
                         )
                     })}
@@ -36,14 +37,14 @@ class RoomList extends React.Component {
         let response = await fetch('/getRooms');
         let data = await response.json();
         console.log('Number of rooms found: ' + data.length);
-        console.log('Sample data:' + data[9].size)
         await this.setState({roomList: data})
         await this.setState({dataLoading: false})
         
     }
 
-    setRoom(event) {
-        console.log('Room set!')
+    setRoom(roomName) {
+        console.log('Room set with name ' + roomName);
+        this.props.setRoom(roomName)
     }
 }
 

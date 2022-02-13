@@ -11,6 +11,8 @@ class Room extends React.Component {
             messages: []
         };
 
+        //this.props.playerName, this.props.playerRoom
+
         this.changeText = this.changeText.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
     }
@@ -22,7 +24,7 @@ class Room extends React.Component {
                     {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}  
                 </div>
                 <hr></hr>
-                <Form>
+                <Form onSubmit={e => e.preventDefault()}>
                     <Container fluid>
                         <Row className="justify-content-xl-center" xs="auto">
                             <Col md={8}>
@@ -45,8 +47,10 @@ class Room extends React.Component {
     }
 
     sendMessage() {
-        this.setState({messages: [...this.state.messages, this.state.textMessage]}); //Append to the messages array
-        socket.emit('messageSentByUser', this.state.textMessage); //Sends to server
+        this.setState({messages: [...this.state.messages, this.props.playerName + ': ' + this.state.textMessage]}); //Append to the messages array
+        socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
+        console.log('Playername: ' + this.props.playerName + ' Player Room: ' + this.props.playerRoom)
+        //playerName={this.state.playerName} playerRoom={this.state.playerRoom}
         this.setState({textMessage: ''})
     }
 
@@ -59,6 +63,9 @@ class Room extends React.Component {
             console.log('Message recieved: ' + inMsg);
             this.setState({messages: [...this.state.messages, inMsg]});
         })
+
+        console.log('Joining a room');
+        socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom);
 
     }
 }
