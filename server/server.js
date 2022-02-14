@@ -25,10 +25,10 @@ for(let i = 0; i < 3; i++) {
 }
 
 io.on('connection', socket => {
-    //Handle users sending a chat message TODO: Move this funciton to the room class
+    //Handle users sending a chat message 
     socket.on('messageSentByUser', (message, name, room) => {
         console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
-        io.to(room).emit('receive-message', (name + ': ' + message));
+        roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message)
     });
 
     //Handle players joining a room

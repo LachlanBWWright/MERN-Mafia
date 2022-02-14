@@ -1,6 +1,8 @@
-class Innocent {
-    constructor() {
-        this.name = 'Innocent';
+import Role from './role.js'
+
+class Innocent extends Role {
+    constructor(io) {
+        super('Innocent', 'InnoDesc', io);
     }
 }
 

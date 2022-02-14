@@ -37,13 +37,37 @@ class Room {
         if(this.playerCount === this.size) {
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
+
+            //List all the players in the game.
+            let playerAnnounce = 'The list of living players is: ';
+
             this.io.to(this.name).emit('receive-message', 'The list of living players is: TBA'); //TODO: List players
             this.startGame();
         }
     }
 
+    //Handles users sending messages to the chat 
+    //TODO: Add support for commands
+    handleSentMessage(playerSocketId, message) {
+        let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId)
+        try {
+            if(this.started) { //If the game has started, handle the message with the role object
+                console.log('Handle sent message test');
+                if(foundPlayer.role.isAlive) {
+                    this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message));
+                }
+            }
+            else { //If the game hasn't started, no roles have been assigned, just send the message directly
+                this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message));
+            }
+        }
+        catch {
+            console.log('Something went wrong')
+        }
+    }
+
     startGame() {
-        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame'); //TODO: Make the game type a part of the constructor
+        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this.io);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
         
         //Announces the roles in the game to the chat window
@@ -63,9 +87,13 @@ class Room {
 
             [this.roleList[currentIndex], this.roleList[randomIndex]] = [this.roleList[randomIndex], this.roleList[currentIndex]];
         }
-        //console.log(JSON.stringify(this.roleList));
-
+       
         //Allocates the shuffled rolelist to users
+        for(let i = 0; i < this.playerList.length ; i++) {
+            this.playerList[i].role = this.roleList[i]; //Assigns the role to the player
+            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)) //Sends each player their role
+        }
+        //console.log(JSON.stringify(this.playerList));
     }
 
 }
