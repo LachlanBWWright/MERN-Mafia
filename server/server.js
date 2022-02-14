@@ -36,7 +36,7 @@ io.on('connection', socket => {
     socket.on('playerJoinRoom', (name, room) => {
         console.log('Joining: ' + name + ' ' + room);
         socket.join(room); //Joins room, messages will be received accordingly
-        roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name, room)
+        roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name)
     });
     
     //TODO: Handle users disconnecting
