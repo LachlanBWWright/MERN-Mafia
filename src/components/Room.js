@@ -24,7 +24,7 @@ class Room extends React.Component {
                     {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}  
                 </div>
                 <hr></hr>
-                <Form onSubmit={e => e.preventDefault()}>
+                <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
                     <Container fluid>
                         <Row className="justify-content-xl-center" xs="auto">
                             <Col md={8}>
@@ -47,11 +47,8 @@ class Room extends React.Component {
     }
 
     sendMessage() {
-        this.setState({messages: [...this.state.messages, this.props.playerName + ': ' + this.state.textMessage]}); //Append to the messages array
         socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
-        console.log('Playername: ' + this.props.playerName + ' Player Room: ' + this.props.playerRoom)
-        //playerName={this.state.playerName} playerRoom={this.state.playerRoom}
-        this.setState({textMessage: ''})
+        this.setState({textMessage: ''}) //Clears the text box
     }
 
     componentDidMount() {
