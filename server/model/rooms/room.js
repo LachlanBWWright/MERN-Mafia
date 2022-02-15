@@ -1,8 +1,6 @@
 import Crypto from 'crypto';
 import RoleHandler from '../roles/roleHandler.js'
 
-//TODO: Create player as a class? (Maybe?)
-
 class Room {
     constructor(size, io) {
         //SocketIo
@@ -13,23 +11,30 @@ class Room {
         this.size = size; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
-        
+            //player.socketId, player.playerUsername, player.role
+
         //Data relating to the state of the game.
         this.started = false; //Records if the game has started (So it can't be joined)
         this.time = ''; //The time of day (Night, day, voting period)
         this.roleList = []; //List of role ES6 classes
     }
 
+    //Adds a new player to the room, and makes the game start if it is full
     addPlayer(playerSocketId, playerUsername) {
-        if(this.playerCount === this.size) {
-            return false; //Sends error if the room is full TODO: Make server.js use the return
-        }
-
-        this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
-
         let player = {};
         player.socketId = playerSocketId;
         player.playerUsername = playerUsername;
+
+        //Stops the user from being added if they have the same username or socketId, or if the room is full
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
+                return;
+            }
+        }
+
+        this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
+        
+
         this.playerList.push(player); //Adds a player to the array
         console.log('Player Added! Socket ID: ' + playerSocketId + ' Player Name: ' + playerUsername + ' ' + JSON.stringify(player));
         
@@ -40,10 +45,22 @@ class Room {
 
             //List all the players in the game.
             let playerAnnounce = 'The list of living players is: ';
+            for(let i = 0; i < this.playerList.length - 1; i++) {
+                playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
+            }
+            playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
+            this.io.to(this.name).emit('receive-message', playerAnnounce); 
 
-            this.io.to(this.name).emit('receive-message', 'The list of living players is: TBA'); //TODO: List players
             this.startGame();
         }
+    }
+
+    isInRoom(playerSocketId) {
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].socketId === playerSocketId)
+            return true;
+        }
+        return false;
     }
 
     //Handles users sending messages to the chat 
@@ -51,10 +68,15 @@ class Room {
     handleSentMessage(playerSocketId, message) {
         let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId)
         try {
+            //TODO: Add support for help/block commands (starting with '?') as the first if-check
             if(this.started) { //If the game has started, handle the message with the role object
                 console.log('Handle sent message test');
                 if(foundPlayer.role.isAlive) {
+                    //TODO: Add support for role commands
                     this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message));
+                }
+                else {
+                    this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead.')
                 }
             }
             else { //If the game hasn't started, no roles have been assigned, just send the message directly
@@ -84,7 +106,6 @@ class Room {
         while (currentIndex != 0) {
             randomIndex = Math.floor(Math.random() * currentIndex)  //Math.floor truncates to make integers (5.99 => 5)
             currentIndex--;
-
             [this.roleList[currentIndex], this.roleList[randomIndex]] = [this.roleList[randomIndex], this.roleList[currentIndex]];
         }
        
@@ -93,9 +114,7 @@ class Room {
             this.playerList[i].role = this.roleList[i]; //Assigns the role to the player
             this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)) //Sends each player their role
         }
-        //console.log(JSON.stringify(this.playerList));
     }
-
 }
 
 export default Room

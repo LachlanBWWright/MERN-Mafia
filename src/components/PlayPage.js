@@ -22,6 +22,8 @@ class PlayPage extends React.Component {
         this.handleRoomChange = this.handleRoomChange.bind(this);
     }
 
+    //TODO: Call server, check if the player is already in an existing room, and render it
+
     changeText(event) { //Updates so that whatever is in the textbox is accurately recorded
         this.setState({playerNameBox: event.target.value})      
     }
@@ -36,14 +38,13 @@ class PlayPage extends React.Component {
         this.setState({playerNameBox: ''});
     }
     render() {
-        //TODO: Conditional rendering for name and room showcases
         if(this.state.playerName && this.state.playerRoom !== '') { /* Shows the room if a name and room has been selected */
             return (
                 <div style={{padding: '2vh', width: '30 rem'}}>
                     <Card>
                         <Card.Body>
                             <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}.</Card.Text>
-                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom}/> {/*TODO - Pass necessary params down to the room*/} 
+                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setRoom={this.handleRoomChange}/> {/*TODO - Pass necessary params down to the room*/} 
                         </Card.Body>
                     </Card>
                 </div>  

@@ -32,11 +32,16 @@ io.on('connection', socket => {
     });
 
     //Handle players joining a room
-    //TODO: Give an error if the room is full
-    socket.on('playerJoinRoom', (name, room) => {
+    socket.on('playerJoinRoom', (name, room, cb) => {
         console.log('Joining: ' + name + ' ' + room);
         socket.join(room); //Joins room, messages will be received accordingly
-        roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name)
+        try {
+            roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
+            cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
+        }
+        catch {
+            cb(false); //If a room isn't found, socketio tries to callback null.
+        }
     });
     
     //TODO: Handle users disconnecting

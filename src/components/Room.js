@@ -64,8 +64,15 @@ class Room extends React.Component {
             this.setState({messages: [...this.state.messages, inMsg]});
         })
 
+        //TODO: Make callback take the user back to the room select page
         console.log('Joining a room');
-        socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom);
+        socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, callback => {
+            console.log(callback)
+            if(!callback) {
+                console.log('callback: ' + callback)
+                this.props.setRoom('');
+            }
+        });
 
     }
 }
