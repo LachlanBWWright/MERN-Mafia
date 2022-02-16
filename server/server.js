@@ -28,8 +28,11 @@ io.on('connection', socket => {
     //Handle users sending a chat message 
     socket.on('messageSentByUser', (message, name, room) => {
         try {
-            console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
-            roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message)
+            if(message.length > 0 && message.length <= 150) {
+                console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
+                roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message);
+            }
+
         }
         catch (error) {
             console.log(error);
@@ -38,13 +41,16 @@ io.on('connection', socket => {
     });
 
     //Handle players joining a room
-    socket.on('playerJoinRoom', (name, room, cb) => {
-        console.log('Joining: ' + name + ' ' + room);
-        socket.join(room); //Joins room, messages will be received accordingly
+    socket.on('playerJoinRoom', (name, room, cb) => {  
         try {
-            roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
-            cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
-            socket.data.roomName = room; //Stores the name of the room for handling disconnects
+            name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '');
+            if(name.length >=3 && name.length <= 12) {  
+                console.log('Joining: ' + name + ' ' + room);
+                socket.join(room); //Joins room, messages will be received accordingly
+                roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
+                cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
+                socket.data.roomName = room; //Stores the name of the room for handling disconnects
+            }
         }
         catch {
             cb(false); //If a room isn't found, socketio tries to callback null.
