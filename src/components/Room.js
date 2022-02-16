@@ -28,7 +28,7 @@ class Room extends React.Component {
                     <Container fluid>
                         <Row className="justify-content-xl-center" xs="auto">
                             <Col md={8}>
-                                <Form.Control value={this.state.textMessage} onChange={this.changeText} />
+                                <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
                             </Col>
                             <Col md={2}>
                                 <Button variant='danger' onClick={this.sendMessage} className="btn-block">Submit</Button> 
@@ -47,7 +47,7 @@ class Room extends React.Component {
     }
 
     sendMessage() {
-        if(this.state.textMessage.length > 0) {
+        if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
             socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
             this.setState({textMessage: ''}) //Clears the text box
         }

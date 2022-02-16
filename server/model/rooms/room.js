@@ -2,7 +2,7 @@ import Crypto from 'crypto';
 import RoleHandler from '../roles/roleHandler.js'
 
 class Room {
-    constructor(size, io) {
+    constructor(size, io, roomType) {
         //SocketIo
         this.io = io;
 
@@ -17,7 +17,8 @@ class Room {
         this.started = false; //Records if the game has started (So it can't be joined)
         this.time = ''; //The time of day (Night, day, voting period)
         this.roleList = []; //List of role ES6 classes
-    }
+        this.roomType = roomType //The type of the game (Determines the roles used)
+        }
 
     //Adds a new player to the room, and makes the game start if it is full
     addPlayer(playerSocketId, playerUsername) {
@@ -25,7 +26,7 @@ class Room {
         player.socketId = playerSocketId;
         player.playerUsername = playerUsername;
 
-        //Stops the user from being added if they have the same username or socketId, or if the room is full
+        //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
                 return;
@@ -33,13 +34,14 @@ class Room {
         }
 
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
-        
-
         this.playerList.push(player); //Adds a player to the array
         console.log('Player Added! Socket ID: ' + playerSocketId + ' Player Name: ' + playerUsername + ' ' + JSON.stringify(player));
-        
         this.playerCount = Object.keys(this.playerList).length; //Updates the player count
+        
+        //Starts the game if the room has filled its maximum size
         if(this.playerCount === this.size) {
+            //TODO: Purge players that do not have an active connection, and abort. (Made less necessary by disconnect functionality)
+
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
 
@@ -55,10 +57,21 @@ class Room {
         }
     }
 
+    //Handles a player being removed if they've disconnected
+    removePlayer(playerSocketId) {
+        console.log('Disconnect Test');
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].socketId === playerSocketId) {
+                this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
+                this.playerList.splice(i, 1); //This should remove the player from the array
+            }
+        }
+    }
+
     isInRoom(playerSocketId) {
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId)
-            return true;
+                return true;
         }
         return false;
     }
@@ -88,8 +101,8 @@ class Room {
         }
     }
 
-    startGame() {
-        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this.io);
+    async startGame() {
+        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
         
         //Announces the roles in the game to the chat window

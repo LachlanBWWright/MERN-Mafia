@@ -34,8 +34,13 @@ class PlayPage extends React.Component {
     }
     
     setName() { //Changes the state to reflect the selected name
-        this.setState({playerName: this.state.playerNameBox});
-        this.setState({playerNameBox: ''});
+        let name = this.state.playerNameBox;
+        name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '') //Regex - Find all chars that arent a-z, A-Z, and replace with '' (nothing). 
+        console.log('Test' + name)
+        if(name.length >= 3 && name.length <= 12) { //Make sure that the name only contains characters, and is between 3-12 letters long
+            this.setState({playerName: name});
+            this.setState({playerNameBox: ''});
+        }
     }
     render() {
         if(this.state.playerName && this.state.playerRoom !== '') { /* Shows the room if a name and room has been selected */
@@ -63,8 +68,8 @@ class PlayPage extends React.Component {
                                 </>
                             :        
                                 <Form onSubmit={e => e.preventDefault()}> {/* Stops the page from refreshing if user hits enter while typing*/}
-                                    <Card.Text>Enter Your Name</Card.Text>
-                                    <Form.Control value={this.state.playerNameBox} onChange={this.changeText} />
+                                    <Card.Text>Enter Your Name: (3-12 lowercase letters only. Numbers, symbols, and spaces will be removed.)</Card.Text>
+                                    <Form.Control value={this.state.playerNameBox} onChange={this.changeText} minLength={3} maxLength={12}/>
                                     <Button variant='danger' onClick={this.setName} className="btn-block">Set Name</Button>
                                 </Form>
                             }                  

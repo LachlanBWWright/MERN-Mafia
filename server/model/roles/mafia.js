@@ -1,8 +1,8 @@
 import Role from './role.js'
 
 class Mafia extends Role {
-    constructor(io) {
-        super('Mafia', 'MafiaDesc', io)
+    constructor(room) {
+        super('Mafia', 'MafiaDesc', room)
     }
 }
 

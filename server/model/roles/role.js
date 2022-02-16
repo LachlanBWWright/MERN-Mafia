@@ -1,10 +1,10 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, description, io) {
+    constructor(name, description, room) {
         this.name = name; //Name of the role
         this.description = description; //Description of the role
-        this.io = io; //io for SocketIo emitting
+        this.room = room; //io for SocketIo emitting
         this.isAlive = true;
     }
 

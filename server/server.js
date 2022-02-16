@@ -21,14 +21,20 @@ const io = new Server(httpServer, {
 var roomList = [];
 for(let i = 0; i < 3; i++) {
     console.log('Creating a room!');
-    roomList.push(new Room(4, io));
+    roomList.push(new Room(4, io, 'vanillaGame'));
 }
 
 io.on('connection', socket => {
     //Handle users sending a chat message 
     socket.on('messageSentByUser', (message, name, room) => {
-        console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
-        roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message)
+        try {
+            console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
+            roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message)
+        }
+        catch (error) {
+            console.log(error);
+        }
+
     });
 
     //Handle players joining a room
@@ -38,13 +44,25 @@ io.on('connection', socket => {
         try {
             roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
             cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
+            socket.data.roomName = room; //Stores the name of the room for handling disconnects
         }
         catch {
             cb(false); //If a room isn't found, socketio tries to callback null.
         }
     });
     
-    //TODO: Handle users disconnecting
+    //Handles users disconnecting from a room
+    socket.on('disconnect', (reason => {
+        console.log(socket.data.roomName);
+        try {
+            if(socket.data.roomName != undefined) {
+                roomList.find(foundRoom => foundRoom.name===socket.data.roomName).removePlayer(socket.id); //Finds the room, tells it to disconnect the user
+            }
+        }
+        catch (error) {
+            console.log('Disconnect error: ' + error);
+        }
+    }));
 })
 
 app.get('/', (req, res) => {
