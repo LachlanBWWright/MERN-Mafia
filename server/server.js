@@ -37,7 +37,6 @@ io.on('connection', socket => {
         catch (error) {
             console.log(error);
         }
-
     });
 
     //Handle players joining a room

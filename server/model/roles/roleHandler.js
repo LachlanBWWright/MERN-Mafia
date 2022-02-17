@@ -5,10 +5,9 @@ import Mafia from './mafia.js';
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
-    constructor(roomSize, roomType, room) { //TODO: Remove roomSize, roomType, get values from room object
+    constructor(roomSize, roomType) { //TODO: Remove roomSize, roomType, get values from room object
         this.roomSize = roomSize;
         this.roomType = roomType; //Records the type of game that is going to be played
-        this.room = room; //Socketroom
     }
 
     assignGame() {
@@ -23,21 +22,21 @@ class RoleHandler {
         let roleList = []; //The array of roles to be returned to the room object roleList.push;
 
         switch(roomSize) {
-            case 15: roleList.push(new Mafia(this.room));
-            case 14: roleList.push(new Innocent(this.room));
-            case 13: roleList.push(new Innocent(this.room));
-            case 12: roleList.push(new Innocent(this.room)); 
-            case 11: roleList.push(new Mafia(this.room));
-            case 10: roleList.push(new Innocent(this.room)); 
-            case 9: roleList.push(new Innocent(this.room));
-            case 8: roleList.push(new Innocent(this.room));
-            case 7: roleList.push(new Mafia(this.room));
-            case 6: roleList.push(new Innocent(this.room));
-            case 5: roleList.push(new Innocent(this.room));
-            case 4: roleList.push(new Innocent(this.room));
-            case 3: roleList.push(new Innocent(this.room));
-            case 2: roleList.push(new Mafia(this.room));
-            case 1: roleList.push(new Innocent(this.room));
+            case 15: roleList.push(Mafia);
+            case 14: roleList.push(Innocent);
+            case 13: roleList.push(Innocent);
+            case 12: roleList.push(Innocent); 
+            case 11: roleList.push(Mafia);
+            case 10: roleList.push(Innocent); 
+            case 9: roleList.push(Innocent);
+            case 8: roleList.push(Innocent);
+            case 7: roleList.push(Mafia);
+            case 6: roleList.push(Innocent);
+            case 5: roleList.push(Innocent);
+            case 4: roleList.push(Innocent);
+            case 3: roleList.push(Innocent);
+            case 2: roleList.push(Mafia);
+            case 1: roleList.push(Innocent);
                 break;
             default:
                 console.log('Something went wrong with the room generator!');
