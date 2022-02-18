@@ -62,15 +62,12 @@ class Room extends React.Component {
           })
         
         socket.on('receive-message', (inMsg) => {
-            console.log('Message recieved: ' + inMsg + 'and ' + this.scrollRef.current.scrollHeight + ' ' + this.scrollRef.current.scrollTop + ' ' + this.scrollRef.current.clientHeight);
-            //Scrollheight - Total height of the entire object
-            //scrolltop - How far the user is scrolled down
-            //Clientheight - The height of the div for the client
-            //E.G if clientheight is 1000, the scrollheight is 1250, and the client has scrolled all the way down, scrolltop is 250
-            this.setState({messages: [...this.state.messages, inMsg]});
+            this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
 
-            //Scroll the text window?
-            
+            //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
+            if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
+                this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
+            }
         })
 
         //TODO: Make callback take the user back to the room select page
@@ -78,6 +75,7 @@ class Room extends React.Component {
         socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, callback => {
             console.log(callback)
             if(!callback) {
+                //TODO: Tell the user why their attempt to join failed
                 console.log('callback: ' + callback)
                 this.props.setRoom('');
             }
