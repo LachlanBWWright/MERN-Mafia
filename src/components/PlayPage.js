@@ -35,7 +35,7 @@ class PlayPage extends React.Component {
     
     setName() { //Changes the state to reflect the selected name
         let name = this.state.playerNameBox;
-        name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '') //Regex - Find all chars that arent a-z, A-Z, and replace with '' (nothing). 
+        name = name.toLowerCase().replace(/[^a-zA-Z]+/g, ''); //Regex - Find all chars that arent a-z, A-Z, and replace with '' (nothing). 
         console.log('Test' + name)
         if(name.length >= 3 && name.length <= 12) { //Make sure that the name only contains characters, and is between 3-12 letters long
             this.setState({playerName: name});
