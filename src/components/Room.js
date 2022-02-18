@@ -11,17 +11,19 @@ class Room extends React.Component {
             messages: []
         };
 
-        //this.props.playerName, this.props.playerRoom
-
         this.changeText = this.changeText.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
+
+        this.scrollRef = React.createRef(); //React reference
     }
 
+    //TODO: Scrolling
     render() {
         return (
             <>
-                <div style={{height: '65vh', overflowY: 'scroll'}}>
-                    {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}  
+                <div style={{height: '65vh', overflowY: 'scroll'}} ref={this.scrollRef}>
+                    {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}
+                    
                 </div>
                 <hr></hr>
                 <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
@@ -60,8 +62,15 @@ class Room extends React.Component {
           })
         
         socket.on('receive-message', (inMsg) => {
-            console.log('Message recieved: ' + inMsg);
+            console.log('Message recieved: ' + inMsg + 'and ' + this.scrollRef.current.scrollHeight + ' ' + this.scrollRef.current.scrollTop + ' ' + this.scrollRef.current.clientHeight);
+            //Scrollheight - Total height of the entire object
+            //scrolltop - How far the user is scrolled down
+            //Clientheight - The height of the div for the client
+            //E.G if clientheight is 1000, the scrollheight is 1250, and the client has scrolled all the way down, scrolltop is 250
             this.setState({messages: [...this.state.messages, inMsg]});
+
+            //Scroll the text window?
+            
         })
 
         //TODO: Make callback take the user back to the room select page

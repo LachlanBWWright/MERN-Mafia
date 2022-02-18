@@ -1,8 +1,8 @@
 import Role from './role.js'
 
 class Innocent extends Role {
-    constructor(room) {
-        super('Innocent', 'InnoDesc', 'You are innocent!', room);
+    constructor(room, player) {
+        super('Innocent', 'InnoDesc', 'You are innocent!', room, player, 0);
     }
 }
 

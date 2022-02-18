@@ -1,5 +1,6 @@
 import Crypto from 'crypto';
 import RoleHandler from '../roles/roleHandler.js'
+import Player from './player.js'
 
 class Room {
     constructor(size, io, roomType) {
@@ -23,20 +24,16 @@ class Room {
 
     //Adds a new player to the room, and makes the game start if it is full
     addPlayer(playerSocketId, playerUsername) {
-        let player = {};
-        player.socketId = playerSocketId;
-        player.playerUsername = playerUsername;
-
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
+            console.log('Loop')
             if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
                 return;
             }
         }
 
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
-        this.playerList.push(player); //Adds a player to the array
-        console.log('Player Added! Socket ID: ' + playerSocketId + ' Player Name: ' + playerUsername + ' ' + JSON.stringify(player));
+        this.playerList.push(/* player */new Player(playerSocketId, playerUsername)); //Adds a player to the array TODO: Rollback this if game is broken
         this.playerCount = Object.keys(this.playerList).length; //Updates the player count
         
         //Starts the game if the room has filled its maximum size
@@ -70,9 +67,22 @@ class Room {
     }
 
     isInRoom(playerSocketId) {
+        //console.log('Test');
         for(let i = 0; i < this.playerList.length; i++) {
-            if(this.playerList[i].socketId === playerSocketId)
+            console.log('Test');
+            console.log(  this.playerList[i] + ' ' + this.playerList[i].socketId + ' ' + playerSocketId)
+            if(this.playerList[i].socketId == playerSocketId)
                 return true;
+        }
+        return false;
+    }
+
+    getPlayerByUsername(playerUsername) {
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].playerUsername == playerUsername) {
+                console.log('Player found by username ' + this.playerList[i].playerUsername)
+                return this.playerList[i];
+            }      
         }
         return false;
     }
@@ -83,15 +93,18 @@ class Room {
             let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId);
             if(this.started) { //If the game has started, handle the message with the role object
                 console.log('Handle sent message test');
-                if(foundPlayer.role.isAlive) {
+                if(foundPlayer.isAlive) {
                     //TODO: Add support for role commands
                     if(message.charAt(0) == '?') {  //Starts with a ? - Help Command
                         this.io.to(playerSocketId).emit('receive-message', foundPlayer.role.helpText);
                     }
                     //Starts with a / - Whisper/Role Command
                     else if(message.charAt(0) == '/') {
+                        if(message.charAt(1) == 'w' || message.charAt(1) == 'W') {
+                            foundPlayer.role.handlePrivateMessage(message);
+                        }
                         console.log('Command test');
-                        this.io.to(playerSocketId).emit('receive-message', 'You have used a role command');
+                        //this.io.to(playerSocketId).emit('receive-message', 'You have used a role command');
                     }
                     //Doesn't start with either - send as a regular message
                     else { //TODO: Use role's messaging function instead
@@ -109,8 +122,8 @@ class Room {
                 this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message));
             }
         }
-        catch {
-            console.log('Something went wrong')
+        catch (error) {
+            console.log('Something went wrong ' + error)
         }
     }
 
@@ -137,7 +150,7 @@ class Room {
        
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
-            this.playerList[i].role = new this.roleList[i](this); //Assigns the role to the player (this.roleList[i] is an ES6 class)
+            this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
             this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)) //Sends each player their role
         }
 
