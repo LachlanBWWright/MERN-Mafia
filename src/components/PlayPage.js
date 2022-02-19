@@ -67,9 +67,10 @@ class PlayPage extends React.Component {
                                     <RoomList setRoom={this.handleRoomChange}/>
                                 </>
                             :        
-                                <Form onSubmit={e => e.preventDefault()}> {/* Stops the page from refreshing if user hits enter while typing*/}
+                                <Form onSubmit={e => {e.preventDefault(); this.setName()}}> {/* Stops the page from refreshing if user hits enter while typing*/}
                                     <Card.Text>Enter Your Name: (3-12 lowercase letters only. Numbers, symbols, and spaces will be removed.)</Card.Text>
                                     <Form.Control value={this.state.playerNameBox} onChange={this.changeText} minLength={3} maxLength={12}/>
+                                    <hr></hr>
                                     <Button variant='danger' onClick={this.setName} className="btn-block">Set Name</Button>
                                 </Form>
                             }                  

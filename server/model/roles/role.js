@@ -1,10 +1,11 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, description, helpText, room, player, baseDefence) {
+    constructor(name, description, group, helpText, room, player, baseDefence) {
         //Text info
         this.name = name; //Name of the role
         this.description = description; //Description of the role
+        this.group = group; //group for determining group-actions / group night chats / Ending the game
         this.helpText = helpText; //Role info that is sent when the player sends a help command
 
         //Classes
@@ -18,8 +19,19 @@ class Role {
 
     }
 
+    assignFaction(faction) { //Assigns the player a faction class
+        this.faction = faction;
+    }
+
+    //Handles sending general message
     handleMessage(message) {
-        this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
+        if(this.room.time == 'day') { //Free speaking only at daytime
+            this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
+        }
+        else { //Night chat options for different roles.
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
+        }
+        
     }
 
     handlePrivateMessage(message, recipient) { //Message string, recipient's class
@@ -43,7 +55,14 @@ class Role {
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient.');
         }
+    }
 
+    handleDayAction(message) { //Handles the class' daytime action
+        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no daytime action');
+    }
+
+    handleNightAction(message) { //Handles the class' nighttime action
+        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no nighttime action');
     }
 }
 

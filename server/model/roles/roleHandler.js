@@ -2,10 +2,12 @@
 import Innocent from './innocent.js';
 import Mafia from './mafia.js';
 
+//Imports all the factions used
+import MafiaFaction from '../factions/mafiaFaction.js'
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
-    constructor(roomSize, roomType) { //TODO: Remove roomSize, roomType, get values from room object
+    constructor(roomSize, roomType) {
         this.roomSize = roomSize;
         this.roomType = roomType; //Records the type of game that is going to be played
     }
@@ -13,6 +15,13 @@ class RoleHandler {
     assignGame() {
         if(this.roomType == 'vanillaGame')  {
             return this.assignVanillaGame(this.roomSize);
+        }
+        else if(this.roomType == 'someOtherType') console.log('Test') //TODO: Remove this sample
+    }
+
+    assignFactions() {
+        if(this.roomType == 'vanillaGame')  {
+            return this.assignVanillaGameFactions(this.roomSize);
         }
         else if(this.roomType == 'someOtherType') console.log('Test') //TODO: Remove this sample
     }
@@ -39,9 +48,35 @@ class RoleHandler {
             case 1: roleList.push(Innocent);
                 break;
             default:
-                console.log('Something went wrong with the room generator!');
+                console.log('Role Assignment Error.');
         }
         return roleList;
+    }
+
+    assignVanillaGameFactions(roomSize) {
+        let factionList = []; //The array of roles to be returned to the room object factionList.push;
+
+        switch(roomSize) {
+            case 15: 
+            case 14:
+            case 13: 
+            case 12: 
+            case 11: 
+            case 10: 
+            case 9: 
+            case 8: 
+            case 7: 
+            case 6: 
+            case 5: 
+            case 4: 
+            case 3:
+            case 2: factionList.push(new MafiaFaction());
+                break;
+            case 1:
+            default:
+                console.log('Faction Assignment Error.');        
+            }
+        return factionList;
     }
 }
 

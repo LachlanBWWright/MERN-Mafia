@@ -18,6 +18,7 @@ class Room {
         this.started = false; //Records if the game has started (So it can't be joined)
         this.time = ''; //The time of day (Night, day)
         this.roleList = []; //List of role ES6 classes
+        this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
         this.roomType = roomType //The type of the game (Determines the roles used)
         this.sessionLength = 60000 //How long the days/nights initially last for. Decreases over time, with nights at half the length of days
         }
@@ -42,12 +43,16 @@ class Room {
 
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
-
+            this.io.to(this.name).emit('receive-message', 'Send \"?\" in chat to view help for your role, and how to access its commands!');
+            this.io.to(this.name).emit('receive-message', 'Send \"/w playerName message\" at daytime to try and whipser to them. Careful! There\s a 1/10 chance of the town hearing you!');
             //List all the players in the game.
             let playerAnnounce = 'The list of living players is: ';
             for(let i = 0; i < this.playerList.length - 1; i++) {
                 playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
             }
+
+            //TODO: Create faction objects.
+
             playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
             this.io.to(this.name).emit('receive-message', playerAnnounce); 
 
@@ -100,19 +105,22 @@ class Room {
                     }
                     //Starts with a / - Whisper/Role Command
                     else if(message.charAt(0) == '/') {
-                        if(message.charAt(1) == 'w' || message.charAt(1) == 'W') {
+                        if(message.charAt(1) == 'w' || message.charAt(1) == 'W') { //Handle whispering
                             foundPlayer.role.handlePrivateMessage(message);
                         }
-                        console.log('Command test');
-                        //this.io.to(playerSocketId).emit('receive-message', 'You have used a role command');
+                        else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'day') { //Handle daytime commands
+                            foundPlayer.role.handleDayAction(message);
+                        }
+                        else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
+                            foundPlayer.role.handleNightAction(message);
+                        }
+                        
                     }
                     //Doesn't start with either - send as a regular message
                     else { //TODO: Use role's messaging function instead
                        //this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message)); 
                        foundPlayer.role.handleMessage(message);
                     }
-
-                    
                 }
                 else {
                     this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead.');
@@ -130,7 +138,11 @@ class Room {
     async startGame() {
         let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame');
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
-        
+        this.factionList.push(...roleHandler.assignFactions())//TODO: Give the user a faction as well
+
+        //TODO: Each faction object is assigned the list of relevant players
+        //TODO: Then each faction object goes through the lists, and adds itself to the each members's player class
+
         //Announces the roles in the game to the chat window
         let roleAnnounce = 'The roles present in this game are: ';
         for(let i = 0; i < this.roleList.length - 1; i++) { //Builds
@@ -147,11 +159,16 @@ class Room {
             currentIndex--;
             [this.roleList[currentIndex], this.roleList[randomIndex]] = [this.roleList[randomIndex], this.roleList[currentIndex]];
         }
-       
+
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
             this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)) //Sends each player their role
+        }
+
+        //Assigns roles to each faction, then factions to each relevant role.
+        for(let i = 0; i < this.factionList.length; i++) {
+            this.factionList[i].findMembers(this.playerList);
         }
 
         this.startFirstDaySession(this.sessionLength);
