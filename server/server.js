@@ -31,7 +31,6 @@ io.on('connection', socket => {
     socket.on('messageSentByUser', (message, name, room) => {
         try {
             if(message.length > 0 && message.length <= 150) {
-                console.log('Message sent text: ' + message + ' Name: ' + name + ' Room: ' + room);
                 roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message);
             }
 
@@ -61,7 +60,6 @@ io.on('connection', socket => {
     
     //Handles users disconnecting from a room
     socket.on('disconnect', (reason => {
-        console.log(socket.data.roomName);
         try {
             if(socket.data.roomName != undefined) {
                 roomList.find(foundRoom => foundRoom.name===socket.data.roomName).removePlayer(socket.id); //Finds the room, tells it to disconnect the user
@@ -77,12 +75,6 @@ app.get('/', (req, res) => {
     res.send('Hi! This is the base directory.');
 })
 
-app.get('/backend_test', (req, res) => {
-    console.log('Backend test called');
-    res.send('Hi!');
-})
-
-
 //Sends a list of room to the client - For the room list page
 app.get('/getRooms', (req, res) => {
     let roomJson = [];
@@ -95,7 +87,6 @@ app.get('/getRooms', (req, res) => {
             roomItem.size = roomList[i].size;
             roomItem.playerCount = roomList[i].playerCount;
             roomJson.push(roomItem);
-            //console.log(JSON.stringify(roomItem));
         }
     }
     //TODO: Create a new room if there less than a specified number available

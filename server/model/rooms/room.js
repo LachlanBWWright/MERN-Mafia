@@ -43,7 +43,7 @@ class Room {
 
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
-            this.io.to(this.name).emit('receive-message', 'Send \"?\" in chat to view help for your role, and how to access its commands!');
+            this.io.to(this.name).emit('receive-message', 'Send \"?\" in chat to view help for your role, and how to access its commands, starting with /c!');
             this.io.to(this.name).emit('receive-message', 'Send \"/w playerName message\" at daytime to try and whipser to them. Careful! There\s a 1/10 chance of the town hearing you!');
             //List all the players in the game.
             let playerAnnounce = 'The list of living players is: ';

@@ -45,7 +45,10 @@ class Role {
         console.log(message + ' to: ' + recipient.playerUsername);
         message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
 
-        if(recipient !== false) {
+        if(this.room.time == 'night') {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot whisper at night.');
+        }
+        else if(recipient !== false) {
             if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
                 this.room.io.to(this.player.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
                 this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + '.'));
