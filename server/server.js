@@ -17,6 +17,8 @@ const io = new Server(httpServer, {
     }
 });
 
+//TODO: The room seems to break if users attempt to join with a taken username, and then join again with a different username in the same session
+//TODO: Add variable game types
 //Creates the first batch of rooms
 var roomList = [];
 for(let i = 0; i < 3; i++) {
@@ -44,16 +46,15 @@ io.on('connection', socket => {
         try {
             name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '');
             if(name.length >=3 && name.length <= 12) {  
-                console.log('Joining: ' + name + ' ' + room);
                 socket.join(room); //Joins room, messages will be received accordingly
                 roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
-                console.log('IsInRoomTest')
                 cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
                 socket.data.roomName = room; //Stores the name of the room for handling disconnects
             }
         }
         catch (error) {
             console.log('CatchTest: ' + error)
+            
             cb(false); //If a room isn't found, socketio tries to callback null.
         }
     });
@@ -98,9 +99,7 @@ app.get('/getRooms', (req, res) => {
         }
     }
     //TODO: Create a new room if there less than a specified number available
-
-    res.json(roomJson); 
-    
+    res.json(roomJson);   
 });
 
 httpServer.listen(port, () => {

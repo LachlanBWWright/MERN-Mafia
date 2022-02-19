@@ -7,6 +7,7 @@ class Mafia extends Role {
 
     handleNightAction(message) {
         this.room.io.to(this.player.socketId).emit('receive-message', 'Night action test');
+        //this.faction.command()
     }
 }
 

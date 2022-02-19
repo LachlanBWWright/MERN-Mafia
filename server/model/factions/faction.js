@@ -1,6 +1,7 @@
 class Faction {
-    constructor() {
+    constructor(io) {
         this.memberList = [];
+        this.io = io;
     }
 
     initializeMembers() {
@@ -8,6 +9,11 @@ class Faction {
             this.memberList[i].role.assignFaction(this);
         }
     }
+
+    handleNightMessage(message, playerUsername) {
+        console.log('handleNightMessage should be overridden by child classes');
+    }
+
 }
 
 export default Faction;

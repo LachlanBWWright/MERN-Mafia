@@ -28,8 +28,11 @@ class Role {
         if(this.room.time == 'day') { //Free speaking only at daytime
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
         }
-        else { //Night chat options for different roles.
+        else if (typeof this.faction === 'undefined'){ //If the player isn't in a faction, they can't talk at night
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
+        }
+        else { //Calls the function for handling the night chat.
+            this.faction.handleNightMessage(message, this.player.playerUsername);
         }
         
     }

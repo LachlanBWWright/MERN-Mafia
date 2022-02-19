@@ -11,6 +11,8 @@ class RoomList extends React.Component {
         }
 
         this.setRoom = this.setRoom.bind(this);
+
+        this.abortController = new AbortController();
     }
     
     render() {
@@ -34,12 +36,22 @@ class RoomList extends React.Component {
 
     //Get the list of open rooms from the server
     async componentDidMount() {
-        let response = await fetch('/getRooms');
+       
+        let response = await fetch('/getRooms', { signal: this.abortController.signal });
         let data = await response.json();
         console.log('Number of rooms found: ' + data.length);
-        await this.setState({roomList: data})
-        await this.setState({dataLoading: false})
+
+        //TODO: Try checking if state is mounted.
+        console.log('Mounted Test 1')
+        this.setState({roomList: data});
+        console.log('Mounted Test 2')
+        this.setState({dataLoading: false});
+        console.log('Mounted Test 3 ')
         
+    }
+
+    componentWillUnmount() {
+        this.abortController.abort();
     }
 
     setRoom(roomName) {

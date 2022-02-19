@@ -19,6 +19,7 @@ class PlayPage extends React.Component {
         //this.functionName = this.functionName.bind(this)
         this.changeText = this.changeText.bind(this);
         this.setName = this.setName.bind(this);
+        this.handleNameChange = this.handleNameChange.bind(this);
         this.handleRoomChange = this.handleRoomChange.bind(this);
     }
 
@@ -30,7 +31,12 @@ class PlayPage extends React.Component {
 
     handleRoomChange(room) {
         console.log('Room Set!')
-        this.setState({playerRoom: room})
+        this.setState({playerRoom: room});
+    }
+
+    handleNameChange(name) {
+        this.setState({playerName: name});
+        console.log('Name set');
     }
     
     setName() { //Changes the state to reflect the selected name
@@ -49,7 +55,7 @@ class PlayPage extends React.Component {
                     <Card>
                         <Card.Body>
                             <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}.</Card.Text>
-                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setRoom={this.handleRoomChange}/> {/*TODO - Pass necessary params down to the room*/} 
+                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setName={this.handleNameChange} setRoom={this.handleRoomChange}/> {/*TODO - Pass necessary params down to the room*/} 
                         </Card.Body>
                     </Card>
                 </div>  
@@ -64,7 +70,7 @@ class PlayPage extends React.Component {
                             {this.state.playerName ?      /* Show name selection, then room selection */
                                 <>
                                     <Card.Text>Your Name is: {this.state.playerName}</Card.Text>
-                                    <RoomList setRoom={this.handleRoomChange}/>
+                                    <RoomList setRoom={this.handleRoomChange} setName={this.handleNameChange}/>
                                 </>
                             :        
                                 <Form onSubmit={e => {e.preventDefault(); this.setName()}}> {/* Stops the page from refreshing if user hits enter while typing*/}

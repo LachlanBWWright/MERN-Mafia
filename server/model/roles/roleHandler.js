@@ -7,9 +7,10 @@ import MafiaFaction from '../factions/mafiaFaction.js'
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
-    constructor(roomSize, roomType) {
+    constructor(roomSize, roomType, io) {
         this.roomSize = roomSize;
         this.roomType = roomType; //Records the type of game that is going to be played
+        this.io = io;
     }
 
     assignGame() {
@@ -70,7 +71,7 @@ class RoleHandler {
             case 5: 
             case 4: 
             case 3:
-            case 2: factionList.push(new MafiaFaction());
+            case 2: factionList.push(new MafiaFaction(this.io));
                 break;
             case 1:
             default:

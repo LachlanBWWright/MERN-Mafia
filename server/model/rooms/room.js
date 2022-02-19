@@ -136,7 +136,7 @@ class Room {
     }
 
     async startGame() {
-        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame');
+        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this.io);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
         this.factionList.push(...roleHandler.assignFactions())//TODO: Give the user a faction as well
 
