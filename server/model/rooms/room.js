@@ -45,6 +45,7 @@ class Room {
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
             this.io.to(this.name).emit('receive-message', 'Send \"?\" in chat to view help for your role, and how to access its commands, starting with /c!');
             this.io.to(this.name).emit('receive-message', 'Send \"/w playerName message\" at daytime to try and whipser to them. Careful! There\s a 1/10 chance of the town hearing you!');
+            this.io.to(this.name).emit('receive-message', 'Send \"/v playerName \" from day 2 to vote for players to be executed.');
             //List all the players in the game.
             let playerAnnounce = 'The list of living players is: ';
             for(let i = 0; i < this.playerList.length - 1; i++) {
@@ -201,7 +202,7 @@ class Room {
                     console.log(error);
                 }
 
-                if(dayNumber < 100) { //Starts the next session, and ends the game if there's been 100 days.
+                if(dayNumber < 25) { //Starts the next session, and ends the game if there's been 25 days.
                     this.startNightSession(dayNumber, sessionLength * 0.85);
                 }
                 else {
@@ -216,6 +217,11 @@ class Room {
         this.time='night';
         setTimeout(() => {
             try {
+
+                //TODO: Let Players set who they visit
+
+                //TODO: At the end of the night, go through each player and execute the 'visit'
+
 
             }
             catch(error) { //If something goes wrong, just start the next period of time
