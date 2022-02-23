@@ -4,6 +4,8 @@ class Player {
         this.playerUsername = playerUsername;
         this.role; //The player's role (Class).
         this.isAlive = true;
+        
+        this.votingFor;
     }
 }
 

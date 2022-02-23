@@ -114,7 +114,13 @@ class Room {
                         else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
                             foundPlayer.role.handleNightAction(message);
                         }
-                        
+                        else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time != 'day') {
+                            this.io.to(playerSocketId).emit('receive-message', 'You cannot vote at night.');
+                        }
+                        else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time == 'day') {
+                            this.handleVote(message, foundPlayer);
+                        }
+                    
                     }
                     //Doesn't start with either - send as a regular message
                     else {
@@ -130,7 +136,7 @@ class Room {
             }
         }
         catch (error) {
-            this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead.'); //Error is thrown if a player cannot be found
+            this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead. Or an error occured.'); //Error is thrown if a player cannot be found
             console.log(error);
         }
     }
@@ -194,19 +200,34 @@ class Room {
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].isAlive) {
                 livingPlayerList.push(this.playerList[i]);
+                livingPlayerList.votingFor = null; //Resets votes
             }
         }
         let playerAnnounce = 'The list of living players is: ';
         for(let i = 0; i < livingPlayerList.length - 1; i++) {
             playerAnnounce = playerAnnounce.concat(livingPlayerList[i].playerUsername + ', ');
         }
+        let votesRequired = Math.floor(livingPlayerList.length / 2) + 1; //A majority of the players, for an execution to be carried out.
         playerAnnounce = playerAnnounce.concat('and ' + livingPlayerList[livingPlayerList.length - 1].playerUsername + '.')
         this.io.to(this.name).emit('receive-message', playerAnnounce); 
-
+        this.io.to(this.name).emit('receive-message', ('It takes ' + votesRequired + ' votes for the town to kill a player.'))
 
         setTimeout(() => {
             try {
-
+                //Eliminates the player if they have a majority of the votes.
+                for(let i = 0; i < livingPlayerList.length; i++) {
+                    let votesForPlayer = 0;
+                    for(let x = 0; x < livingPlayerList.length; x++) {
+                        if(livingPlayerList[x].votingFor == livingPlayerList[i]) {
+                            votesForPlayer++;
+                        }
+                    }
+                    if(votesForPlayer >= votesRequired) {
+                        this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
+                        livingPlayerList[i].isAlive = false;
+                        this.io.to(livingPlayerList[i].playerSocketId).emit('receive-message', 'You have been voted out of the town.');
+                    }
+                }
             }
             catch(error) { //If something goes wrong in the game logic, just start the next period of time
                 console.log(error);
@@ -241,6 +262,8 @@ class Room {
                     this.factionList[i].handleNightVote();
                 }
 
+                //TODO: Consider adding roleblock mechanic before tasks are carried out.
+
                 //TODO: Set who is visiting who
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].role.visiting != null) {
@@ -268,6 +291,40 @@ class Room {
             }  
         }, sessionLength/2 + 10000); //Nights are shorter than days, but also a minimum of 10 seconds.
         
+    }
+
+    handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
+        message = message.substring(2).trim(); //Remove the /v, then spaces at the front/back
+        let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /v, which should be the username of the recipient
+        let recipient = this.getPlayerByUsername(messageRecipientName);
+        message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
+    
+        if(this.time == 'day' && recipient.isAlive) {
+            this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed!'));
+            voterPlayer.votingFor = recipient; //Casts the vote
+
+            let votesForPlayer = 0;
+            //Iterate through playerList, and find out how many people have voted for them
+            for(let i = 0; i < this.playerList.length; i++) {
+                if(this.playerList[i].isAlive && this.playerList[i].votingFor == recipient) {
+                    votesForPlayer++;
+                }
+            }
+            if(votesForPlayer > 1) {
+                this.io.to(this.name).emit('receive-message', ('There are ' + votesForPlayer + ' votes for ' + recipient.playerUsername + ' to be killed.'));
+            }
+            else {
+                this.io.to(this.name).emit('receive-message', ('There is one vote for ' + recipient.playerUsername + ' to be killed.'));
+            }
+        }
+        else if(message == '' && voterPlayer.votingFor != null) {
+            this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote has been rescinded.');
+            this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has cancelled their vote.'));
+            voterPlayer.votingFor = null;
+        }
+        else {
+            this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote wasn\'t valid.');
+        }
     }
 
     findWinningFaction() {
