@@ -14,9 +14,12 @@ class Role {
 
         //Role stats
         this.baseDefence = baseDefence; //The minimum 'defence power' the player hase
-        this.defence; //The variable 'defence power' the player has each night
-        this.damage; //The amount of damage that is received on a single night. If it's above defence, the player dies.
+        this.defence = this.baseDefence; //The variable 'defence power' the player has each night
+        this.damage = 0; //The amount of damage that is received on a single night. If it's above defence, the player dies.
 
+        //Role Action
+        this.visiting = null; //The role that the player is visiting
+        this.visitors = []; //A list of players visiting
     }
 
     assignFaction(faction) { //Assigns the player a faction class
@@ -32,14 +35,19 @@ class Role {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
         }
         else { //Calls the function for handling the night chat.
-            this.faction.handleNightMessage(message, this.player.playerUsername);
+            try {
+                this.faction.handleNightMessage(message, this.player.playerUsername);
+            }
+            catch(error) {
+                console.log(error);
+            }
         }
         
     }
 
     handlePrivateMessage(message, recipient) { //Message string, recipient's class
         message = message.substring(2).trim(); //Remove the /w, then spaces at the front/back
-        let messageRecipientName = message.split(' ')[0] //The first words after the /w, which should be the username of the recipient
+        let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /w, which should be the username of the recipient
         
         recipient = this.room.getPlayerByUsername(messageRecipientName);
         console.log(message + ' to: ' + recipient.playerUsername);
@@ -48,7 +56,7 @@ class Role {
         if(this.room.time == 'night') {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot whisper at night.');
         }
-        else if(recipient !== false) {
+        else if(recipient !== false && this.room.time == 'day' && recipient.isAlive) {
             if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
                 this.room.io.to(this.player.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
                 this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + '.'));
@@ -59,7 +67,7 @@ class Role {
             } 
         }
         else {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient.');
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');
         }
     }
 
@@ -69,6 +77,28 @@ class Role {
 
     handleNightAction(message) { //Handles the class' nighttime action
         this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no nighttime action');
+    }
+
+    visit() { //Visit another player
+        console.log('This should be overridden by a child class');
+    }
+
+    receiveVisit(role) { //Called by another player visiting
+        this.visitors.push(role);
+    }
+
+    handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage
+        if(this.damage > this.defence) { //Kills the player
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have died!');
+            this.player.isAlive = false;
+        }
+        else { //Resets stats
+            if(this.damage != 0) {
+                this.room.io.to(this.player.socketId).emit('receive-message', 'You were attacked, but you survived!');
+            }
+            this.defence = this.baseDefence;
+            this.damage = 0;
+        }
     }
 }
 

@@ -95,6 +95,7 @@ app.get('/getRooms', (req, res) => {
 
 httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);
+    
 })
 
 

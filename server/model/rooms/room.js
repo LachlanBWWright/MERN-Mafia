@@ -20,7 +20,7 @@ class Room {
         this.roleList = []; //List of role ES6 classes
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
         this.roomType = roomType //The type of the game (Determines the roles used)
-        this.sessionLength = 60000 //How long the days/nights initially last for. Decreases over time, with nights at half the length of days
+        this.sessionLength = 20000 //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 60000 by default
         }
 
     //Adds a new player to the room, and makes the game start if it is full
@@ -34,7 +34,7 @@ class Room {
         }
 
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
-        this.playerList.push(/* player */new Player(playerSocketId, playerUsername)); //Adds a player to the array TODO: Rollback this if game is broken
+        this.playerList.push(new Player(playerSocketId, playerUsername)); //Adds a player to the array
         this.playerCount = Object.keys(this.playerList).length; //Updates the player count
         
         //Starts the game if the room has filled its maximum size
@@ -51,9 +51,6 @@ class Room {
             for(let i = 0; i < this.playerList.length - 1; i++) {
                 playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
             }
-
-            //TODO: Create faction objects.
-
             playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
             this.io.to(this.name).emit('receive-message', playerAnnounce); 
 
@@ -118,8 +115,7 @@ class Room {
                         
                     }
                     //Doesn't start with either - send as a regular message
-                    else { //TODO: Use role's messaging function instead
-                       //this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message)); 
+                    else {
                        foundPlayer.role.handleMessage(message);
                     }
                 }
@@ -132,17 +128,16 @@ class Room {
             }
         }
         catch (error) {
-            console.log('Something went wrong ' + error)
+            this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead.'); //Error is thrown if a player cannot be found
+            console.log(error);
         }
     }
 
     async startGame() {
         let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this.io);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
-        this.factionList.push(...roleHandler.assignFactions())//TODO: Give the user a faction as well
-
-        //TODO: Each faction object is assigned the list of relevant players
-        //TODO: Then each faction object goes through the lists, and adds itself to the each members's player class
+        this.factionList.push(...roleHandler.assignFactions()); //Gets the list of factions relevant to this game
+        roleHandler = null;
 
         //Announces the roles in the game to the chat window
         let roleAnnounce = 'The roles present in this game are: ';
@@ -185,43 +180,73 @@ class Room {
         this.time='day';
         setTimeout(() => {
             this.startNightSession(1, sessionLength)
-        }, 10000); //Starts the first day quicker 
+        }, 5000); //Starts the first day quicker 
     }
 
     startDaySession(dayNumber, sessionLength) {
-            console.log('Day');
-            //await setTimeout(() => this.startNightSession(dayNumber), sessionLength + 10000); //Days are a minimum of 10 seconds
-            //this.startNightSession(dayNumber, sessionLength*0.85); //The game gradually speeds up over time.
-            this.io.to(this.name).emit('receive-message', ('Day ' + dayNumber + ' has started.'));
-            this.time='day';
-            setTimeout(() => {
-                try {
+        this.time='day';
 
-                }
-                catch(error) { //If something goes wrong in the game logic, just start the next period of time
-                    console.log(error);
-                }
+        //Announcements to the game
+        this.io.to(this.name).emit('receive-message', ('Day ' + dayNumber + ' has started.'));
+        let playerAnnounce = 'The list of living players is: ';
+        for(let i = 0; i < this.playerList.length - 1; i++) {
+            playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
+        }
+        playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
+        this.io.to(this.name).emit('receive-message', playerAnnounce); 
 
-                if(dayNumber < 25) { //Starts the next session, and ends the game if there's been 25 days.
-                    this.startNightSession(dayNumber, sessionLength * 0.85);
-                }
-                else {
-                    //TODO: Game ending code
-                    console.log('Game over!');
-                }
-            }, sessionLength + 10000); //Days are a minimum of 10 seconds long
-    }
-    //TODO: Night Session
-    startNightSession(nightNumber, sessionLength) {
-        this.io.to(this.name).emit('receive-message', ('Night ' + nightNumber + ' has started.'));
-        this.time='night';
+
         setTimeout(() => {
             try {
 
-                //TODO: Let Players set who they visit
+            }
+            catch(error) { //If something goes wrong in the game logic, just start the next period of time
+                console.log(error);
+            }
 
-                //TODO: At the end of the night, go through each player and execute the 'visit'
+            if(dayNumber < 25) { //Starts the next session, and ends the game if there's been 25 days.
+                this.startNightSession(dayNumber, sessionLength * 0.85); //The time each session lasts for decreases over time
+            }
+            else {
+                //TODO: Game ending code
+                this.io.to(this.name).emit('receive-message', '25 days have passed. Game over!');
+                console.log('Game over!');
+            }
+        }, sessionLength + 10000); //Days are a minimum of 10 seconds long
+    }
 
+    startNightSession(nightNumber, sessionLength) {
+        this.io.to(this.name).emit('receive-message', ('Night ' + nightNumber + ' has started.'));
+        this.time='night';
+        
+        setTimeout(() => {
+            try {
+                this.time='undefined' //Prevents users from changing their visits
+
+                //This handles factional decisions, and lets the factions assign the members "visiting" variable.
+                for(let i = 0; i < this.factionList.length; i++) {
+                    this.factionList[i].handleNightVote();
+                }
+
+                //TODO: Set who is visiting who
+                for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].visiting != null) {
+
+                    }
+                }
+
+                //TODO: Execute the actions caused by these visits
+
+
+                //TODO: Kill players who have been attacked without an adequate defence
+                for(let i = 0; i < this.playerList.length; i++) {
+                    this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
+                    /*if(!this.playerList[i].isAlive) {
+                        this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has died!'));
+                        this.playerList[i].splice(i, 1); //Removes dead player from the list
+                        i--; //Decrements to reflect the removed item
+                    } */
+                }
 
             }
             catch(error) { //If something goes wrong, just start the next period of time
@@ -229,9 +254,14 @@ class Room {
             }
 
             this.startDaySession(nightNumber + 1, sessionLength);
-        }, sessionLength/2 + 10000); //Nights are shorter than days, but also a minimum of 10 secconds.
+        }, sessionLength/2 + 10000); //Nights are shorter than days, but also a minimum of 10 seconds.
         
+    }
+
+    endGame() {
+        //TODO: Destroy circular references just in case
+        //TODO: Disconnect users
     }
 }
 
-export default Room
+export default Room;
