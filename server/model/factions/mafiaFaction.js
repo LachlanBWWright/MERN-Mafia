@@ -21,11 +21,13 @@ class MafiaFaction extends Faction {
 
     handleNightVote() {
         for(let i = 0; i < this.memberList.length; i++) {
-            this.attackList.push(this.memberList[i].role.attackVote); //Adds the vote to attack to the list //TODO: Fix this error
-            
-            let victim = this.attackList[Math.floor(Math.random() * this.attackList.length)]; //Selects a random item in the list, and uses that TODO: Consider switching to using the mode
-            this.memberList[Math.floor(Math.random() * this.memberList.length)].role.visiting = victim;
+            if(this.memberList[i].role.attackVote != null) this.attackList.push(this.memberList[i].role.attackVote); //Adds the vote to attack to the list
+            this.memberList[i].role.attackVote = null;
         }
+
+        let victim = this.attackList[Math.floor(Math.random() * this.attackList.length)]; //Selects a random item in the list, and uses that TODO: Consider switching to using the mode
+        this.attackList = [];
+        this.memberList[Math.floor(Math.random() * this.memberList.length)].role.visiting = victim; //Selects a random mafia member to make the attack
     }
 
     handleNightMessage(message, playerUsername) { //Mafia only chat

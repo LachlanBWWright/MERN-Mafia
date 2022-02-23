@@ -21,6 +21,8 @@ class Room {
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
         this.roomType = roomType //The type of the game (Determines the roles used)
         this.sessionLength = 20000 //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 60000 by default
+
+        this.gameHasEnded = false;
         }
 
     //Adds a new player to the room, and makes the game start if it is full
@@ -188,11 +190,17 @@ class Room {
 
         //Announcements to the game
         this.io.to(this.name).emit('receive-message', ('Day ' + dayNumber + ' has started.'));
-        let playerAnnounce = 'The list of living players is: ';
-        for(let i = 0; i < this.playerList.length - 1; i++) {
-            playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
+        let livingPlayerList = [];
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].isAlive) {
+                livingPlayerList.push(this.playerList[i]);
+            }
         }
-        playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
+        let playerAnnounce = 'The list of living players is: ';
+        for(let i = 0; i < livingPlayerList.length - 1; i++) {
+            playerAnnounce = playerAnnounce.concat(livingPlayerList[i].playerUsername + ', ');
+        }
+        playerAnnounce = playerAnnounce.concat('and ' + livingPlayerList[livingPlayerList.length - 1].playerUsername + '.')
         this.io.to(this.name).emit('receive-message', playerAnnounce); 
 
 
@@ -204,14 +212,19 @@ class Room {
                 console.log(error);
             }
 
+            //Checks if the game is over, and ends the room, or starts the next night.
             if(dayNumber < 25) { //Starts the next session, and ends the game if there's been 25 days.
-                this.startNightSession(dayNumber, sessionLength * 0.85); //The time each session lasts for decreases over time
+                if(this.findWinningFaction() != false) {
+                    this.endGame(this.findWinningFaction());
+                }
+                else {
+                    this.startNightSession(dayNumber, sessionLength * 0.85); //The time each session lasts for decreases over time
+                }
             }
             else {
-                //TODO: Game ending code
-                this.io.to(this.name).emit('receive-message', '25 days have passed. Game over!');
-                console.log('Game over!');
+                this.endGame('nobody');
             }
+
         }, sessionLength + 10000); //Days are a minimum of 10 seconds long
     }
 
@@ -230,37 +243,64 @@ class Room {
 
                 //TODO: Set who is visiting who
                 for(let i = 0; i < this.playerList.length; i++) {
-                    if(this.playerList[i].visiting != null) {
-
+                    if(this.playerList[i].role.visiting != null) {
+                        this.playerList[i].role.visit();
                     }
                 }
 
                 //TODO: Execute the actions caused by these visits
 
-
-                //TODO: Kill players who have been attacked without an adequate defence
+                //Kills players who have been attacked without an adequate defence
                 for(let i = 0; i < this.playerList.length; i++) {
                     this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
-                    /*if(!this.playerList[i].isAlive) {
-                        this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has died!'));
-                        this.playerList[i].splice(i, 1); //Removes dead player from the list
-                        i--; //Decrements to reflect the removed item
-                    } */
                 }
-
             }
             catch(error) { //If something goes wrong, just start the next period of time
                 console.log(error);
             }
 
-            this.startDaySession(nightNumber + 1, sessionLength);
+            //TODO: Add game over check, end game instead of starting next day
+            if(this.findWinningFaction() != false) {
+                this.endGame(this.findWinningFaction());
+            }
+            else {
+                this.startDaySession(nightNumber + 1, sessionLength);
+            }  
         }, sessionLength/2 + 10000); //Nights are shorter than days, but also a minimum of 10 seconds.
         
     }
 
-    endGame() {
+    findWinningFaction() {
+        let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
+        for(let i = 0; i < this.playerList.length; i++) {
+            if(this.playerList[i].role.group != 'neutral' && this.playerList[i].isAlive) {
+                if(lastFaction == 'neutral') {
+                    lastFaction = this.playerList[i].role.group;
+                    console.log('Lastfaction is: ' + lastFaction)
+                }
+                else if(this.playerList[i].role.group != lastFaction) {
+                    return false; //Game is NOT over if there are are members of two different factions alive (excluding neutral)
+                }
+            }
+        }
+        return lastFaction; //N
+    }
+
+    endGame(winningFactionName) {
         //TODO: Destroy circular references just in case
         //TODO: Disconnect users
+        console.log('Game has ended.')
+        this.gameHasEnded = true;
+
+        if(winningFactionName == 'nobody') {
+            this.io.to(this.name).emit('receive-message', 'The game has ended with a draw! Room closing in 60 seconds.');
+        }
+        else if(winningFactionName == 'neutral') {
+            this.io.to(this.name).emit('receive-message', 'The neutral players have won! Room closing in 60 seconds.');
+        }
+        else {
+            this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won! Room closing in 60 seconds.' )  );
+        }
     }
 }
 

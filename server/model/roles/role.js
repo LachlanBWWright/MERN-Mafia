@@ -91,6 +91,7 @@ class Role {
         if(this.damage > this.defence) { //Kills the player
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have died!');
             this.player.isAlive = false;
+            this.damage = 0; //Stops the player from being spammed with death messages after they die.
         }
         else { //Resets stats
             if(this.damage != 0) {
