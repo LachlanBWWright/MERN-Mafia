@@ -64,7 +64,7 @@ class Room {
     removePlayer(playerSocketId) {
         console.log('Disconnect Test');
         for(let i = 0; i < this.playerList.length; i++) {
-            if(this.playerList[i].socketId === playerSocketId) {
+            if(this.playerList[i].socketId === playerSocketId && !this.gameHasEnded) { //!gameHasEnded stops leaving messages when the clients are booted when the game ends
                 this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
                 this.playerList.splice(i, 1); //This should remove the player from the array
             }
@@ -167,7 +167,8 @@ class Room {
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
-            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)) //Sends each player their role
+            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)); //Sends each player their role
+            this.io.to(this.playerList[i].socketId).emit('receive-message', this.playerList[i].role.description);
         }
 
         //Assigns roles to each faction, then factions to each relevant role.
@@ -264,25 +265,22 @@ class Room {
 
                 //TODO: Consider adding roleblock mechanic before tasks are carried out.
 
-                //TODO: Set who is visiting who
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].role.visiting != null) {
                         this.playerList[i].role.visit();
                     }
                 }
 
-                //TODO: Execute the actions caused by these visits
-
                 //Kills players who have been attacked without an adequate defence
                 for(let i = 0; i < this.playerList.length; i++) {
                     this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
+                    //TODO: Potentially add logic for classes seeing who has visited whom.
                 }
             }
             catch(error) { //If something goes wrong, just start the next period of time
                 console.log(error);
             }
 
-            //TODO: Add game over check, end game instead of starting next day
             if(this.findWinningFaction() != false) {
                 this.endGame(this.findWinningFaction());
             }
@@ -344,20 +342,22 @@ class Room {
     }
 
     endGame(winningFactionName) {
-        //TODO: Destroy circular references just in case
-        //TODO: Disconnect users
-        console.log('Game has ended.')
         this.gameHasEnded = true;
 
         if(winningFactionName == 'nobody') {
-            this.io.to(this.name).emit('receive-message', 'The game has ended with a draw! Room closing in 60 seconds.');
+            this.io.to(this.name).emit('receive-message', 'The game has ended with a draw! Room closing in 30 seconds.');
         }
         else if(winningFactionName == 'neutral') {
-            this.io.to(this.name).emit('receive-message', 'The neutral players have won! Room closing in 60 seconds.');
+            this.io.to(this.name).emit('receive-message', 'The neutral players have won! Room closing in 30 seconds.');
         }
         else {
-            this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won! Room closing in 60 seconds.' )  );
+            this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won! Room closing in 30 seconds.' )  );
         }
+
+        setTimeout(() => {
+            this.io.to(this.name).emit('receive-message', 'Closing the room!');
+            this.io.in(this.name).disconnectSockets();
+        }, 30000);
     }
 }
 

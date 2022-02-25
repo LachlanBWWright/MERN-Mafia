@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Mafia extends Role {
     constructor(room, player) {
-        super('Mafia', 'MafiaDesc', 'mafia', 'You are Mafia!', room, player, 0);
+        super('Mafia', 'You are a member of the mafia. Vote for who you want your group to kill at night.', 'mafia', 'You are Mafia!', room, player, 0);
 
         this.attackVote;
     }
@@ -10,8 +10,8 @@ class Mafia extends Role {
     handleNightAction(message) { //Vote on who should be attacked
         //TODO: Make sure attackVote if for a proper class
         this.attackVote = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(this.attackVote.playerUsername != undefined && this.attackVote.role.faction != this.faction) {
-            this.faction.sendMessage(this.player.playerUsername + ' has voted to attack ' + this.attackVote.playerUsername);
+        if(this.attackVote.playerUsername != undefined && this.attackVote.role.faction != this.faction && this.attackVote.isAlive) {
+            this.faction.sendMessage(this.player.playerUsername + ' has voted to attack ' + this.attackVote.playerUsername + '.');
             this.attackVote = this.attackVote.role; //uses role for easier visiting
         }
         else {

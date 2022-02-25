@@ -17,21 +17,23 @@ const io = new Server(httpServer, {
     }
 });
 
-//TODO: The room seems to break if users attempt to join with a taken username, and then join again with a different username in the same session
-//TODO: Add variable game types
+
 //Creates the first batch of rooms
 var roomList = [];
-for(let i = 0; i < 3; i++) {
-    console.log('Creating a room!');
-    roomList.push(new Room(4, io, 'vanillaGame'));
+function createRooms(roomArray) {
+    for(let i = 0; i < 3; i++) {
+        roomArray.push(new Room(4, io, 'vanillaGame'));
+    }
+    roomArray.push(new Room(8, io, 'vanillaGame'));
 }
+createRooms(roomList);
 
 io.on('connection', socket => {
     //Handle users sending a chat message 
     socket.on('messageSentByUser', (message, name, room) => {
         try {
             if(message.length > 0 && message.length <= 150) {
-                roomList.find(foundRoom => foundRoom.name===room).handleSentMessage(socket.id, message);
+                socket.data.roomObject.handleSentMessage(socket.id, message);
             }
 
         }
@@ -46,14 +48,13 @@ io.on('connection', socket => {
             name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '');
             if(name.length >=3 && name.length <= 12) {  
                 socket.join(room); //Joins room, messages will be received accordingly
-                roomList.find(foundRoom => foundRoom.name===room).addPlayer(socket.id, name);
-                cb((roomList.find(foundRoom => foundRoom.name===room).isInRoom(socket.id)));
-                socket.data.roomName = room; //Stores the name of the room for handling disconnects
+                socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
+                socket.data.roomObject.addPlayer(socket.id, name);
+                cb(socket.data.roomObject.isInRoom(socket.id));
             }
         }
         catch (error) {
             console.log('CatchTest: ' + error)
-            
             cb(false); //If a room isn't found, socketio tries to callback null.
         }
     });
@@ -61,8 +62,8 @@ io.on('connection', socket => {
     //Handles users disconnecting from a room
     socket.on('disconnect', (reason => {
         try {
-            if(socket.data.roomName != undefined) {
-                roomList.find(foundRoom => foundRoom.name===socket.data.roomName).removePlayer(socket.id); //Finds the room, tells it to disconnect the user
+            if(socket.data.roomObject != undefined) {
+                socket.data.roomObject.removePlayer(socket.id);
             }
         }
         catch (error) {
@@ -77,26 +78,32 @@ app.get('/', (req, res) => {
 
 //Sends a list of room to the client - For the room list page
 app.get('/getRooms', (req, res) => {
-    let roomJson = [];
-    
-    //Adds each available room to the JSON that is returned.
-    for(let i = 0; i < roomList.length; i++) {
-        if(!roomList[i].started) {
-            let roomItem = {};
-            roomItem.name = roomList[i].name;
-            roomItem.size = roomList[i].size;
-            roomItem.playerCount = roomList[i].playerCount;
-            roomJson.push(roomItem);
+    try {
+        let roomJson = [];
+        //Adds each available room to the JSON that is returned.
+        for(let i = 0; i < roomList.length; i++) {
+            if(!roomList[i].started) {
+                let roomItem = {};
+                roomItem.name = roomList[i].name;
+                roomItem.size = roomList[i].size;
+                roomItem.playerCount = roomList[i].playerCount;
+                roomJson.push(roomItem);
+            }
+            else { //Aims to replace the removed room with a new, identical room
+                roomList[i] = new Room(roomList[i].size, io, roomList[i].roomType);
+                i--; //Otherwise the new room won't be added to roomJson.
+            }
         }
+        res.json(roomJson);   
     }
-    //TODO: Create a new room if there less than a specified number available
-    res.json(roomJson);   
+    catch(error) {
+        console.log(error);
+    }
 });
 
 httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);
-    
-})
 
+})
 
 export {io};

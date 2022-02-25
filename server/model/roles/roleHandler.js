@@ -1,6 +1,10 @@
 //Imports all the roles used
 import Innocent from './innocent.js';
+import Doctor from './doctor.js';
+import Judge from './judge.js';
+
 import Mafia from './mafia.js';
+
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js'
@@ -43,10 +47,10 @@ class RoleHandler {
             case 7: roleList.push(Mafia);
             case 6: roleList.push(Innocent);
             case 5: roleList.push(Innocent);
-            case 4: roleList.push(Innocent);
-            case 3: roleList.push(Innocent);
+            case 4: roleList.push(Judge);
+            case 3: roleList.push(Judge);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Innocent);
+            case 1: roleList.push(Doctor);
                 break;
             default:
                 console.log('Role Assignment Error.');
