@@ -72,10 +72,7 @@ class Room {
     }
 
     isInRoom(playerSocketId) {
-        //console.log('Test');
         for(let i = 0; i < this.playerList.length; i++) {
-            console.log('Test');
-            console.log(  this.playerList[i] + ' ' + this.playerList[i].socketId + ' ' + playerSocketId)
             if(this.playerList[i].socketId == playerSocketId)
                 return true;
         }
@@ -85,7 +82,6 @@ class Room {
     getPlayerByUsername(playerUsername) {
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].playerUsername == playerUsername) {
-                console.log('Player found by username ' + this.playerList[i].playerUsername)
                 return this.playerList[i];
             }      
         }
@@ -97,9 +93,7 @@ class Room {
         try {
             let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId);
             if(this.started) { //If the game has started, handle the message with the role object
-                console.log('Handle sent message test');
                 if(foundPlayer.isAlive) {
-                    //TODO: Add support for role commands
                     if(message.charAt(0) == '?') {  //Starts with a ? - Help Command
                         this.io.to(playerSocketId).emit('receive-message', foundPlayer.role.helpText);
                     }
@@ -273,9 +267,21 @@ class Room {
 
                 //Kills players who have been attacked without an adequate defence
                 for(let i = 0; i < this.playerList.length; i++) {
-                    this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
-                    //TODO: Potentially add logic for classes seeing who has visited whom.
+                    if(this.playerList[i].isAlive) {
+                        this.playerList[i].role.handleVisits();
+                        this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
+                        
+                    }
                 }
+
+                //Resets visits after night logic has been completed
+                for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].isAlive) {
+                        this.playerList[i].role.visiting = null; //Resets visiting.
+                        this.playerList[i].role.visitors = []; //Resets visitor list.
+                    }
+                }
+                
             }
             catch(error) { //If something goes wrong, just start the next period of time
                 console.log(error);

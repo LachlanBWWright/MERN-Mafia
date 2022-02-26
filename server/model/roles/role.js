@@ -87,6 +87,9 @@ class Role {
         this.visitors.push(role);
     }
 
+    handleVisits() { //Overridden by some child classes
+    }
+
     handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage
         if(this.damage > this.defence) { //Kills the player
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have died!');
