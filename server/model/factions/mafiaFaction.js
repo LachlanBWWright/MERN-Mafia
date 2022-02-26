@@ -12,7 +12,6 @@ class MafiaFaction extends Faction {
         for(let i = 0; i < playerList.length; i++) {
             if(playerList[i].role.group == 'mafia') {
                 this.memberList.push(playerList[i]);
-                console.log(playerList[i].role.group);
             }
         }
 

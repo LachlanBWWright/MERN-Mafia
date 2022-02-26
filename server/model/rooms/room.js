@@ -29,7 +29,6 @@ class Room {
     addPlayer(playerSocketId, playerUsername) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
-            console.log('Loop')
             if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
                 return;
             }
@@ -268,15 +267,14 @@ class Room {
                 //Kills players who have been attacked without an adequate defence
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
-                        this.playerList[i].role.handleVisits();
-                        this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them
-                        
+                        this.playerList[i].role.handleVisits(); //Handles actions for certain roles whose behaviour depends on who has visited who.
                     }
                 }
 
                 //Resets visits after night logic has been completed
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
+                        this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them.
                         this.playerList[i].role.visiting = null; //Resets visiting.
                         this.playerList[i].role.visitors = []; //Resets visitor list.
                     }
@@ -337,7 +335,6 @@ class Room {
             if(this.playerList[i].role.group != 'neutral' && this.playerList[i].isAlive) {
                 if(lastFaction == 'neutral') {
                     lastFaction = this.playerList[i].role.group;
-                    console.log('Lastfaction is: ' + lastFaction)
                 }
                 else if(this.playerList[i].role.group != lastFaction) {
                     return false; //Game is NOT over if there are are members of two different factions alive (excluding neutral)
