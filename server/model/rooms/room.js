@@ -105,7 +105,8 @@ class Room {
                             foundPlayer.role.handleDayAction(message);
                         }
                         else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
-                            foundPlayer.role.handleNightAction(message);
+                            if(message.length == 2)  foundPlayer.role.cancelNightAction();
+                            else foundPlayer.role.handleNightAction(message);
                         }
                         else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time != 'day') {
                             this.io.to(playerSocketId).emit('receive-message', 'You cannot vote at night.');

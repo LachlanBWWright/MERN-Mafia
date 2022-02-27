@@ -72,15 +72,20 @@ class Role {
     }
 
     handleDayAction(message) { //Handles the class' daytime action
-        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no daytime action');
+        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no daytime action.');
     }
 
     handleNightAction(message) { //Handles the class' nighttime action
-        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no nighttime action');
+        this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no nighttime action.');
+    }
+
+    cancelNightAction() { //Faction-based classes should override this function
+        this.room.io.to(this.player.socketId).emit('receive-message', 'You have cancelled your class\' nighttime action.');
+        this.visiting = null;
     }
 
     visit() { //Visit another player
-        console.log('This should be overridden by a child class');
+        console.log('This should be overridden by a child class.');
     }
 
     receiveVisit(role) { //Called by another player visiting

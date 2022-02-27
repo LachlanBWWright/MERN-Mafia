@@ -19,6 +19,11 @@ class Mafia extends Role {
         }
     }
 
+    cancelNightAction() { //Faction-based classes should override this function
+        this.room.io.to(this.player.socketId).emit('receive-message', 'You have cancelled your class\' nighttime action.');
+        this.attackVote = null;
+    }
+
     visit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
