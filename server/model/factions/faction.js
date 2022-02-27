@@ -10,14 +10,17 @@ class Faction {
         }
     }
 
-    handleNightVote() {
+    handleNightVote() { //Handles factional decisions
         console.log('This should be overridden by child classes.')
     }
 
-    handleNightMessage(message, playerUsername) {
+    handleNightMessage(message, playerUsername) { //Handles night chat 
         console.log('handleNightMessage should be overridden by child classes.');
     }
 
+    removeMembers() { //Removes members if they have died, or been converted to another faction
+        console.log('removeMembers should be overridden by child classes.');
+    }
 }
 
 export default Faction;

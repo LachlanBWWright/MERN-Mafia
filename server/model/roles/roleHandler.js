@@ -4,12 +4,14 @@ import Doctor from './doctor.js';
 import Judge from './judge.js';
 import Watchman from './watchman.js';
 import Investigator from './investigator.js';
+import Lawman from './lawman.js';
 
 import Mafia from './mafia.js';
 
 
 //Imports all the factions used
-import MafiaFaction from '../factions/mafiaFaction.js'
+import MafiaFaction from '../factions/mafiaFaction.js';
+import LawmanFaction from '../factions/lawmanFaction.js';
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
@@ -52,7 +54,7 @@ class RoleHandler {
             case 4: roleList.push(Watchman);
             case 3: roleList.push(Investigator);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Doctor);
+            case 1: roleList.push(Lawman);
                 break;
             default:
                 console.log('Role Assignment Error.');
@@ -78,8 +80,8 @@ class RoleHandler {
             case 4: 
             case 3:
             case 2: factionList.push(new MafiaFaction(this.io));
+            case 1: factionList.push(new LawmanFaction(this.io));
                 break;
-            case 1:
             default:
                 console.log('Faction Assignment Error.');        
             }

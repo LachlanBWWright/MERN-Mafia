@@ -253,6 +253,7 @@ class Room {
 
                 //This handles factional decisions, and lets the factions assign the members "visiting" variable.
                 for(let i = 0; i < this.factionList.length; i++) {
+                    this.factionList[i].removeMembers();
                     this.factionList[i].handleNightVote();
                 }
 

@@ -43,6 +43,15 @@ class MafiaFaction extends Faction {
             this.io.to(this.memberList[i].socketId).emit('receive-message', message);
         }
     }
+
+    removeMembers() {
+        for(let i = 0; i < this.memberList.length; i++) {
+            if(!this.memberList[i].isAlive || this.memberList[i].role.group != 'mafia') {
+                this.memberList.splice(i, 1);
+                i--;
+            }
+        }
+    }
 }
 
 export default MafiaFaction
