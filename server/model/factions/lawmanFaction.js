@@ -28,7 +28,6 @@ class LawmanFaction extends Faction {
                         let randomVictim = this.room.playerList[Math.floor(Math.random() * this.room.playerList.length)];
                         if (randomVictim.isAlive) {
                             this.memberList[i].role.visiting = randomVictim.role;
-                            console.log(3)
                             i = 1000;
                         }
                     }
