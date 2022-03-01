@@ -5,6 +5,7 @@ import Judge from './judge.js';
 import Watchman from './watchman.js';
 import Investigator from './investigator.js';
 import Lawman from './lawman.js';
+import Vetter from './vetter.js';
 
 import Mafia from './mafia.js';
 
@@ -52,7 +53,7 @@ class RoleHandler {
             case 6: roleList.push(Innocent);
             case 5: roleList.push(Judge);
             case 4: roleList.push(Watchman);
-            case 3: roleList.push(Investigator);
+            case 3: roleList.push(Vetter);
             case 2: roleList.push(Mafia);
             case 1: roleList.push(Lawman);
                 break;
