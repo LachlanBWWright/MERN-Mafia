@@ -4,7 +4,7 @@ import Role from './role.js'
 class Judge extends Role {
     constructor(room, player) {
         super('Judge', 'You can visit a player each night to check for their factional alignment. However, there is a 30% chance that you\'ll be told the alignment of a random player instead.'
-        , 'town', 'At night, use /c playerName to choose who to inspect.', room, player, 0);
+        , 'town', 'At night, use /c playerName to choose who to inspect.', room, player, 0, false);
     }
     
     handleNightAction(message) { //Vote on who should be attacked

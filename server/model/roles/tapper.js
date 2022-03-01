@@ -3,7 +3,7 @@ import Role from './role.js'
 class Tapper extends Role {
     constructor(room, player) {
         super('Tapper', 'At night, you can select a player to overhear their whispers the following day. At day, you can do the same to overhear any messages they send, but they will be warned.', 
-        'town', 'At day and night, use /c playerName to choose who to tap.', room, player, 0);
+        'town', 'At day and night, use /c playerName to choose who to tap.', room, player, 0, false);
     }
 
     handleDayAction(message) { //Handles the class' daytime action

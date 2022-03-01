@@ -1,7 +1,7 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, description, group, helpText, room, player, baseDefence) {
+    constructor(name, description, group, helpText, room, player, baseDefence, roleblocker) {
         //Text info
         this.name = name; //Name of the role
         this.description = description; //Description of the role
@@ -25,6 +25,7 @@ class Role {
         this.attackers = []; //A list of visitors who attacked the player
 
         //Role Statuses
+        this.roleblocker = roleblocker; //If the class is a roleblocker class, who executes actions before the rest
         this.roleblocked = false; //If the player is being roleblocked at night
         this.dayTapped = false; //If the player is being daytapped (whispers to and fro are sent to tappers)
         this.nightTapped = false; //If the player is being nighttapped (They are warned, and any chat messages are sent to tappers)

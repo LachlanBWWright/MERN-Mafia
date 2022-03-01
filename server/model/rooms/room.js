@@ -285,15 +285,17 @@ class Room {
                     this.factionList[i].handleNightVote();
                 }
 
-                //Roleblocking classes give the victims the roleblocked attribute
+                //Roleblocking classes go first, and give the victims the roleblocked attribute
                 for(let i = 0; i < this.playerList.length; i++) {
-                    //TODO: Handle roleblocking.
+                    if(this.playerList[i].role.roleblocker) {
+                        this.playerList[i].role.visit();
+                    }
                 }
    
                 //Marks who has visited who, and handles players whose abilities were disabled by being roleblocked
                 for(let i = 0; i < this.playerList.length; i++) {
-                    if(this.playerList[i].role.roleblocked) { //Cancels vists for players that were roleblocked, and informs them.
-                        this.playerList.role.visiting = null;
+                    if(this.playerList[i].role.roleblocked && !this.playerList[i].role.roleblocker) { //Cancels vists for players that were roleblocked, and informs them.
+                        this.playerList[i].role.visiting = null;
                         this.io.to(this.playerList[i].socketId).emit('receive-message', 'You were roleblocked!');
                         this.playerList[i].role.roleblocked = false;
                     }
@@ -314,6 +316,7 @@ class Room {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them.
                         this.playerList[i].role.visiting = null; //Resets visiting.
+                        this.playerList[i].role.roleblocked = false; //Resets roleblocked status
                         this.playerList[i].role.visitors = []; //Resets visitor list.
                         this.playerList[i].role.nightTapped = false; //Undoes any nighttapping by the tapper class
                     }

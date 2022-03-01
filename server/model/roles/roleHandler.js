@@ -12,6 +12,7 @@ import Bodyguard from './bodyguard.js';
 import Nimby from './nimby.js';
 import Sacrificer from './sacrificer.js';
 import Fortifier from './fortifier.js';
+import Roleblocker from './roleblocker.js';
 
 import Mafia from './mafia.js';
 
@@ -59,7 +60,7 @@ class RoleHandler {
             case 6: roleList.push(Innocent);
             case 5: roleList.push(Judge);
             case 4: roleList.push(Lawman);
-            case 3: roleList.push(Sacrificer);
+            case 3: roleList.push(Roleblocker);
             case 2: roleList.push(Mafia);
             case 1: roleList.push(Fortifier);
                 break;
@@ -87,7 +88,7 @@ class RoleHandler {
             case 4: 
             case 3:
             case 2: factionList.push(new MafiaFaction(this.io));
-            case 1:
+            case 1: factionList.push(new LawmanFaction(this.io));
                 break;
             default:
                 console.log('Faction Assignment Error.');        

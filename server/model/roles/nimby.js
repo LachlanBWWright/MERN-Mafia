@@ -3,7 +3,7 @@ import Role from './role.js'
 class Nimby extends Role {
     constructor(room, player) {
         super('Nimby', 'Development in your neighbour\'s backyard was bad enough, but now your own property is under threat! Three times per game, you can go on alert and murder any visitors, defending yourself!', 
-        'town', 'At night, use /c yourName to go on alert.', room, player, 0);
+        'town', 'At night, use /c yourName to go on alert.', room, player, 0, false);
         this.alertSlots = 3;
     }
 

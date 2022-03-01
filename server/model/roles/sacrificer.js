@@ -3,7 +3,7 @@ import Role from './role.js'
 class Sacrificer extends Role {
     constructor(room, player) {
         super('Sacrificer', 'You can choose a person to protect every night. You will protect them, but will sacrifice yourself if they were attacked. The protected player will witness the names and roles of everybody who attacked them.', 
-        'town', 'At night, use /c playerName to choose who to protect.', room, player, 0);
+        'town', 'At night, use /c playerName to choose who to protect.', room, player, 0, false);
     }
 
     handleNightAction(message) { //Vote on who should be attacked
