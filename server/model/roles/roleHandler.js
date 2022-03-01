@@ -11,6 +11,7 @@ import Tracker from './tracker.js';
 import Bodyguard from './bodyguard.js';
 import Nimby from './nimby.js';
 import Sacrificer from './sacrificer.js';
+import Fortifier from './fortifier.js';
 
 import Mafia from './mafia.js';
 
@@ -57,10 +58,10 @@ class RoleHandler {
             case 7: roleList.push(Mafia);
             case 6: roleList.push(Innocent);
             case 5: roleList.push(Judge);
-            case 4: roleList.push(Watchman);
+            case 4: roleList.push(Lawman);
             case 3: roleList.push(Sacrificer);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Nimby);
+            case 1: roleList.push(Fortifier);
                 break;
             default:
                 console.log('Role Assignment Error.');

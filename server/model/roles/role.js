@@ -128,6 +128,7 @@ class Role {
     }
 
     handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage
+        if(this.baseDefence > this.defence) this.defence = this.baseDefence;
         if(this.damage > this.defence) { //Kills the player
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have died!');
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' has died. Their role was ' + this.name.toLowerCase() + '.'));
