@@ -31,7 +31,10 @@ class Bodyguard extends Role {
     handleVisits() {
         if(this.visiting != null) {
             for(let i = 0; i < this.visiting.visitors.length; i++) {
-                if(this.visiting.visitors[i].damage == 0 && this.visiting.visitors[i] != this && this.visiting.visitors[i] != this.visiting) this.visiting.visitors[i].damage = 1;
+                if(this.visiting.visitors[i] != this && this.visiting.visitors[i] != this.visiting) {
+                    if(this.visiting.visitors[i].damage == 0) this.visiting.visitors[i].damage = 1;
+                    this.visiting.visitors[i].attackers.push(this);
+                }
             }
         }
     }

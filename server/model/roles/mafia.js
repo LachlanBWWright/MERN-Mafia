@@ -27,9 +27,8 @@ class Mafia extends Role {
     visit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
-            if(this.visiting.damage == 0) {
-                this.visiting.damage = 1; //Attacks the victim
-            }
+            if(this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
+            this.visiting.attackers.push(this);
         }
     }
 }

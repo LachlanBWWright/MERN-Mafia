@@ -28,10 +28,11 @@ class Lawman extends Role {
 
     visit() { 
         if(this.visiting != null) { //Visits the person of the player choice
-            if(this.visiting.damage == 0) {
-                if(this.isInsane) this.room.io.to(this.player.socketId).emit('receive-message', 'You have gone insane, and are shooting someone randomly!');
-                this.visiting.damage = 1;
-            }
+            
+            if(this.isInsane) this.room.io.to(this.player.socketId).emit('receive-message', 'You have gone insane, and are shooting someone randomly!');
+            if(this.visiting.visitors[i].damage == 0) this.visiting.damage = 1;
+            this.visiting.attackers.push(this);
+
             this.visiting.receiveVisit(this);
             if(this.visiting.group == 'town') { //Go insane if a member of the town got shot
                 this.isInsane = true;

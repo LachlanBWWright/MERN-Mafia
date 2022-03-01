@@ -22,6 +22,7 @@ class Role {
         this.roleblocking = null; //The role that the player is roleblocking. This is separate to this.visiting due to it needing to be handled first.
         this.visiting = null; //The role that the player is visiting
         this.visitors = []; //A list of players visiting
+        this.attackers = []; //A list of visitors who attacked the player
 
         //Role Statuses
         this.roleblocked = false; //If the player is being roleblocked at night
@@ -132,6 +133,7 @@ class Role {
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' has died. Their role was ' + this.name.toLowerCase() + '.'));
             this.player.isAlive = false;
             this.damage = 0; //Stops the player from being spammed with death messages after they die.
+            this.attackers = [];
         }
         else { //Resets stats
             if(this.damage != 0) {
@@ -139,6 +141,7 @@ class Role {
             }
             this.defence = this.baseDefence;
             this.damage = 0;
+            this.attackers = [];
         }
     }
 }
