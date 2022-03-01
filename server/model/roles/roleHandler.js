@@ -7,6 +7,7 @@ import Investigator from './investigator.js';
 import Lawman from './lawman.js';
 import Vetter from './vetter.js';
 import Tapper from './tapper.js';
+import Tracker from './tracker.js';
 
 import Mafia from './mafia.js';
 
@@ -56,7 +57,7 @@ class RoleHandler {
             case 4: roleList.push(Watchman);
             case 3: roleList.push(Vetter);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Tapper);
+            case 1: roleList.push(Tracker);
                 break;
             default:
                 console.log('Role Assignment Error.');
@@ -82,7 +83,7 @@ class RoleHandler {
             case 4: 
             case 3:
             case 2: factionList.push(new MafiaFaction(this.io));
-            case 1: factionList.push(new LawmanFaction(this.io));
+            case 1:
                 break;
             default:
                 console.log('Faction Assignment Error.');        
