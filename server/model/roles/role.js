@@ -18,8 +18,15 @@ class Role {
         this.damage = 0; //The amount of damage that is received on a single night. If it's above defence, the player dies.
 
         //Role Action
+        this.dayVisiting = null; //The role that the player is visiting (from a rarer day command).
+        this.roleblocking = null; //The role that the player is roleblocking. This is separate to this.visiting due to it needing to be handled first.
         this.visiting = null; //The role that the player is visiting
         this.visitors = []; //A list of players visiting
+
+        //Role Statuses
+        this.roleblocked = false; //If the player is being roleblocked at night
+        this.dayTapped = false; //If the player is being daytapped (whispers to and fro are sent to tappers)
+        this.nightTapped = false; //If the player is being nighttapped (They are warned, and any chat messages are sent to tappers)
     }
 
     assignFaction(faction) { //Assigns the player a faction class
@@ -37,6 +44,7 @@ class Role {
         else { //Calls the function for handling the night chat.
             try {
                 this.faction.handleNightMessage(message, this.player.playerUsername);
+                if(this.nightTapped != false) this.room.io.to(this.nightTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
             }
             catch(error) {
                 console.log(error);
@@ -46,33 +54,45 @@ class Role {
     }
 
     handlePrivateMessage(message, recipient) { //Message string, recipient's class
-        message = message.substring(2).trim(); //Remove the /w, then spaces at the front/back
-        let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /w, which should be the username of the recipient
-        
-        recipient = this.room.getPlayerByUsername(messageRecipientName);
-        console.log(message + ' to: ' + recipient.playerUsername);
-        message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
+        try{
+            message = message.substring(2).trim(); //Remove the /w, then spaces at the front/back
+            let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /w, which should be the username of the recipient
+            
+            recipient = this.room.getPlayerByUsername(messageRecipientName);
+            console.log(message + ' to: ' + recipient.playerUsername);
+            message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
 
-        if(this.room.time == 'night') {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot whisper at night.');
-        }
-        else if(recipient !== false && this.room.time == 'day' && recipient.isAlive) {
-            if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
-                this.room.io.to(this.player.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
-                this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + '.'));
+            if(this.room.time == 'night') {
+                this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot whisper at night.');
+            }
+            else if(recipient !== false && this.room.time == 'day' && recipient.isAlive) {
+                if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
+                    this.room.io.to(this.player.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
+                    this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + ', but was overheard by the town!'));
+                }
+                else {
+                    this.room.io.to(recipient.socketId).emit('receive-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
+                    this.room.io.to(this.player.socketId).emit('receive-message', 'Whisper to ' + messageRecipientName + ': ' + message);
+                    if(this.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
+                    else if(this.recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
+                } 
             }
             else {
-                this.room.io.to(recipient.socketId).emit('receive-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
-                this.room.io.to(this.player.socketId).emit('receive-message', 'Whisper to ' + messageRecipientName + ': ' + message);
-            } 
+                this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');
+            }
         }
-        else {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');
+        catch(error) {
+            console.log(error);
         }
     }
 
     handleDayAction(message) { //Handles the class' daytime action
         this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no daytime action.');
+    }
+
+    cancelDayAction() { //Faction-based classes should override this function
+        this.room.io.to(this.player.socketId).emit('receive-message', 'You have cancelled your class\' daytime action.');
+        this.dayVisiting = null;
     }
 
     handleNightAction(message) { //Handles the class' nighttime action
@@ -84,15 +104,26 @@ class Role {
         this.visiting = null;
     }
 
-    visit() { //Visit another player
+    dayVisit() { //Visit another player (Day)
+
+    }
+
+    visit() { //Visit another player (Night)
         console.log('This should be overridden by a child class.');
     }
 
-    receiveVisit(role) { //Called by another player visiting
+    receiveDayVisit(role) { //Called by another player visiting at night
+        //TODO: Consider adding to this
+    }
+
+    receiveVisit(role) { //Called by another player visiting at day
         this.visitors.push(role);
     }
 
-    handleVisits() { //Overridden by some child classes
+    handleDayVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
+    }
+
+    handleVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
     }
 
     handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage

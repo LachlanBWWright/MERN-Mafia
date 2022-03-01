@@ -102,7 +102,8 @@ class Room {
                             foundPlayer.role.handlePrivateMessage(message);
                         }
                         else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'day') { //Handle daytime commands
-                            foundPlayer.role.handleDayAction(message);
+                            if(message.length == 2)  foundPlayer.role.cancelDayAction();
+                            else foundPlayer.role.handleDayAction(message);
                         }
                         else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
                             if(message.length == 2)  foundPlayer.role.cancelNightAction();
@@ -182,6 +183,17 @@ class Room {
         this.io.to(this.name).emit('receive-message', ('Day 1 has started.'));
         this.time='day';
         setTimeout(() => {
+            try {
+                for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].isAlive) {
+                        this.playerList[i].role.dayVisit();
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error)
+            }
+
             this.startNightSession(1, sessionLength)
         }, 5000); //Starts the first day quicker 
     }
@@ -223,6 +235,21 @@ class Room {
                         this.io.to(livingPlayerList[i].playerSocketId).emit('receive-message', 'You have been voted out of the town.');
                     }
                 }
+
+                //Handles day visits
+                for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].isAlive) {
+                        this.playerList[i].role.dayVisit();
+                        this.playerList[i].role.dayTapped = false; //Undoes any daytapping by the tapper class
+                    }
+                }
+
+                //TODO: Consider removing this
+                //handleDayVisits (Might not be needed)
+/*                 for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].isAlive) {
+                    }
+                } */
             }
             catch(error) { //If something goes wrong in the game logic, just start the next period of time
                 console.log(error);
@@ -258,27 +285,37 @@ class Room {
                     this.factionList[i].handleNightVote();
                 }
 
-                //TODO: Consider adding roleblock mechanic before tasks are carried out.
-
+                //Roleblocking classes give the victims the roleblocked attribute
                 for(let i = 0; i < this.playerList.length; i++) {
-                    if(this.playerList[i].role.visiting != null) {
+                    //TODO: Handle roleblocking.
+                }
+   
+                //Marks who has visited who, and handles players whose abilities were disabled by being roleblocked
+                for(let i = 0; i < this.playerList.length; i++) {
+                    if(this.playerList[i].role.roleblocked) { //Cancels vists for players that were roleblocked, and informs them.
+                        this.playerList.role.visiting = null;
+                        this.io.to(this.playerList[i].socketId).emit('receive-message', 'You were roleblocked!');
+                        this.playerList[i].role.roleblocked = false;
+                    }
+                    else if(this.playerList[i].role.visiting != null) {
                         this.playerList[i].role.visit();
                     }
                 }
-
-                //Kills players who have been attacked without an adequate defence
+                
+                //Executes the effects that each visit has
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.handleVisits(); //Handles actions for certain roles whose behaviour depends on who has visited who.
                     }
                 }
 
-                //Resets visits after night logic has been completed
+                //Kills players who have been attacked without an adequate defence, resets visits after night logic has been completed
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them.
                         this.playerList[i].role.visiting = null; //Resets visiting.
                         this.playerList[i].role.visitors = []; //Resets visitor list.
+                        this.playerList[i].role.nightTapped = false; //Undoes any nighttapping by the tapper class
                     }
                 }
                 
