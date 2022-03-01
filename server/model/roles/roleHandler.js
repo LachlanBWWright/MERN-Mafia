@@ -9,6 +9,7 @@ import Vetter from './vetter.js';
 import Tapper from './tapper.js';
 import Tracker from './tracker.js';
 import Bodyguard from './bodyguard.js';
+import Nimby from './nimby.js';
 
 import Mafia from './mafia.js';
 
@@ -58,7 +59,7 @@ class RoleHandler {
             case 4: roleList.push(Watchman);
             case 3: roleList.push(Vetter);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Bodyguard);
+            case 1: roleList.push(Nimby);
                 break;
             default:
                 console.log('Role Assignment Error.');
