@@ -315,10 +315,12 @@ class Room {
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them.
+                        this.playerList[i].role.dayVisiting = null; //Resets dayvisiting
                         this.playerList[i].role.visiting = null; //Resets visiting.
                         this.playerList[i].role.roleblocked = false; //Resets roleblocked status
                         this.playerList[i].role.visitors = []; //Resets visitor list.
-                        this.playerList[i].role.nightTapped = false; //Undoes any nighttapping by the tapper class
+                        this.playerList[i].role.nightTapped = false; 
+                        this.playerList[i].role.jailed = false;
                     }
                 }
                 

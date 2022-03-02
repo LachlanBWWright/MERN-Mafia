@@ -29,6 +29,7 @@ class Role {
         this.roleblocked = false; //If the player is being roleblocked at night
         this.dayTapped = false; //If the player is being daytapped (whispers to and fro are sent to tappers)
         this.nightTapped = false; //If the player is being nighttapped (They are warned, and any chat messages are sent to tappers)
+        this.jailed = false;
     }
 
     assignFaction(faction) { //Assigns the player a faction class
