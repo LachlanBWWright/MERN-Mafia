@@ -13,6 +13,7 @@ import Nimby from './nimby.js';
 import Sacrificer from './sacrificer.js';
 import Fortifier from './fortifier.js';
 import Roleblocker from './roleblocker.js';
+import Jailor from './jailor.js';
 
 import Mafia from './mafia.js';
 
@@ -62,7 +63,7 @@ class RoleHandler {
             case 4: roleList.push(Lawman);
             case 3: roleList.push(Roleblocker);
             case 2: roleList.push(Mafia);
-            case 1: roleList.push(Fortifier);
+            case 1: roleList.push(Jailor);
                 break;
             default:
                 console.log('Role Assignment Error.');

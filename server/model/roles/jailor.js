@@ -4,7 +4,6 @@ class Jailor extends Role {
     constructor(room, player) {
         super('Jailor', 'At day, you can choose to jail a player, blocking their abilities. You can then interrogate them, and choose to execute them.', 
         'town', 'At day and night, use /c playerName to choose who to tap.', room, player, 0, false);
-        this.jailee = null;
     }
 
     handleDayAction(message) { //Choose to jail a player
@@ -27,32 +26,41 @@ class Jailor extends Role {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You haven\'t jailed anyone, so you cannot do anything.');
         }
         else {
-            if(this.visiting == null) {
+            if(this.visiting == null) { //To be exectued
                 this.visiting = this.dayVisiting;
                 this.room.io.to(this.player.socketId).emit('receive-message', 'You have decided to execute the prisoner.');
-                this.room.io.to(this.jailee.player.socketId).emit('receive-message', 'The jailor has decided to execute you');
+                this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', 'The jailor has decided to execute you');
             }
-            else {
-                this.visiting = this.dayVisiting;
+            else { //Cancels the execution
+                this.visiting = null;
                 this.room.io.to(this.player.socketId).emit('receive-message', 'You have decided not to execute the prisoner.');
-                this.room.io.to(this.jailee.player.socketId).emit('receive-message', 'The jailor has decided not to execute you');
+                this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', 'The jailor has decided not to execute you');
             }
         }
     }
 
-    dayVisit() { //Jails the player
+    dayVisit() { //Tells the player that they've been jailed, and roleblocks them. dayVisiting is called at the end of a day session.
         if(this.dayVisiting != null) {
-            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', 'You have been wiretapped! Any message you send can be heard by a tapper.');
-            this.dayVisiting.receiveDayVisit(this);
-            this.dayVisiting.nightTapped = this;
+            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', 'You have been jailed!');
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have jailed your target.');
+            this.dayVisiting.jailed = this;
+            this.dayVisiting.roleblocked = true;
         }
     }
 
     visit() { //Executes the player being jailed
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
-            this.visiting.dayTapped = this;
+            if(this.visiting.damage == 0) this.visiting.damage = 3; //Attacks the victim
+            this.visiting.attackers.push(this);
         }
+    }
+
+    handleVisits() {
+        if(this.dayVisiting != null) this.dayVisiting.jailed = null; //Resets if the victim has been jailed
+        if(this.dayVisiting != null) { //Protect the jailee if they weren't executed
+           if(this.dayVisiting.baseDefence == 0) this.dayVisiting.defence = 1;
+        }  
     }
 }
 

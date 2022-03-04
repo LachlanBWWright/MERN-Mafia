@@ -64,8 +64,14 @@ class Room {
         console.log('Disconnect Test');
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId && !this.gameHasEnded) { //!gameHasEnded stops leaving messages when the clients are booted when the game ends
-                this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
-                this.playerList.splice(i, 1); //This should remove the player from the array
+                if(!this.started) { //Removes the player if the game has not started
+                    this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
+                    this.playerList.splice(i, 1); //This should remove the player from the array
+                }
+                else { //Kills the player if the game has started
+                    this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has abandoned the game!'))
+                    this.playerList[i].role.damage = 999;
+                }
             }
         }
     }
@@ -106,8 +112,13 @@ class Room {
                             else foundPlayer.role.handleDayAction(message);
                         }
                         else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
-                            if(message.length == 2)  foundPlayer.role.cancelNightAction();
-                            else foundPlayer.role.handleNightAction(message);
+                            if(!foundPlayer.role.roleblocked) {
+                                if(message.length == 2)  foundPlayer.role.cancelNightAction();
+                                else foundPlayer.role.handleNightAction(message);
+                            }
+                            else { //Generally, the only time when a player is roleblocked before the end of night is when they are jailed
+                                this.io.to(playerSocketId).emit('receive-message', 'You are roleblocked, and cannot call commands.');
+                            }
                         }
                         else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time != 'day') {
                             this.io.to(playerSocketId).emit('receive-message', 'You cannot vote at night.');
@@ -184,6 +195,7 @@ class Room {
         this.time='day';
         setTimeout(() => {
             try {
+                this.io.to(this.name).emit('receive-message', ('Night 1 has started.'));
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.dayVisit();
@@ -236,6 +248,8 @@ class Room {
                     }
                 }
 
+                this.io.to(this.name).emit('receive-message', ('Night ' + dayNumber + ' has started.'));
+
                 //Handles day visits
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
@@ -243,13 +257,6 @@ class Room {
                         this.playerList[i].role.dayTapped = false; //Undoes any daytapping by the tapper class
                     }
                 }
-
-                //TODO: Consider removing this
-                //handleDayVisits (Might not be needed)
-/*                 for(let i = 0; i < this.playerList.length; i++) {
-                    if(this.playerList[i].isAlive) {
-                    }
-                } */
             }
             catch(error) { //If something goes wrong in the game logic, just start the next period of time
                 console.log(error);
@@ -272,7 +279,6 @@ class Room {
     }
 
     startNightSession(nightNumber, sessionLength) {
-        this.io.to(this.name).emit('receive-message', ('Night ' + nightNumber + ' has started.'));
         this.time='night';
         
         setTimeout(() => {
@@ -320,7 +326,6 @@ class Room {
                         this.playerList[i].role.roleblocked = false; //Resets roleblocked status
                         this.playerList[i].role.visitors = []; //Resets visitor list.
                         this.playerList[i].role.nightTapped = false; 
-                        this.playerList[i].role.jailed = false;
                     }
                 }
                 

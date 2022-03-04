@@ -29,7 +29,7 @@ class Role {
         this.roleblocked = false; //If the player is being roleblocked at night
         this.dayTapped = false; //If the player is being daytapped (whispers to and fro are sent to tappers)
         this.nightTapped = false; //If the player is being nighttapped (They are warned, and any chat messages are sent to tappers)
-        this.jailed = false;
+        this.jailed = null; //Null if not jailed, reference to the jailor's class if jailed.
     }
 
     assignFaction(faction) { //Assigns the player a faction class
@@ -40,6 +40,14 @@ class Role {
     handleMessage(message) {
         if(this.room.time == 'day') { //Free speaking only at daytime
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
+        }
+        else if(this.jailed != null) { //Special logic for jailor-jailee conversation
+            this.room.io.to(this.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.jailed.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+        }
+        else if(this.name == 'Jailor' && this.dayVisiting != null) {
+            this.room.io.to(this.player.socketId).emit('receive-message', ('Jailor: ' + message));
+            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', ('Jailor: ' + message));
         }
         else if (typeof this.faction === 'undefined'){ //If the player isn't in a faction, they can't talk at night
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
@@ -53,7 +61,6 @@ class Role {
                 console.log(error);
             }
         }
-        
     }
 
     handlePrivateMessage(message, recipient) { //Message string, recipient's class
