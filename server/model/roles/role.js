@@ -140,6 +140,7 @@ class Role {
         if(this.baseDefence > this.defence) this.defence = this.baseDefence;
         if(this.damage > this.defence) { //Kills the player
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have died!');
+            this.room.io.to(this.player.socketId).emit('block-messages');
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' has died. Their role was ' + this.name.toLowerCase() + '.'));
             this.player.isAlive = false;
             this.damage = 0; //Stops the player from being spammed with death messages after they die.

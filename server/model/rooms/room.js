@@ -173,6 +173,7 @@ class Room {
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
+            this.io.to(this.playerList[i].socketId).emit('receive-role', this.playerList[i].role.name.toString());
             this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)); //Sends each player their role
             this.io.to(this.playerList[i].socketId).emit('receive-message', this.playerList[i].role.description);
         }
@@ -245,6 +246,7 @@ class Room {
                         this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
                         livingPlayerList[i].isAlive = false;
                         this.io.to(livingPlayerList[i].playerSocketId).emit('receive-message', 'You have been voted out of the town.');
+                        this.io.to(livingPlayerList[i].playerSocketId).emit('block-messages');
                     }
                 }
 
@@ -408,6 +410,7 @@ class Room {
 
         setTimeout(() => {
             this.io.to(this.name).emit('receive-message', 'Closing the room!');
+            this.io.to(this.name).emit('block-messages');
             this.io.in(this.name).disconnectSockets();
         }, 30000);
     }

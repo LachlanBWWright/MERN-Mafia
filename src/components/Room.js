@@ -8,6 +8,7 @@ class Room extends React.Component {
 
         this.state = {
             textMessage: '',
+            canTalk: true,
             messages: []
         };
 
@@ -19,7 +20,6 @@ class Room extends React.Component {
         this.socket = io('http://localhost:5000');
     }
 
-    //TODO: Scrolling
     render() {
         return (
             <>
@@ -28,16 +28,26 @@ class Room extends React.Component {
                     
                 </div>
                 <hr></hr>
+
+                {/* Show text box or disconnect button */}
                 <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
                     <Container fluid>
-                        <Row className="justify-content-xl-center" xs="auto">
-                            <Col md={8}>
-                                <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
-                            </Col>
-                            <Col md={2}>
-                                <Button variant='danger' onClick={this.sendMessage} className="btn-block">Submit</Button> 
-                            </Col>
-                        </Row>
+                        {this.state.canTalk ?
+                            <Row className="justify-content-xl-center" xs="auto"> 
+                                <Col md={8}>
+                                    <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                </Col>
+                                <Col md={2}>
+                                    <Button variant='danger' onClick={this.sendMessage} className="btn-block">Submit</Button> 
+                                </Col>
+                            </Row>
+                        : 
+                            <Row className="justify-content-xl-center" xs="auto">
+                                <Col md={2}>
+                                    <Button variant='danger' onClick={() => {this.props.setRoom(''); this.props.setName(''); }} className="btn-block">Disconnect</Button> 
+                                </Col>
+                            </Row>
+                        }
                     </Container>
                 </Form>
            </>
@@ -46,8 +56,7 @@ class Room extends React.Component {
     }
 
     changeText(event) {
-        this.setState({textMessage: event.target.value})
-        //console.log('Changed text: ' + this.state.textMessage)  
+        this.setState({textMessage: event.target.value})  
     }
 
     sendMessage() {
@@ -61,35 +70,41 @@ class Room extends React.Component {
     componentDidMount() {
         this.socket.on('connect', () => {
             console.log('You connected to the socket with ID ' + this.socket.id);
-          })
+        })
         
         this.socket.on('receive-message', (inMsg) => {
-            this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
-            console.log('Message Received')
             //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
         })
 
+        this.socket.on('receive-role', (roleMsg) => {
+            this.props.setRole(roleMsg);
+        })
+
+        this.socket.on('block-messages', () => {
+            this.setState({canTalk: false});
+        })
+
         //TODO: Make callback take the user back to the room select page
-        console.log('Joining a room');
         this.socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, callback => {
             console.log(callback)
             if(!callback) {
                 //TODO: Tell the user why their attempt to join failed
                 console.log('callback: ' + callback)
                 this.props.setRoom('');
-                console.log('Setting name')
                 this.props.setName('');
-                
+                this.props.setRole('not yet assigned');
             }
         });
 
     }
 
     componentWillUnmount() {
-        this.socket.off('receive-message')
+        this.socket.off('receive-message');
+        this.socket.off('block-messages');
+        this.socket.off('receive-role');
         this.socket.disconnect();
     }
 

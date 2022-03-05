@@ -12,7 +12,8 @@ class PlayPage extends React.Component {
         this.state = {
             playerNameBox: '',
             playerName: '',
-            playerRoom: ''
+            playerRoom: '',
+            playerRole: 'not yet assigned'
 
         }
 
@@ -21,6 +22,7 @@ class PlayPage extends React.Component {
         this.setName = this.setName.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleRoomChange = this.handleRoomChange.bind(this);
+        this.handleRoleChange = this.handleRoleChange.bind(this);
     }
 
     //TODO: Call server, check if the player is already in an existing room, and render it
@@ -30,13 +32,16 @@ class PlayPage extends React.Component {
     }
 
     handleRoomChange(room) {
-        console.log('Room Set!')
         this.setState({playerRoom: room});
     }
 
     handleNameChange(name) {
         this.setState({playerName: name});
-        console.log('Name set');
+
+    }
+
+    handleRoleChange(role) {
+        this.setState({playerRole: role});
     }
     
     setName() { //Changes the state to reflect the selected name
@@ -54,8 +59,8 @@ class PlayPage extends React.Component {
                 <div style={{padding: '2vh', width: '30 rem'}}>
                     <Card>
                         <Card.Body>
-                            <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}.</Card.Text>
-                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setName={this.handleNameChange} setRoom={this.handleRoomChange}/> {/*TODO - Pass necessary params down to the room*/} 
+                            <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}. Your role is {this.state.playerRole}.</Card.Text>
+                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setName={this.handleNameChange} setRoom={this.handleRoomChange} setRole={this.handleRoleChange}/> {/*TODO - Pass necessary params down to the room*/} 
                         </Card.Body>
                     </Card>
                 </div>  
