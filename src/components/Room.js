@@ -1,6 +1,7 @@
 import React from 'react';
 import io from 'socket.io-client'/* '../socket' */
-import {Form, Container, Row, Col, Button} from 'react-bootstrap';
+import {Form, Container, Row, Col, Button, ListGroup} from 'react-bootstrap';
+import PlayerItem from './PlayerItem.js'
 
 class Room extends React.Component {
     constructor(props) {
@@ -9,7 +10,8 @@ class Room extends React.Component {
         this.state = {
             textMessage: '',
             canTalk: true,
-            messages: []
+            messages: [],
+            playerList: []
         };
 
         this.changeText = this.changeText.bind(this);
@@ -23,13 +25,29 @@ class Room extends React.Component {
     render() {
         return (
             <>
-                <div style={{height: '65vh', overflowY: 'scroll'}} ref={this.scrollRef}>
-                    {this.state.messages && this.state.messages.map(msg => <p>{msg}</p>)}
-                    
-                </div>
+                <Container fluid>
+                    <Row>
+                        <Col md="auto" style={{height: '80vh', overflow: 'auto'}}>
+                            <p>Day Number 1, Time Remaining 0:23</p>
+                            <ListGroup>
+                                {/* No variant - Game not started, Secondary: Alive, Green - Currently visiting, Red: Dead */}
+                                <PlayerItem canWhisper={false} canVisit={true} username="mmmmmmmmmmmm (Jailor)" variant=""/>
+                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="primary"/>
+                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="success"/>
+                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="danger"/>
+                                {this.state.playerList && this.state.playerList.map(player => <PlayerItem canWhisper={false} canVisit={true} username="mmmmmmmmmmmm" variant=""/>  )}
+                            </ListGroup>
+                        </Col>
+                        <Col>
+                            <div style={{height: '80vh', overflowY: 'scroll'}} ref={this.scrollRef}>
+                                {this.state.messages && this.state.messages.map((msg, index) => <p key={index}>{msg}</p>)}
+                            </div>
+                        </Col>
+                    </Row>
+                </Container>
+
                 <hr></hr>
 
-                {/* Show text box or disconnect button */}
                 <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
                     <Container fluid>
                         {this.state.canTalk ?
@@ -77,6 +95,7 @@ class Room extends React.Component {
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
+            this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
         })
 
         this.socket.on('receive-role', (roleMsg) => {
