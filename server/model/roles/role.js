@@ -145,6 +145,12 @@ class Role {
             this.player.isAlive = false;
             this.damage = 0; //Stops the player from being spammed with death messages after they die.
             this.attackers = [];
+
+            let tempPlayer = {};
+            tempPlayer.name = this.player.playerUsername;
+            tempPlayer.role = this.name;
+            this.room.io.to(this.room.name).emit('update-player-role', tempPlayer);
+
         }
         else { //Resets stats
             if(this.damage != 0) {

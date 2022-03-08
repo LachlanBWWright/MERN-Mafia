@@ -34,9 +34,15 @@ class Room {
             }
         }
 
+        this.emitPlayerList(playerSocketId);
+
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
         this.playerList.push(new Player(playerSocketId, playerUsername)); //Adds a player to the array
         this.playerCount = Object.keys(this.playerList).length; //Updates the player count
+
+        let playerObject = {};
+        playerObject.name = playerUsername            
+        this.io.to(this.name).emit('receive-new-player', playerObject);
         
         //Starts the game if the room has filled its maximum size
         if(this.playerCount === this.size) {
@@ -54,6 +60,7 @@ class Room {
             }
             playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
             this.io.to(this.name).emit('receive-message', playerAnnounce); 
+            this.emitPlayerList(this.name);
 
             this.startGame();
         }
@@ -65,8 +72,13 @@ class Room {
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId && !this.gameHasEnded) { //!gameHasEnded stops leaving messages when the clients are booted when the game ends
                 if(!this.started) { //Removes the player if the game has not started
+                    let playerObject = {};
+                    playerObject.name = this.playerList[i].playerUsername;            
+                    this.io.to(this.name).emit('remove-player', playerObject);
+                    
                     this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
                     this.playerList.splice(i, 1); //This should remove the player from the array
+                    this.playerCount = Object.keys(this.playerList).length;
                 }
                 else { //Kills the player if the game has started
                     this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has abandoned the game!'))
@@ -91,6 +103,20 @@ class Room {
             }      
         }
         return false;
+    }
+
+    emitPlayerList(socketId) { //Returns a player list 
+        let playersReturned = [];
+
+        for(let i = 0; i < this.playerList.length; i++) {
+            let playerReturned = {};
+            playerReturned.name = this.playerList[i].playerUsername;
+            if(this.started) playerReturned.isAlive = this.playerList[i].isAlive; //isAlive is undefined if the game has not started
+            if(this.started && !this.playerList[i].isAlive) this.playerList[i].role.name; //Reveals the role if the player is dead, and the game has started
+            playersReturned.push(playerReturned);
+        }
+
+        this.io.to(socketId).emit('receive-player-list', playersReturned);
     }
 
     //Handles users sending messages to the chat 
@@ -173,9 +199,13 @@ class Room {
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
-            this.io.to(this.playerList[i].socketId).emit('receive-role', this.playerList[i].role.name.toString());
             this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)); //Sends each player their role
             this.io.to(this.playerList[i].socketId).emit('receive-message', this.playerList[i].role.description);
+
+            let playerReturned = {};
+            playerReturned.name = this.playerList[i].playerUsername;
+            playerReturned.role = this.playerList[i].role.name;
+            this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
 
         //Assigns roles to each faction, then factions to each relevant role.
@@ -194,6 +224,13 @@ class Room {
     startFirstDaySession(sessionLength) {
         this.io.to(this.name).emit('receive-message', ('Day 1 has started.'));
         this.time='day';
+
+        let dateTimeJson = {}
+        dateTimeJson.time = 'Day';
+        dateTimeJson.dayNumber = 1;
+        dateTimeJson.timeLeft = 5;
+        this.io.to(this.name).emit('update-day-time', dateTimeJson);
+
         setTimeout(() => {
             try {
                 this.io.to(this.name).emit('receive-message', ('Night 1 has started.'));
@@ -213,6 +250,12 @@ class Room {
 
     startDaySession(dayNumber, sessionLength) {
         this.time='day';
+
+        let dateTimeJson = {}
+        dateTimeJson.time = 'Day';
+        dateTimeJson.dayNumber = dayNumber;
+        dateTimeJson.timeLeft = Math.floor(sessionLength/1000 + 10); //Converts ms to s, adds the 10s minimum
+        this.io.to(this.name).emit('update-day-time', dateTimeJson);
 
         //Announcements to the game
         this.io.to(this.name).emit('receive-message', ('Day ' + dayNumber + ' has started.'));
@@ -245,6 +288,11 @@ class Room {
                     if(votesForPlayer >= votesRequired) {
                         this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
                         livingPlayerList[i].isAlive = false;
+
+                        let tempPlayer = {};
+                        tempPlayer.name = livingPlayerList[i].playerUsername;
+                        this.io.to(this.name).emit('update-player-role', tempPlayer);
+
                         this.io.to(livingPlayerList[i].playerSocketId).emit('receive-message', 'You have been voted out of the town.');
                         this.io.to(livingPlayerList[i].playerSocketId).emit('block-messages');
                     }
@@ -283,6 +331,12 @@ class Room {
     startNightSession(nightNumber, sessionLength) {
         this.time='night';
         
+        let dateTimeJson = {}
+        dateTimeJson.time = 'Night';
+        dateTimeJson.dayNumber = nightNumber;
+        dateTimeJson.timeLeft = Math.floor(sessionLength/2000 + 10); //Converts ms to s (nights are half the sessionLength), and then adds the 10s minimum
+        this.io.to(this.name).emit('update-day-time', dateTimeJson);
+
         setTimeout(() => {
             try {
                 this.time='undefined' //Prevents users from changing their visits

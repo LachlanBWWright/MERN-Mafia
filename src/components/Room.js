@@ -10,6 +10,9 @@ class Room extends React.Component {
         this.state = {
             textMessage: '',
             canTalk: true,
+            time: 'Day',
+            dayNumber: 0,
+            timeLeft: 0,
             messages: [],
             playerList: []
         };
@@ -27,19 +30,14 @@ class Room extends React.Component {
             <>
                 <Container fluid>
                     <Row>
-                        <Col md="auto" style={{height: '80vh', overflow: 'auto'}}>
-                            <p>Day Number 1, Time Remaining 0:23</p>
+                        <Col md="auto" style={{height: '70vh', overflow: 'auto'}}>
+                            {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
                             <ListGroup>
-                                {/* No variant - Game not started, Secondary: Alive, Green - Currently visiting, Red: Dead */}
-                                <PlayerItem canWhisper={false} canVisit={true} username="mmmmmmmmmmmm (Jailor)" variant=""/>
-                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="primary"/>
-                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="success"/>
-                                <PlayerItem canWhisper={false} canVisit={true} username="TestUsername" variant="danger"/>
-                                {this.state.playerList && this.state.playerList.map(player => <PlayerItem canWhisper={false} canVisit={true} username="mmmmmmmmmmmm" variant=""/>  )}
+                                {this.state.playerList && this.state.playerList.map(player => <PlayerItem key={player.name} canWhisper={false} canVisit={true} username={player.name} role={player.role} isAlive={player.isAlive}/>  )}
                             </ListGroup>
                         </Col>
                         <Col>
-                            <div style={{height: '80vh', overflowY: 'scroll'}} ref={this.scrollRef}>
+                            <div style={{height: '70vh', overflowY: 'scroll'}} ref={this.scrollRef}>
                                 {this.state.messages && this.state.messages.map((msg, index) => <p key={index}>{msg}</p>)}
                             </div>
                         </Col>
@@ -93,14 +91,75 @@ class Room extends React.Component {
         this.socket.on('receive-message', (inMsg) => {
             //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
+                this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
         })
 
-        this.socket.on('receive-role', (roleMsg) => {
-            this.props.setRole(roleMsg);
+        this.socket.on('receive-player-list', (listJson) => { //Receive all players upon joining, and the game starting
+            //this.setState({playerList: []});
+            //this.setState({playerList: [...listJson]});
+            this.setState({playerList: listJson});
+        });
+
+        this.socket.on('receive-new-player', (playerJson) => { //Called when a new player joins the lobby
+            this.setState({ playerList: [...this.state.playerList, playerJson]})
         })
+
+        this.socket.on('remove-player', (playerJson) => { //Called when a player leaves the lobby before the game starts
+            console.log('Removing player ' + playerJson.name);
+            this.setState({ playerList: this.state.playerList.filter(player => player.name !== playerJson.name)});
+            //this.props.setRole(roleMsg);
+        })
+
+        this.socket.on('assign-player-role', (playerJson) => { //Shows the player their own role, lets the client know that this is who they are playing as 
+            let tempPlayerList = [...this.state.playerList];
+            let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
+            tempPlayerList[index].role = playerJson.role;
+            tempPlayerList[index].isUser = true;
+
+            this.setState({playerList: tempPlayerList});
+        })
+
+        this.socket.on('update-player-role', (playerJson) => { //Updates player role upon their death
+            let tempPlayerList = [...this.state.playerList];
+            let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
+            if(playerJson.role !== undefined) tempPlayerList[index].role = playerJson.role;
+            tempPlayerList[index].isAlive = false;
+            this.setState({playerList: tempPlayerList});
+        })
+
+        this.socket.on('update-player-death', (playerJson) => { //Updates player to reference their death
+            //JSON contains player name
+            //Get player by name, update properties, update JSON
+
+        })
+
+        this.socket.on('update-player-visit', (playerJson) => { //Updates player to indicate that the player is visiting them
+            //JSON contains player name
+            //Get player by name, update properties, update JSON
+
+        })
+
+        this.socket.on('update-day-time', (infoJson) => { //Gets whether it is day or night, and how long there is left in the session
+/*             time: 'Day',
+            dayNumber: 0,
+            timeLeft: 0, */
+            this.setState({time: infoJson.time});
+            this.setState({dayNumber: infoJson.dayNumber});
+            let timeLeft = infoJson.timeLeft;
+            let countDown = setInterval(() => {
+                if(timeLeft > 0) {
+                    this.setState({timeLeft: timeLeft - 1});
+                    timeLeft--;
+                }
+                else {
+                    clearInterval(countDown);
+                }
+            }, 1000)
+        })
+
 
         this.socket.on('block-messages', () => {
             this.setState({canTalk: false});
@@ -124,6 +183,12 @@ class Room extends React.Component {
         this.socket.off('receive-message');
         this.socket.off('block-messages');
         this.socket.off('receive-role');
+        this.socket.off('receive-player-list');
+        this.socket.off('receive-new-player');
+        this.socket.off('remove-player');
+        this.socket.off('update-player-role');
+        this.socket.off('update-player-death');
+        this.socket.off('update-player-visit');
         this.socket.disconnect();
     }
 

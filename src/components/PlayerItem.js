@@ -7,7 +7,9 @@ class PlayerItem extends React.Component {
 
         this.state = ({
             visitClicked: true,
-            role: null
+            variant: "",
+            canWhisper: false,
+            canVisit: false
         });
 
         this.handleWhisperClick = this.handleWhisperClick.bind(this);
@@ -17,14 +19,14 @@ class PlayerItem extends React.Component {
 
     render() {
         return (
-            <ListGroup.Item variant={this.props.variant}>
+            <ListGroup.Item variant={this.state.variant}>
                 <Row>
                     <Col>
-                        {this.props.username} {this.state.role != null?"(" + this.props.role + ")":""}
+                        {this.props.username} {this.props.role !== undefined?`(${this.props.role})`:""}
                     </Col>
                     <Col md="auto">
-                        <Button disabled={!this.props.canWhisper} variant="primary">Whisper</Button>
-                        <Button disabled={!this.props.canVisit}  variant={this.state.visitClicked?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>
+                        <Button disabled={!this.state.canWhisper} variant="primary">Whisper</Button>
+                        <Button disabled={!this.state.canVisit}  variant={this.state.visitClicked?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>
                     </Col>
                 </Row>
             </ListGroup.Item>
@@ -39,8 +41,17 @@ class PlayerItem extends React.Component {
         this.setState({visitClicked: !this.state.visitClicked});
     }
 
-    componentDidMount() {
-
+    componentDidUpdate(prevProps, prevState) {
+        //Sets the ListGroupItem's colour to represent the player's state
+        //if(!this.props.isAlive) this.setState({variant: "danger"});
+        if(this.props.isAlive !== prevProps.isAlive) {
+            if(this.props.isAlive)  {
+                this.setState({variant: "primary", canVisit: "true", canWhisper: "true"});
+            }
+            else  {
+                this.setState({variant: "danger", canVisit: "false", canWhisper: "false"});
+            }
+        }
     }
 
     componentWillUnmount() {

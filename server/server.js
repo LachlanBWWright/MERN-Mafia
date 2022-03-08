@@ -49,7 +49,9 @@ io.on('connection', socket => {
             if(name.length >=3 && name.length <= 12) {  
                 socket.join(room); //Joins room, messages will be received accordingly
                 socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
+                
                 socket.data.roomObject.addPlayer(socket.id, name);
+                /* socket.data.roomObject.emitPlayerList(socket.id); */
                 cb(socket.data.roomObject.isInRoom(socket.id));
             }
         }
