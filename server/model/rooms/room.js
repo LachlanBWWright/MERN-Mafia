@@ -287,14 +287,15 @@ class Room {
                     }
                     if(votesForPlayer >= votesRequired) {
                         this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
+                        this.io.to(livingPlayerList[i].socketId).emit('receive-message', 'You have been voted out of the town.');
+                        this.io.to(livingPlayerList[i].socketId).emit('block-messages');
                         livingPlayerList[i].isAlive = false;
 
                         let tempPlayer = {};
                         tempPlayer.name = livingPlayerList[i].playerUsername;
                         this.io.to(this.name).emit('update-player-role', tempPlayer);
 
-                        this.io.to(livingPlayerList[i].playerSocketId).emit('receive-message', 'You have been voted out of the town.');
-                        this.io.to(livingPlayerList[i].playerSocketId).emit('block-messages');
+
                     }
                 }
 

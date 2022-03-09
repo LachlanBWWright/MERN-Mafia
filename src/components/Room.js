@@ -98,8 +98,6 @@ class Room extends React.Component {
         })
 
         this.socket.on('receive-player-list', (listJson) => { //Receive all players upon joining, and the game starting
-            //this.setState({playerList: []});
-            //this.setState({playerList: [...listJson]});
             this.setState({playerList: listJson});
         });
 
@@ -110,7 +108,6 @@ class Room extends React.Component {
         this.socket.on('remove-player', (playerJson) => { //Called when a player leaves the lobby before the game starts
             console.log('Removing player ' + playerJson.name);
             this.setState({ playerList: this.state.playerList.filter(player => player.name !== playerJson.name)});
-            //this.props.setRole(roleMsg);
         })
 
         this.socket.on('assign-player-role', (playerJson) => { //Shows the player their own role, lets the client know that this is who they are playing as 
@@ -118,7 +115,7 @@ class Room extends React.Component {
             let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
             tempPlayerList[index].role = playerJson.role;
             tempPlayerList[index].isUser = true;
-
+            this.props.setRole(playerJson.role);
             this.setState({playerList: tempPlayerList});
         })
 

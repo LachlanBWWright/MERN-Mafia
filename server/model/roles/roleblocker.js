@@ -22,8 +22,10 @@ class Roleblocker extends Role {
 
     visit() { //Visits a role, and gives their defence a minimum of one
         if(this.visiting != null) {
-            this.visiting.roleblocked = true;
-            this.visiting.receiveVisit(this);
+            if(this.visiting.group == 'town' || Math.random() > 0.5) {
+                this.visiting.roleblocked = true;
+                this.visiting.receiveVisit(this);
+            }
         }
     }
 }

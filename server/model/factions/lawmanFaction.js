@@ -23,7 +23,7 @@ class LawmanFaction extends Faction {
     handleNightVote() { //Called at the end of the night. Forces a random visit for insane members.
         for(let i = 0; i < this.memberList.length; i++) {
             if(this.memberList[i].role.isInsane) { //Selects a random person to visit
-                for(let f = 0; f < 100; f++) { //Uses this instead of a while loop just in case some error occurs TODO: Fix undefined room error.
+                for(let f = 0; f < 100; f++) { //Uses this instead of a while loop just in case some error occurs
                     try{
                         let randomVictim = this.room.playerList[Math.floor(Math.random() * this.room.playerList.length)];
                         if (randomVictim.isAlive) {

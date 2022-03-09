@@ -25,8 +25,8 @@ class PlayerItem extends React.Component {
                         {this.props.username} {this.props.role !== undefined?`(${this.props.role})`:""}
                     </Col>
                     <Col md="auto">
-                        <Button disabled={!this.state.canWhisper} variant="primary">Whisper</Button>
-                        <Button disabled={!this.state.canVisit}  variant={this.state.visitClicked?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>
+                        {this.state.canWhisper && <Button variant="primary">Whisper</Button>}
+                        {this.state.canVisit && <Button variant={this.state.visitClicked?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>}
                     </Col>
                 </Row>
             </ListGroup.Item>
@@ -46,10 +46,10 @@ class PlayerItem extends React.Component {
         //if(!this.props.isAlive) this.setState({variant: "danger"});
         if(this.props.isAlive !== prevProps.isAlive) {
             if(this.props.isAlive)  {
-                this.setState({variant: "primary", canVisit: "true", canWhisper: "true"});
+                this.setState({variant: "primary", canVisit: true, canWhisper: true});
             }
             else  {
-                this.setState({variant: "danger", canVisit: "false", canWhisper: "false"});
+                this.setState({variant: "danger", canVisit: false, canWhisper: false});
             }
         }
     }
