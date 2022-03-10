@@ -205,6 +205,13 @@ class Room {
             let playerReturned = {};
             playerReturned.name = this.playerList[i].playerUsername;
             playerReturned.role = this.playerList[i].role.name;
+            //TODO: Update
+
+            /*dayVisitLiving: 3, //0 - Can visit nobody (who is alive at day), 1- Visit self, 2 - Visit others, 3 - Visit all
+            dayVisitDead: 0,
+            nightVisitLiving: 3,
+            nightVisitDead: 0 */
+
             this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
 

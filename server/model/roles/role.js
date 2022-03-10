@@ -84,7 +84,7 @@ class Role {
                     this.room.io.to(recipient.socketId).emit('receive-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
                     this.room.io.to(this.player.socketId).emit('receive-message', 'Whisper to ' + messageRecipientName + ': ' + message);
                     if(this.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
-                    else if(this.recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
+                    else if(recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
                 } 
             }
             else {

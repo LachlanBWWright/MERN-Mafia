@@ -14,11 +14,18 @@ class Room extends React.Component {
             dayNumber: 0,
             timeLeft: 0,
             messages: [],
-            playerList: []
+            playerList: [],
+            visiting: null,
+            votingFor: null
         };
 
         this.changeText = this.changeText.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
+        
+
+        this.handleVisit = this.handleVisit.bind(this);
+        this.handleVote = this.handleVote.bind(this);
+        this.handleWhisper = this.handleWhisper.bind(this);
 
         this.scrollRef = React.createRef(); //React reference
 
@@ -33,7 +40,10 @@ class Room extends React.Component {
                         <Col md="auto" style={{height: '70vh', overflow: 'auto'}}>
                             {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
                             <ListGroup>
-                                {this.state.playerList && this.state.playerList.map(player => <PlayerItem key={player.name} canWhisper={false} canVisit={true} username={player.name} role={player.role} isAlive={player.isAlive}/>  )}
+                                {this.state.playerList && this.state.playerList.map(player => 
+                                <PlayerItem key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} 
+                                dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
+                                visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk}/> )}
                             </ListGroup>
                         </Col>
                         <Col>
@@ -75,12 +85,38 @@ class Room extends React.Component {
         this.setState({textMessage: event.target.value})  
     }
 
-    sendMessage() {
+    handleVisit(playerUsername) {
+        
+        if(this.state.visiting !== playerUsername) {
+            this.setState({visiting: playerUsername});
+            this.socket.emit('messageSentByUser', '/c ' + playerUsername);
+        }
+        else {
+            this.setState({visiting: null});
+            this.socket.emit('messageSentByUser', '/c');
+        }
+    }
+
+    handleWhisper(playerUsername) {
+        this.setState({textMessage: '/w ' + playerUsername + ' '});
+    }
+
+    handleVote(playerUsername) {
+        if(this.state.votingFor !== playerUsername) {
+            this.setState({votingFor: playerUsername});
+            this.socket.emit('messageSentByUser', '/v ' + playerUsername);
+        }
+        else {
+            this.setState({votingFor: null});
+            this.socket.emit('messageSentByUser', '/v ');
+        }
+    }
+
+    sendMessage() { //TODO: Remove this once it's been replaced
         if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
             this.socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
             this.setState({textMessage: ''}) //Clears the text box
         }
-
     }
 
     componentDidMount() {
@@ -115,6 +151,10 @@ class Room extends React.Component {
             let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
             tempPlayerList[index].role = playerJson.role;
             tempPlayerList[index].isUser = true;
+            //TODO: Who player visits at day (living) (0 - Nobody, 1 - Self, 2 - Others, 3 - Everybody)
+            //TODO: Who player visits at day (dead, will apply to almost (or currently) no roles) 
+            //TODO: Who player visits at night (living)
+            //TODO: Who player visits at night (dead)
             this.props.setRole(playerJson.role);
             this.setState({playerList: tempPlayerList});
         })
@@ -127,12 +167,6 @@ class Room extends React.Component {
             this.setState({playerList: tempPlayerList});
         })
 
-        this.socket.on('update-player-death', (playerJson) => { //Updates player to reference their death
-            //JSON contains player name
-            //Get player by name, update properties, update JSON
-
-        })
-
         this.socket.on('update-player-visit', (playerJson) => { //Updates player to indicate that the player is visiting them
             //JSON contains player name
             //Get player by name, update properties, update JSON
@@ -140,11 +174,10 @@ class Room extends React.Component {
         })
 
         this.socket.on('update-day-time', (infoJson) => { //Gets whether it is day or night, and how long there is left in the session
-/*             time: 'Day',
-            dayNumber: 0,
-            timeLeft: 0, */
             this.setState({time: infoJson.time});
             this.setState({dayNumber: infoJson.dayNumber});
+            this.setState({visiting: null}); //Resets who the player is visiting
+            this.setState({votingFor: null});
             let timeLeft = infoJson.timeLeft;
             let countDown = setInterval(() => {
                 if(timeLeft > 0) {
@@ -184,7 +217,6 @@ class Room extends React.Component {
         this.socket.off('receive-new-player');
         this.socket.off('remove-player');
         this.socket.off('update-player-role');
-        this.socket.off('update-player-death');
         this.socket.off('update-player-visit');
         this.socket.disconnect();
     }

@@ -6,12 +6,12 @@ class PlayerItem extends React.Component {
         super(props)
 
         this.state = ({
-            visitClicked: true,
             variant: "",
             canWhisper: false,
             canVisit: false
         });
 
+        this.handleVoteClick = this.handleVoteClick.bind(this);
         this.handleWhisperClick = this.handleWhisperClick.bind(this);
         this.handleVisitClick = this.handleVisitClick.bind(this);
 
@@ -25,20 +25,25 @@ class PlayerItem extends React.Component {
                         {this.props.username} {this.props.role !== undefined?`(${this.props.role})`:""}
                     </Col>
                     <Col md="auto">
-                        {this.state.canWhisper && <Button variant="primary">Whisper</Button>}
-                        {this.state.canVisit && <Button variant={this.state.visitClicked?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>}
+                        {this.props.canTalk && this.state.canWhisper && this.props.time === 'Day' && <Button variant="primary" onClick={this.handleWhisperClick}>Whisper</Button>}
+                        {this.props.canTalk && this.props.time === 'Day' && this.props.isAlive && <Button variant={this.props.votingFor===this.props.username?"success":"primary"} onClick={this.handleVoteClick}>Vote</Button>}
+                        {this.props.canTalk && this.state.canVisit && <Button variant={this.props.visiting===this.props.username?"success":"primary"} onClick={this.handleVisitClick}>Visit</Button>}
                     </Col>
                 </Row>
             </ListGroup.Item>
         )
     }
 
-    handleWhisperClick() {
+    handleVoteClick() {
+        this.props.handleVote(this.props.username);
+    }
 
+    handleWhisperClick() {
+        this.props.handleWhisper(this.props.username);
     }
 
     handleVisitClick() {
-        this.setState({visitClicked: !this.state.visitClicked});
+        this.props.handleVisit(this.props.username);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -52,6 +57,7 @@ class PlayerItem extends React.Component {
                 this.setState({variant: "danger", canVisit: false, canWhisper: false});
             }
         }
+        else if(this.props.isAlive && this.props.isUser !== prevProps.isUser) this.setState({variant: "success", canVisit: true, canWhisper: false});
     }
 
     componentWillUnmount() {
