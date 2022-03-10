@@ -46,22 +46,9 @@ class Room {
         
         //Starts the game if the room has filled its maximum size
         if(this.playerCount === this.size) {
-            //TODO: Purge players that do not have an active connection, and abort. (Made less necessary by disconnect functionality)
-
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
-            this.io.to(this.name).emit('receive-message', 'Send \"?\" in chat to view help for your role, and how to access its commands, starting with /c!');
-            this.io.to(this.name).emit('receive-message', 'Send \"/w playerName message\" at daytime to try and whipser to them. Careful! There\s a 1/10 chance of the town hearing you!');
-            this.io.to(this.name).emit('receive-message', 'Send \"/v playerName \" from day 2 to vote for players to be executed.');
-            //List all the players in the game.
-            let playerAnnounce = 'The list of living players is: ';
-            for(let i = 0; i < this.playerList.length - 1; i++) {
-                playerAnnounce = playerAnnounce.concat(this.playerList[i].playerUsername + ', ');
-            }
-            playerAnnounce = playerAnnounce.concat('and ' + this.playerList[this.playerList.length - 1].playerUsername + '.')
-            this.io.to(this.name).emit('receive-message', playerAnnounce); 
             this.emitPlayerList(this.name);
-
             this.startGame();
         }
     }
@@ -174,19 +161,9 @@ class Room {
     }
 
     async startGame() {
-        let roleHandler = new RoleHandler(this.playerCount, 'vanillaGame', this.io);
+        let roleHandler = new RoleHandler(this.playerCount, this.roomType, this.io);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
-        this.factionList.push(...roleHandler.assignFactions()); //Gets the list of factions relevant to this game
-        roleHandler = null;
-
-        //Announces the roles in the game to the chat window
-        let roleAnnounce = 'The roles present in this game are: ';
-        for(let i = 0; i < this.roleList.length - 1; i++) { //Builds
-            roleAnnounce = roleAnnounce.concat(this.roleList[i].name + ', ');
-        }
-        roleAnnounce = roleAnnounce.concat('and ' + this.roleList[this.roleList.length - 1].name + '.');
-        this.io.to(this.name).emit('receive-message', roleAnnounce);
-        
+ 
         //Shuffles the list of roles so that they can be randomly allocated to users
         let currentIndex = this.roleList.length;
         let randomIndex;
@@ -199,27 +176,22 @@ class Room {
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
-            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name)); //Sends each player their role
-            this.io.to(this.playerList[i].socketId).emit('receive-message', this.playerList[i].role.description);
+            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name + '. ' + this.playerList[i].role.description)); //Sends each player their role
 
             let playerReturned = {};
             playerReturned.name = this.playerList[i].playerUsername;
             playerReturned.role = this.playerList[i].role.name;
-            //TODO: Update
-
-            /*dayVisitLiving: 3, //0 - Can visit nobody (who is alive at day), 1- Visit self, 2 - Visit others, 3 - Visit all
-            dayVisitDead: 0,
-            nightVisitLiving: 3,
-            nightVisitDead: 0 */
 
             this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
 
+        this.factionList.push(...roleHandler.assignFactionsFromPlayerList(this.playerList));
         //Assigns roles to each faction, then factions to each relevant role.
         for(let i = 0; i < this.factionList.length; i++) {
             this.factionList[i].findMembers(this.playerList);
         }
 
+        roleHandler = null;
         this.startFirstDaySession(this.sessionLength);
     }
 
@@ -273,13 +245,8 @@ class Room {
                 livingPlayerList.votingFor = null; //Resets votes
             }
         }
-        let playerAnnounce = 'The list of living players is: ';
-        for(let i = 0; i < livingPlayerList.length - 1; i++) {
-            playerAnnounce = playerAnnounce.concat(livingPlayerList[i].playerUsername + ', ');
-        }
+        
         let votesRequired = Math.floor(livingPlayerList.length / 2) + 1; //A majority of the players, for an execution to be carried out.
-        playerAnnounce = playerAnnounce.concat('and ' + livingPlayerList[livingPlayerList.length - 1].playerUsername + '.')
-        this.io.to(this.name).emit('receive-message', playerAnnounce); 
         this.io.to(this.name).emit('receive-message', ('It takes ' + votesRequired + ' votes for the town to kill a player.'))
 
         setTimeout(() => {

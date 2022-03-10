@@ -26,7 +26,7 @@ class RoomList extends React.Component {
                             room.playerCount !== room.size //Stop full rooms from appearing
                             &&
                             <ListGroup.Item key={index} action onClick={() => this.setRoom(room.name)}>
-                            Room Name: {room.name} | Room Capacity: {room.size} | People In Room: {room.playerCount}
+                            Room Name: {room.name} | Room Type: {room.roomType} | Room Capacity: {room.size} | People In Room: {room.playerCount}
                             </ListGroup.Item>
                         )
                     })}

@@ -21,10 +21,15 @@ const io = new Server(httpServer, {
 //Creates the first batch of rooms
 var roomList = [];
 function createRooms(roomArray) {
-    for(let i = 0; i < 3; i++) {
-        roomArray.push(new Room(4, io, 'vanillaGame'));
-    }
+    roomArray.push(new Room(20, io, 'balancedGame'));
+    roomArray.push(new Room(15, io, 'balancedGame'));
+    roomArray.push(new Room(10, io, 'balancedGame'));
+    roomArray.push(new Room(7, io, 'balancedGame'));
+    roomArray.push(new Room(4, io, 'balancedGame'));
+
+    roomArray.push(new Room(15, io, 'vanillaGame'));
     roomArray.push(new Room(8, io, 'vanillaGame'));
+    roomArray.push(new Room(4, io, 'vanillaGame'));
 }
 createRooms(roomList);
 
@@ -87,6 +92,7 @@ app.get('/getRooms', (req, res) => {
             if(!roomList[i].started) {
                 let roomItem = {};
                 roomItem.name = roomList[i].name;
+                roomItem.roomType = roomList[i].roomType;
                 roomItem.size = roomList[i].size;
                 roomItem.playerCount = roomList[i].playerCount;
                 roomJson.push(roomItem);
