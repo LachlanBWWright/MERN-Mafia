@@ -75,20 +75,20 @@ class RoleHandler {
             let comparativePower = townPower - mafiaPower //The comparative power of the factions. Positive if town is more powerful than the mafia
 
             //TODO: Add a small chance of a 'neutral' role being selected
-            if(Math.random < 0.035) { //Occasionally selects a role at random, 50/50 of being town or mafia
+            if(Math.random() < 0.035) { //Occasionally selects a role at random, 50/50 of being town or mafia
                 if(randomiser < 0) { //Add random mafia
                     let index = Math.floor(Math.random() * randomMafiaList.length);
                     let addedRole = randomMafiaList[index]
                     roleList.push(addedRole);
                     mafiaPower = mafiaPower + this.getMafiaPower(addedRole);
-                    if(this.uniqueRoleCheck(addedRole)) randomMafiaList = randomMafiaList.splice(index, 1);
+                    if(this.uniqueRoleCheck(addedRole)) randomMafiaList.splice(index, 1);
                 }
                 else { //Add random town
                     let index = Math.floor(Math.random() * randomTownList.length);
                     let addedRole = randomTownList[index]
                     roleList.push(addedRole);
                     townPower = townPower + this.getTownPower(addedRole);
-                    if(this.uniqueRoleCheck(addedRole)) randomTownList = randomTownList.splice(index, 1);
+                    if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
                 }
             }
             else if(comparativePower < 20 && comparativePower > -20) {
@@ -97,29 +97,29 @@ class RoleHandler {
                     let addedRole = randomTownList[index]
                     roleList.push(addedRole);
                     townPower = townPower + this.getTownPower(addedRole);
-                    if(this.uniqueRoleCheck(addedRole)) randomTownList = randomTownList.splice(index, 1);
+                    if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
                 }
                 else {
                     let index = Math.floor(Math.random() * randomMafiaList.length);
                     let addedRole = randomMafiaList[index]
                     roleList.push(addedRole);
                     mafiaPower = mafiaPower + this.getMafiaPower(addedRole);
-                    if(this.uniqueRoleCheck(addedRole)) randomMafiaList = randomMafiaList.splice(index, 1);
+                    if(this.uniqueRoleCheck(addedRole)) randomMafiaList.splice(index, 1);
                 }
             }
-            else if(comparativePower > 20) { //Town is too powerful - Add mafia
+            else if(comparativePower >= 20) { //Town is too powerful - Add mafia
                 let index = Math.floor(Math.random() * randomMafiaList.length);
                 let addedRole = randomMafiaList[index]
                 roleList.push(addedRole);
                 mafiaPower = mafiaPower + this.getMafiaPower(addedRole);
-                if(this.uniqueRoleCheck(addedRole)) randomMafiaList = randomMafiaList.splice(index, 1);
+                if(this.uniqueRoleCheck(addedRole)) randomMafiaList.splice(index, 1);
             }
-            else if(comparativePower < -20) { //Mafia is too powerful - Add town
+            else { //Mafia is too powerful - Add town
                 let index = Math.floor(Math.random() * randomTownList.length);
                 let addedRole = randomTownList[index]
                 roleList.push(addedRole);
                 townPower = townPower + this.getTownPower(addedRole);
-                if(this.uniqueRoleCheck(addedRole)) randomTownList = randomTownList.splice(index, 1);
+                if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
             }
         }
         console.log(roleList)
@@ -173,12 +173,13 @@ class RoleHandler {
     }
 
     uniqueRoleCheck(role) {
-        switch(role) {
-            case Jailor:
-                return true;
-            default: 
-                return false;
+        console.log('Role check called')
+        if(role === Jailor) {
+            console.log('Is jailor')
+            return true;
         }
+        console.log('Role check failed, not jailor')
+        return false;
     }
 
     getTownPower(role) {
