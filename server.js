@@ -4,11 +4,14 @@ import cors from 'cors';
 import {Server} from 'socket.io';
 import {createServer} from 'http';
 import Room from './model/rooms/room.js';
+import path from 'path'; //NEW HEROKU
 
 //Server setup
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 const app = express();
 app.use(cors());
+
+app.use(express.static(path.join("./client/build"))); //NEW HEROKU
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -79,10 +82,6 @@ io.on('connection', socket => {
     }));
 })
 
-app.get('/', (req, res) => {
-    res.send('Hi! This is the base directory.');
-})
-
 //Sends a list of room to the client - For the room list page
 app.get('/getRooms', (req, res) => {
     try {
@@ -108,6 +107,12 @@ app.get('/getRooms', (req, res) => {
         console.log(error);
     }
 });
+
+//For serving up the react app NEW HEROKU
+app.get("*", (req, res) => {
+    res.sendFile(path.join('./client/build/index.html'));
+});
+
 
 httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);

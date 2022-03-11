@@ -39,15 +39,9 @@ class RoomList extends React.Component {
        
         let response = await fetch('/getRooms', { signal: this.abortController.signal });
         let data = await response.json();
-        console.log('Number of rooms found: ' + data.length);
-
-        //TODO: Try checking if state is mounted.
-        console.log('Mounted Test 1')
-        this.setState({roomList: data});
-        console.log('Mounted Test 2')
-        this.setState({dataLoading: false});
-        console.log('Mounted Test 3 ')
         
+        this.setState({roomList: data});
+        this.setState({dataLoading: false});
     }
 
     componentWillUnmount() {

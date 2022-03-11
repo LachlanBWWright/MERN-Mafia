@@ -29,7 +29,7 @@ class Room extends React.Component {
 
         this.scrollRef = React.createRef(); //React reference
 
-        this.socket = io('http://localhost:5000');
+        this.socket = io('/');
     }
 
     render() {
