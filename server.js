@@ -13,7 +13,7 @@ const port = process.env.PORT || 8000;
 const app = express();
 app.use(cors());
 
-app.use(express.static(path.join(__dirname + "./client/build"))); //NEW HEROKU
+app.use(express.static(path.join(__dirname + "/client/build"))); //NEW HEROKU
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -112,7 +112,7 @@ app.get('/getRooms', (req, res) => {
 
 //For serving up the react app NEW HEROKU
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname + './client/build/index.html'));
+    res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
 
 
