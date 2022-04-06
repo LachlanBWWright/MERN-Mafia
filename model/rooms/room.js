@@ -29,9 +29,12 @@ class Room {
     addPlayer(playerSocketId, playerUsername) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
-            if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
+/*             if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
                 return;
-            }
+            } */
+            if(this.playerList[i].socketId === playerSocketId) return 1;
+            else if(this.playerList[i].playerUsername == playerUsername) return 2;
+            else if(this.playerList.length == this.size) return 3;
         }
 
         this.emitPlayerList(playerSocketId);
@@ -51,6 +54,7 @@ class Room {
             this.emitPlayerList(this.name);
             this.startGame();
         }
+        return 0; //Successfully joined
     }
 
     //Handles a player being removed if they've disconnected

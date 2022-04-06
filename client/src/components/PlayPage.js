@@ -13,13 +13,14 @@ class PlayPage extends React.Component {
             playerNameBox: '',
             playerName: '',
             playerRoom: '',
-            playerRole: 'not yet assigned'
-
+            playerRole: 'not yet assigned',
+            failReason: ''
         }
 
         //this.functionName = this.functionName.bind(this)
         this.changeText = this.changeText.bind(this);
         this.setName = this.setName.bind(this);
+        this.handleFailReason = this.handleFailReason.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleRoomChange = this.handleRoomChange.bind(this);
         this.handleRoleChange = this.handleRoleChange.bind(this);
@@ -29,6 +30,10 @@ class PlayPage extends React.Component {
 
     changeText(event) { //Updates so that whatever is in the textbox is accurately recorded
         this.setState({playerNameBox: event.target.value})      
+    }
+
+    handleFailReason(reason) {
+        this.setState({failReason: reason});
     }
 
     handleRoomChange(room) {
@@ -60,7 +65,7 @@ class PlayPage extends React.Component {
                     <Card>
                         <Card.Body>
                             <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}. Your role is {this.state.playerRole}.</Card.Text>
-                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setName={this.handleNameChange} setRoom={this.handleRoomChange} setRole={this.handleRoleChange}/> {/*TODO - Pass necessary params down to the room*/} 
+                            <Room playerName={this.state.playerName} playerRoom={this.state.playerRoom} setFailReason={this.handleFailReason} setName={this.handleNameChange} setRoom={this.handleRoomChange} setRole={this.handleRoleChange}/> {/*TODO - Pass necessary params down to the room*/} 
                         </Card.Body>
                     </Card>
                 </div>  
@@ -79,6 +84,7 @@ class PlayPage extends React.Component {
                                 </>
                             :        
                                 <Form onSubmit={e => {e.preventDefault(); this.setName()}}> {/* Stops the page from refreshing if user hits enter while typing*/}
+                                    {this.state.failReason !== '' && <Card.Text>You couldn't join the room. {this.state.failReason}</Card.Text>}
                                     <Card.Text>Enter Your Name: (3-12 lowercase letters only. Numbers, symbols, and spaces will be removed.)</Card.Text>
                                     <Form.Control value={this.state.playerNameBox} onChange={this.changeText} minLength={3} maxLength={12}/>
                                     <hr></hr>

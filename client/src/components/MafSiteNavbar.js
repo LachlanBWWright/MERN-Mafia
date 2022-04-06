@@ -34,11 +34,6 @@ class MafSiteNavbar extends React.Component {
                             <Nav.Link as={Link} to="/settings">Settings</Nav.Link> 
                         </Nav>
                     </Navbar.Collapse>
-                    <Nav>
-                        <Nav.Link onClick={this.handleTestClick} >                 
-                            Sign In With Facebook               
-                        </Nav.Link>
-                    </Nav>   
                 </Navbar>
                 
                 <Outlet/>
