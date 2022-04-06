@@ -31,10 +31,6 @@ function createRooms(roomArray) {
     roomArray.push(new Room(10, io, 'balancedGame'));
     roomArray.push(new Room(7, io, 'balancedGame'));
     roomArray.push(new Room(4, io, 'balancedGame'));
-
-    roomArray.push(new Room(15, io, 'vanillaGame'));
-    roomArray.push(new Room(8, io, 'vanillaGame'));
-    roomArray.push(new Room(4, io, 'vanillaGame'));
 }
 createRooms(roomList);
 
@@ -45,7 +41,6 @@ io.on('connection', socket => {
             if(message.length > 0 && message.length <= 150) {
                 socket.data.roomObject.handleSentMessage(socket.id, message);
             }
-
         }
         catch (error) {
             console.log(error);
@@ -60,9 +55,9 @@ io.on('connection', socket => {
                 socket.join(room); //Joins room, messages will be received accordingly
                 socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
                 
-                socket.data.roomObject.addPlayer(socket.id, name);
-                /* socket.data.roomObject.emitPlayerList(socket.id); */
-                cb(socket.data.roomObject.isInRoom(socket.id));
+                let successNumber = socket.data.roomObject.addPlayer(socket.id, name);
+                /* cb(socket.data.roomObject.isInRoom(socket.id)); */
+                cb(successNumber);
             }
         }
         catch (error) {

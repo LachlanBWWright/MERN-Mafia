@@ -195,16 +195,16 @@ class Room extends React.Component {
             this.setState({canTalk: false});
         })
 
-        //TODO: Make callback take the user back to the room select page
         this.socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, callback => {
-            console.log(callback)
-            if(!callback) {
-                //TODO: Tell the user why their attempt to join failed
-                console.log('callback: ' + callback)
+            if(callback !== 0) {
+                if(callback === 1) this.props.setFailReason('Your socket ID was equal to existing player in room.');
+                else if(callback === 2) this.props.setFailReason('Your selected username was the same as another player in the room.');
+                else if(callback === 3) this.props.setFailReason('The room was full.');
                 this.props.setRoom('');
                 this.props.setName('');
                 this.props.setRole('not yet assigned');
             }
+            else this.props.setFailReason('');
         });
 
     }

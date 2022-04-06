@@ -9,7 +9,7 @@ class IntroScreen extends React.Component {
                     <Card.Body>
                         <Card.Title className='text-center'>Welcome to MERN Mafia!</Card.Title>
                         <Card.Text>
-                            This is a practice project, where I attempt to create a mafia-style game using a MERN Stack and SocketJS.
+                            This is a practice project, where I attempt to create a mafia-style game using a MERN Stack and Socket.io.
                         </Card.Text>
                         <Card.Text>
                             Created by Lachlan Wright
