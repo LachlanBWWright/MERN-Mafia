@@ -4,7 +4,6 @@ import {Outlet} from 'react-router-dom';
 import Room from './Room';
 import RoomList from './RoomList';
 
-
 class PlayPage extends React.Component {
     constructor(props) {
         super(props);
@@ -17,7 +16,6 @@ class PlayPage extends React.Component {
             failReason: ''
         }
 
-        //this.functionName = this.functionName.bind(this)
         this.changeText = this.changeText.bind(this);
         this.setName = this.setName.bind(this);
         this.handleFailReason = this.handleFailReason.bind(this);
@@ -25,8 +23,6 @@ class PlayPage extends React.Component {
         this.handleRoomChange = this.handleRoomChange.bind(this);
         this.handleRoleChange = this.handleRoleChange.bind(this);
     }
-
-    //TODO: Call server, check if the player is already in an existing room, and render it
 
     changeText(event) { //Updates so that whatever is in the textbox is accurately recorded
         this.setState({playerNameBox: event.target.value})      
@@ -52,12 +48,12 @@ class PlayPage extends React.Component {
     setName() { //Changes the state to reflect the selected name
         let name = this.state.playerNameBox;
         name = name.toLowerCase().replace(/[^a-zA-Z]+/g, ''); //Regex - Find all chars that arent a-z, A-Z, and replace with '' (nothing). 
-        console.log('Test' + name)
         if(name.length >= 3 && name.length <= 12) { //Make sure that the name only contains characters, and is between 3-12 letters long
             this.setState({playerName: name});
             this.setState({playerNameBox: ''});
         }
     }
+
     render() {
         if(this.state.playerName && this.state.playerRoom !== '') { /* Shows the room if a name and room has been selected */
             return (

@@ -1,26 +1,28 @@
 import React from 'react';
-import {ListGroup} from 'react-bootstrap';
+import {ListGroup, Button} from 'react-bootstrap';
+import {BsArrowRepeat} from "react-icons/bs";
+import io from 'socket.io-client';
 
 class RoomList extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            dataLoading: true,
-            roomList: []
+            roomList: undefined
         }
 
+        this.socket = io('/');
         this.setRoom = this.setRoom.bind(this);
-
+        this.getRooms = this.getRooms.bind(this);
         this.abortController = new AbortController();
     }
     
     render() {
         return (
             <ListGroup>
-                { this.state.dataLoading ? 
-                    <p>Loading</p> 
-                : 
+                <Button variant="danger" onClick={this.getRooms}><BsArrowRepeat/> Refresh</Button>
+                <br></br>
+                { this.state.roomList ? 
                     this.state.roomList.map((room, index) => {
                         return(
                             room.playerCount !== room.size //Stop full rooms from appearing
@@ -29,28 +31,36 @@ class RoomList extends React.Component {
                             Room Name: {room.name} | Room Capacity: {room.size} | People In Room: {room.playerCount}
                             </ListGroup.Item>
                         )
-                    })}
+                    })        
+                : 
+                    <p>Loading</p>
+                }
             </ListGroup>
         )
     }
 
     //Get the list of open rooms from the server
     async componentDidMount() {
-       
-        let response = await fetch('/getRooms', { signal: this.abortController.signal });
-        let data = await response.json();
-        
-        this.setState({roomList: data});
-        this.setState({dataLoading: false});
+        this.getRooms();
+        this.refreshInterval = setInterval(() => this.getRooms(), 30000);
     }
 
     componentWillUnmount() {
-        this.abortController.abort();
+        this.socket.disconnect();
+        clearInterval(this.refreshInterval)
     }
 
     setRoom(roomName) {
         console.log('Room set with name ' + roomName);
         this.props.setRoom(roomName)
+    }
+
+    getRooms() {
+        this.socket.emit('getRoomList', cb => {
+            this.setState({
+                roomList: cb,
+            })
+        });
     }
 }
 

@@ -22,7 +22,6 @@ const io = new Server(httpServer, {
     }
 });
 
-
 //Creates the first batch of rooms
 var roomList = [];
 function createRooms(roomArray) {
@@ -35,6 +34,31 @@ function createRooms(roomArray) {
 createRooms(roomList);
 
 io.on('connection', socket => {
+    socket.on('getRoomList', (cb) => {
+        try {
+            let roomJson = [];
+            //Adds each available room to the JSON that is returned.
+            for(let i = 0; i < roomList.length; i++) {
+                if(!roomList[i].started) {
+                    let roomItem = {};
+                    roomItem.name = roomList[i].name;
+                    roomItem.roomType = roomList[i].roomType;
+                    roomItem.size = roomList[i].size;
+                    roomItem.playerCount = roomList[i].playerCount;
+                    roomJson.push(roomItem);
+                }
+                else { //Aims to replace the removed room with a new, identical room
+                    roomList[i] = new Room(roomList[i].size, io, roomList[i].roomType);
+                    i--; //Otherwise the new room won't be added to roomJson.
+                }
+            }
+            cb(roomJson);   
+        }
+        catch(error) {
+            console.log(error);
+        }
+    })
+
     //Handle users sending a chat message 
     socket.on('messageSentByUser', (message, name, room) => {
         try {
@@ -79,33 +103,7 @@ io.on('connection', socket => {
     }));
 })
 
-//Sends a list of room to the client - For the room list page
-app.get('/getRooms', (req, res) => {
-    try {
-        let roomJson = [];
-        //Adds each available room to the JSON that is returned.
-        for(let i = 0; i < roomList.length; i++) {
-            if(!roomList[i].started) {
-                let roomItem = {};
-                roomItem.name = roomList[i].name;
-                roomItem.roomType = roomList[i].roomType;
-                roomItem.size = roomList[i].size;
-                roomItem.playerCount = roomList[i].playerCount;
-                roomJson.push(roomItem);
-            }
-            else { //Aims to replace the removed room with a new, identical room
-                roomList[i] = new Room(roomList[i].size, io, roomList[i].roomType);
-                i--; //Otherwise the new room won't be added to roomJson.
-            }
-        }
-        res.json(roomJson);   
-    }
-    catch(error) {
-        console.log(error);
-    }
-});
-
-//For serving up the react app NEW HEROKU
+//For serving up the react app 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });

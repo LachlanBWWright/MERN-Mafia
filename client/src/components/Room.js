@@ -112,7 +112,7 @@ class Room extends React.Component {
         }
     }
 
-    sendMessage() { //TODO: Remove this once it's been replaced
+    sendMessage() {
         if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
             this.socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
             this.setState({textMessage: ''}) //Clears the text box
