@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import {Server} from 'socket.io';
 import {createServer} from 'http';
+import {MongoClient} from 'mongodb';
 import Room from './model/rooms/room.js';
 import path from 'path'; //NEW HEROKU
 
@@ -13,7 +14,9 @@ const port = process.env.PORT || 8000;
 const app = express();
 app.use(cors());
 
-app.use(express.static(path.join(__dirname + "/client/build"))); //NEW HEROKU
+app.use(express.static(path.join(__dirname + "/client/build"))); //Serves the web app
+
+const databaseServer = new MongoClient(process.env.ATLAS_URI) //TODO: ADD proper url
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
