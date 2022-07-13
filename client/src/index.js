@@ -11,20 +11,25 @@ import SettingPage from './components/SettingPage';
 import PlayPage from './components/PlayPage';
 import Stats from './components/Stats';
 
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>  
-        <Route path="/" element={<MafSiteNavbar />}>
-          <Route index element={<IntroScreen/>} />
-          <Route path="play" element={<PlayPage />} />
-          <Route path="stats" element={<Stats/>} />
-          <Route path="faq" element={<FAQPage />} />
-          <Route path="settings" element={<SettingPage />} />
-          <Route path="*" element={<FourOFour/>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <GoogleReCaptchaProvider reCaptchaKey='6LcNfuYgAAAAADlGlOaDcs6-3x3vNfDB3ZoRuzyO'>
+
+      <BrowserRouter>
+        <Routes>  
+          <Route path="/" element={<MafSiteNavbar />}>
+            <Route index element={<IntroScreen/>} />
+            <Route path="play" element={<PlayPage />} />
+            <Route path="stats" element={<Stats/>} />
+            <Route path="faq" element={<FAQPage />} />
+            <Route path="settings" element={<SettingPage />} />
+            <Route path="*" element={<FourOFour/>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </GoogleReCaptchaProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

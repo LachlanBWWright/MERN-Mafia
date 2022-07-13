@@ -6,6 +6,7 @@ import {createServer} from 'http';
 import {MongoClient} from 'mongodb';
 import Room from './model/rooms/room.js';
 import path from 'path'; //NEW HEROKU
+import axios from 'axios'
 
 const __dirname = path.resolve();
 
@@ -75,10 +76,14 @@ io.on('connection', socket => {
     });
 
     //Handle players joining a room
-    socket.on('playerJoinRoom', (name, room, cb) => {  
+    socket.on('playerJoinRoom', async (name, room, captchaToken, cb) => {  
         try {
+            console.log(captchaToken)
+            console.log(process.env.CAPTCHA_KEY)
+            let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
+            let score = res.data.score
             name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '');
-            if(name.length >=3 && name.length <= 12) {  
+            if(name.length >=3 && name.length <= 12 && score >= 0.7) {  
                 socket.join(room); //Joins room, messages will be received accordingly
                 socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
                 
@@ -86,6 +91,7 @@ io.on('connection', socket => {
                 /* cb(socket.data.roomObject.isInRoom(socket.id)); */
                 cb(successNumber);
             }
+            else cb(false)
         }
         catch (error) {
             console.log('CatchTest: ' + error)
