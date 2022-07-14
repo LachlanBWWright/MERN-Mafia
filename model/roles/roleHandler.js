@@ -24,53 +24,19 @@ import LawmanFaction from '../factions/lawmanFaction.js';
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
-    constructor(roomSize, roomType, io) {
+    constructor(roomSize, io) {
         this.roomSize = roomSize;
-        this.roomType = roomType; //Records the type of game that is going to be played
         this.io = io;
     }
 
     assignGame() {
-        if(this.roomType == 'vanillaGame') return this.assignVanillaGame(this.roomSize);
-        else if(this.roomType == 'balancedGame') return this.assignBalancedGame(this.roomSize);
-        else if(this.roomType == 'someOtherType') console.log('Test') //TODO: Remove this sample
-    }
-
-    //Assigns the roles for a 'vanilla game' (Innocents and mafia)
-    assignVanillaGame(roomSize) {
-        let roleList = []; //The array of roles to be returned to the room object roleList.push;
-
-        switch(roomSize) {
-            case 15: roleList.push(Mafia);
-            case 14: roleList.push(Innocent);
-            case 13: roleList.push(Innocent);
-            case 12: roleList.push(Innocent); 
-            case 11: roleList.push(Mafia);
-            case 10: roleList.push(Innocent); 
-            case 9: roleList.push(Innocent);
-            case 8: roleList.push(Innocent);
-            case 7: roleList.push(Mafia);
-            case 6: roleList.push(Innocent);
-            case 5: roleList.push(Judge);
-            case 4: roleList.push(Lawman);
-            case 3: roleList.push(Roleblocker);
-            case 2: roleList.push(Mafia);
-            case 1: roleList.push(Jailor);
-                break;
-            default:
-                console.log('Role Assignment Error.');
-        }
-        return roleList;
-    }
-
-    assignBalancedGame(roomSize) { //Attempts to create a balanced rolelist by estimating the 'contribution' each role has to the town/mafia faction winning
         let roleList = []; //The array of roles to be returned to the room object roleList.push;
         let mafiaPower = 0;
         let townPower = 0;
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
 
-        for(let i = 0; i < roomSize; i++) { //
+        for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*40-20 //Random Integer betweek -20 and 20
             let comparativePower = townPower - mafiaPower //The comparative power of the factions. Positive if town is more powerful than the mafia
 
@@ -123,33 +89,7 @@ class RoleHandler {
             }
         }
         console.log(roleList)
-        return roleList; 
-    };
-
-    assignVanillaGameFactions(roomSize) {
-        let factionList = []; //The array of roles to be returned to the room object factionList.push;
-
-        switch(roomSize) {
-            case 15: 
-            case 14:
-            case 13: 
-            case 12: 
-            case 11: 
-            case 10: 
-            case 9: 
-            case 8: 
-            case 7: 
-            case 6: 
-            case 5: 
-            case 4: 
-            case 3:
-            case 2: factionList.push(new MafiaFaction(this.io));
-            case 1: factionList.push(new LawmanFaction(this.io));
-                break;
-            default:
-                console.log('Faction Assignment Error.');        
-            }
-        return factionList;
+        return roleList;
     }
 
     assignFactionsFromPlayerList(playerList) {

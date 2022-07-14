@@ -3,9 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import {Server} from 'socket.io';
 import {createServer} from 'http';
-import {MongoClient} from 'mongodb';
+//import {MongoClient} from 'mongodb';
+import mongoose from 'mongoose'
 import Room from './model/rooms/room.js';
-import path from 'path'; //NEW HEROKU
+import path from 'path';
 import axios from 'axios'
 
 const __dirname = path.resolve();
@@ -17,7 +18,8 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname + "/client/build"))); //Serves the web app
 
-const databaseServer = new MongoClient(process.env.ATLAS_URI) //TODO: ADD proper url
+//const databaseServer = new MongoClient(process.env.ATLAS_URI) //TODO: ADD proper url
+mongoose.connect(process.env.ATLAS_URI)
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -29,11 +31,9 @@ const io = new Server(httpServer, {
 //Creates the first batch of rooms
 var roomList = [];
 function createRooms(roomArray) {
-    roomArray.push(new Room(20, io, 'balancedGame'));
-    roomArray.push(new Room(15, io, 'balancedGame'));
-    roomArray.push(new Room(10, io, 'balancedGame'));
-    roomArray.push(new Room(7, io, 'balancedGame'));
-    roomArray.push(new Room(4, io, 'balancedGame'));
+    roomArray.push(new Room(20, io, mongoose));
+    roomArray.push(new Room(13, io, mongoose));
+    roomArray.push(new Room(4, io, mongoose));
 }
 createRooms(roomList);
 
@@ -52,7 +52,7 @@ io.on('connection', socket => {
                     roomJson.push(roomItem);
                 }
                 else { //Aims to replace the removed room with a new, identical room
-                    roomList[i] = new Room(roomList[i].size, io, roomList[i].roomType);
+                    roomList[i] = new Room(roomList[i].size, io, mongoose);
                     i--; //Otherwise the new room won't be added to roomJson.
                 }
             }
@@ -120,7 +120,6 @@ app.get("*", (req, res) => {
 
 httpServer.listen(port, () => {
     console.log(`App listening on port: ${port}`);
-
 })
 
 export {io};

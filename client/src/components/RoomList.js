@@ -42,7 +42,7 @@ class RoomList extends React.Component {
     //Get the list of open rooms from the server
     async componentDidMount() {
         this.getRooms();
-        this.refreshInterval = setInterval(() => this.getRooms(), 30000);
+        this.refreshInterval = setInterval(() => this.getRooms(), 10000);
     }
 
     componentWillUnmount() {

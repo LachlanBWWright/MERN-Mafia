@@ -1,37 +1,46 @@
 import Crypto from 'crypto';
+import { MongoKerberosError } from 'mongodb';
 import RoleHandler from '../roles/roleHandler.js'
 import Player from './player.js'
+import mongoose from 'mongoose'
+
+const gameSchema = new mongoose.Schema({
+    roomName: String,
+    players: [{playerName: String}],
+    messages: [{message: String}],
+    winningFaction: String,
+    date: {type: Date, default: Date.now}
+})
+const Game = mongoose.model('Game', gameSchema);
 
 class Room {
-    constructor(size, io, roomType) {
-        //SocketIo
-        this.io = io;
+    constructor(size, io, databaseServer) {
+        this.io = io; //SocketIo
+        this.databaseServer = databaseServer;
 
         //Data relating to the players in the room
         this.name = Crypto.randomBytes(8).toString('hex'); //Generates the room's name
         this.size = size; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
-            //player.socketId, player.playerUsername, player.role
-
+            
         //Data relating to the state of the game.
         this.started = false; //Records if the game has started (So it can't be joined)
         this.time = ''; //The time of day (Night, day)
         this.roleList = []; //List of role ES6 classes
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
-        this.roomType = roomType //The type of the game (Determines the roles used)
-        this.sessionLength = 20000 //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 60000 by default
+        this.sessionLength = size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 
 
         this.gameHasEnded = false;
+
+        this.gameDB = new Game({name: this.name});
+        
         }
 
     //Adds a new player to the room, and makes the game start if it is full
     addPlayer(playerSocketId, playerUsername) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
-/*             if(this.playerList[i].socketId === playerSocketId || this.playerList[i].playerUsername == playerUsername || this.playerList.length == this.size) {
-                return;
-            } */
             if(this.playerList[i].socketId === playerSocketId) return 1;
             else if(this.playerList[i].playerUsername == playerUsername) return 2;
             else if(this.playerList.length == this.size) return 3;
@@ -52,6 +61,9 @@ class Room {
             this.started = true;
             this.io.to(this.name).emit('receive-message', 'The room is full! Starting the game!');
             this.emitPlayerList(this.name);
+            this.playerList.forEach(player => {
+                this.gameDB.players.push({playerName: player.playerUsername})
+            })
             this.startGame();
         }
         return 0; //Successfully joined
@@ -165,7 +177,7 @@ class Room {
     }
 
     async startGame() {
-        let roleHandler = new RoleHandler(this.playerCount, this.roomType, this.io);
+        let roleHandler = new RoleHandler(this.playerCount, this.io);
         this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
  
         //Shuffles the list of roles so that they can be randomly allocated to users
@@ -375,7 +387,7 @@ class Room {
             else {
                 this.startDaySession(nightNumber + 1, sessionLength);
             }  
-        }, sessionLength/2 + 10000); //Nights are shorter than days, but also a minimum of 10 seconds.
+        }, 15000); //Nights are 15 seconds long.
         
     }
 
@@ -417,35 +429,23 @@ class Room {
         let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].role.group != 'neutral' && this.playerList[i].isAlive) {
-                if(lastFaction == 'neutral') {
-                    lastFaction = this.playerList[i].role.group;
-                }
-                else if(this.playerList[i].role.group != lastFaction) {
-                    return false; //Game is NOT over if there are are members of two different factions alive (excluding neutral)
-                }
+                if(lastFaction == 'neutral') lastFaction = this.playerList[i].role.group;
+                else if(this.playerList[i].role.group != lastFaction) return false; //Game is NOT over if there are are members of two different factions alive (excluding neutral)
             }
         }
-        return lastFaction; //N
+        return lastFaction;
     }
 
     endGame(winningFactionName) {
         this.gameHasEnded = true;
-
-        if(winningFactionName == 'nobody') {
-            this.io.to(this.name).emit('receive-message', 'The game has ended with a draw! Room closing in 30 seconds.');
-        }
-        else if(winningFactionName == 'neutral') {
-            this.io.to(this.name).emit('receive-message', 'The neutral players have won! Room closing in 30 seconds.');
-        }
-        else {
-            this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won! Room closing in 30 seconds.' )  );
-        }
-
-        setTimeout(() => {
-            this.io.to(this.name).emit('receive-message', 'Closing the room!');
-            this.io.to(this.name).emit('block-messages');
-            this.io.in(this.name).disconnectSockets();
-        }, 30000);
+        if(winningFactionName == 'nobody') this.io.to(this.name).emit('receive-message', 'The game has ended with a draw!');
+        else if(winningFactionName == 'neutral') this.io.to(this.name).emit('receive-message', 'The neutral players have won!');
+        else this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won!'));
+        this.io.to(this.name).emit('receive-message', 'Closing the room!');
+        this.io.to(this.name).emit('block-messages');
+        this.io.in(this.name).disconnectSockets();
+        this.gameDB.winningFaction = winningFactionName;
+        this.gameDB.save();
     }
 }
 
