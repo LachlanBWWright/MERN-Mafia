@@ -11,7 +11,11 @@ const gameSchema = new mongoose.Schema({
     winningFaction: String,
     date: {type: Date, default: Date.now}
 })
+
 const Game = mongoose.model('Game', gameSchema);
+
+const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", 
+    "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
 
 class Room {
     constructor(size, io, databaseServer) {
@@ -38,12 +42,23 @@ class Room {
         }
 
     //Adds a new player to the room, and makes the game start if it is full
-    addPlayer(playerSocketId, playerUsername) {
+    addPlayer(playerSocketId) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId) return 1;
-            else if(this.playerList[i].playerUsername == playerUsername) return 2;
             else if(this.playerList.length == this.size) return 3;
+        }
+
+        //Generates username
+        let playerUsername = "";
+        let takenNames = [];
+        for(let i = 0; i < this.playerList.length; i++) {
+            takenNames.push(this.playerList.playerUsername);
+        }
+        for(let i = 0; i < this.names.length; i++) {
+            if(!takenNames.includes(this.names[i])) {
+                playerUsername = this.names[i];
+            }
         }
 
         this.emitPlayerList(playerSocketId);

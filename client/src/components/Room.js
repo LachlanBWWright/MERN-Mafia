@@ -195,7 +195,7 @@ class Room extends React.Component {
             this.setState({canTalk: false});
         })
 
-        this.socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, this.props.captchaToken, callback => {
+        this.socket.emit('playerJoinRoom', this.props.playerRoom, this.props.captchaToken, callback => {
             if(callback !== 0) {
                 if(callback === 1) this.props.setFailReason('Your socket ID was equal to existing player in room.');
                 else if(callback === 2) this.props.setFailReason('Your selected username was the same as another player in the room.');
@@ -220,8 +220,6 @@ class Room extends React.Component {
         this.socket.off('update-player-visit');
         this.socket.disconnect();
     }
-
-
 }
 
 export default Room;

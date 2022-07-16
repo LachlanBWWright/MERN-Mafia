@@ -19,8 +19,9 @@ class RoomList extends React.Component {
     
     render() {
         return (
-            <ListGroup>
-                <Button variant="danger" onClick={this.getRooms}><BsArrowRepeat/> Refresh</Button>
+            <>
+            <ListGroup horizontal={true}>
+            <Button variant="danger" onClick={this.getRooms}><BsArrowRepeat/> Refresh</Button>
                 <br></br>
                 { this.state.roomList ? 
                     this.state.roomList.map((room, index) => {
@@ -28,7 +29,7 @@ class RoomList extends React.Component {
                             room.playerCount !== room.size //Stop full rooms from appearing
                             &&
                             <ListGroup.Item key={index} action onClick={() => this.setRoom(room.name)}>
-                            Room Name: {room.name} | Room Capacity: {room.size} | People In Room: {room.playerCount}
+                            {room.size}-Player Game ({room.playerCount}/{room.size})
                             </ListGroup.Item>
                         )
                     })        
@@ -36,6 +37,7 @@ class RoomList extends React.Component {
                     <p>Loading</p>
                 }
             </ListGroup>
+            </>
         )
     }
 

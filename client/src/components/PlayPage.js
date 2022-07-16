@@ -32,26 +32,11 @@ class PlayPage extends React.Component {
         console.log("TEST")
     }
 
-    changeText(event) { //Updates so that whatever is in the textbox is accurately recorded
-        this.setState({playerNameBox: event.target.value})      
-    }
-
-    handleFailReason(reason) {
-        this.setState({failReason: reason});
-    }
-
-    handleRoomChange(room) {
-        this.setState({playerRoom: room});
-    }
-
-    handleNameChange(name) {
-        this.setState({playerName: name});
-
-    }
-
-    handleRoleChange(role) {
-        this.setState({playerRole: role});
-    }
+    changeText(event) {this.setState({playerNameBox: event.target.value})}
+    handleFailReason(reason) {this.setState({failReason: reason});}
+    handleRoomChange(room) {this.setState({playerRoom: room});}
+    handleNameChange(name) {this.setState({playerName: name});}
+    handleRoleChange(role) {this.setState({playerRole: role});}
     
     setName() { //Changes the state to reflect the selected name
         let name = this.state.playerNameBox;
@@ -63,12 +48,12 @@ class PlayPage extends React.Component {
     }
 
     render() {
-        if(this.state.playerName && this.state.playerRoom !== '') { /* Shows the room if a name and room has been selected */
+        if(this.state.playerRoom !== '') { /* Shows the room if a name and room has been selected */
             return (
                 <div style={{padding: '2vh', width: '30 rem'}}>
                     <Card>
                         <Card.Body>
-                            <Card.Text>Your Name is {this.state.playerName}. You are in room {this.state.playerRoom}. Your role is {this.state.playerRole}.</Card.Text>
+                            <Card.Text>Your Name is {this.state.playerName}. Your role is {this.state.playerRole}.</Card.Text>
                             <Room captchaToken={this.state.captchaToken} playerName={this.state.playerName} playerRoom={this.state.playerRoom} setFailReason={this.handleFailReason} 
                                 setName={this.handleNameChange} setRoom={this.handleRoomChange} setRole={this.handleRoleChange}
                             /> 
@@ -83,9 +68,9 @@ class PlayPage extends React.Component {
                     <Card style={{width: '30 rem', margin: 'auto'}}>
                         <Card.Body>
                             <Card.Title className='text-center'>Play</Card.Title>
-                            {this.state.playerName ?      /* Show name selection, then room selection */
+                            {true ?      /* Show name selection, then room selection TODO: Remove name selection  this.state.playerName */
                                 <>
-                                    <Card.Text>Your Name is: {this.state.playerName}</Card.Text>
+                                    {this.state.playerName === '' || (<Card.Text>Your Name is: {this.state.playerName}</Card.Text>)}
                                     <RoomList setRoom={this.handleRoomChange} setName={this.handleNameChange}/>
                                 </>
                             :        
