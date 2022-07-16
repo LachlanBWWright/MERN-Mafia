@@ -78,7 +78,7 @@ io.on('connection', socket => {
     //Handle players joining a room
     socket.on('playerJoinRoom', async (room, captchaToken, cb) => {  
         try {
-            console.log(captchaToken)
+            console.log("Token " + captchaToken)
             console.log(process.env.CAPTCHA_KEY)
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
             let score = res.data.score

@@ -19,17 +19,14 @@ class PlayPage extends React.Component {
             captchaToken: ''
         }
 
+        this.captchaToken = '';
+
         this.changeText = this.changeText.bind(this);
         this.setName = this.setName.bind(this);
-        this.useCaptcha = this.useCaptcha.bind(this);
         this.handleFailReason = this.handleFailReason.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleRoomChange = this.handleRoomChange.bind(this);
         this.handleRoleChange = this.handleRoleChange.bind(this);
-    }
-
-    useCaptcha() {
-        console.log("TEST")
     }
 
     changeText(event) {this.setState({playerNameBox: event.target.value})}
@@ -54,7 +51,7 @@ class PlayPage extends React.Component {
                     <Card>
                         <Card.Body>
                             <Card.Text>Your Name is {this.state.playerName}. Your role is {this.state.playerRole}.</Card.Text>
-                            <Room captchaToken={this.state.captchaToken} playerName={this.state.playerName} playerRoom={this.state.playerRoom} setFailReason={this.handleFailReason} 
+                            <Room captchaToken={this.captchaToken} playerName={this.state.playerName} playerRoom={this.state.playerRoom} setFailReason={this.handleFailReason} 
                                 setName={this.handleNameChange} setRoom={this.handleRoomChange} setRole={this.handleRoleChange}
                             /> 
                         </Card.Body>
@@ -68,21 +65,9 @@ class PlayPage extends React.Component {
                     <Card style={{width: '30 rem', margin: 'auto'}}>
                         <Card.Body>
                             <Card.Title className='text-center'>Play</Card.Title>
-                            {true ?      /* Show name selection, then room selection TODO: Remove name selection  this.state.playerName */
-                                <>
-                                    {this.state.playerName === '' || (<Card.Text>Your Name is: {this.state.playerName}</Card.Text>)}
-                                    <RoomList setRoom={this.handleRoomChange} setName={this.handleNameChange}/>
-                                </>
-                            :        
-                                <Form onSubmit={e => {e.preventDefault(); this.setName()}}> {/* Stops the page from refreshing if user hits enter while typing*/}
-                                    {this.state.failReason !== '' && <Card.Text>You couldn't join the room. {this.state.failReason}</Card.Text>}
-                                    <Card.Text>Enter Your Name: (3-12 lowercase letters only. Numbers, symbols, and spaces will be removed.)</Card.Text>
-                                    <Form.Control value={this.state.playerNameBox} onChange={this.changeText} minLength={3} maxLength={12}/>
-                                    <hr></hr>
-                                    <GoogleReCaptcha onVerify={token => {if(this.state.captchaToken === '') this.setState({captchaToken: token})}} />
-                                    <Button variant='danger' onClick={this.setName} className="btn-block">Set Name</Button>
-                                </Form>
-                            }                  
+                                {this.state.playerName === '' || (<Card.Text>Your Name is: {this.state.playerName}</Card.Text>)}
+                                <GoogleReCaptcha onVerify={token => this.captchaToken = token} />
+                                <RoomList setRoom={this.handleRoomChange} setName={this.handleNameChange}/>                              
                         </Card.Body>  
                     </Card>   
                     <Outlet/> 

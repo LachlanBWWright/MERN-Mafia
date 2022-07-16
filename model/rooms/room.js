@@ -53,11 +53,12 @@ class Room {
         let playerUsername = "";
         let takenNames = [];
         for(let i = 0; i < this.playerList.length; i++) {
-            takenNames.push(this.playerList.playerUsername);
+            takenNames.push(this.playerList[i].playerUsername);
         }
-        for(let i = 0; i < this.names.length; i++) {
-            if(!takenNames.includes(this.names[i])) {
-                playerUsername = this.names[i];
+        for(let i = 0; i < names.length; i++) {
+            if(!takenNames.includes(names[i])) {
+                playerUsername = names[i];
+                break;
             }
         }
 
@@ -81,7 +82,7 @@ class Room {
             })
             this.startGame();
         }
-        return 0; //Successfully joined
+        return playerUsername; //Successfully joined
     }
 
     //Handles a player being removed if they've disconnected
@@ -116,7 +117,7 @@ class Room {
 
     getPlayerByUsername(playerUsername) {
         for(let i = 0; i < this.playerList.length; i++) {
-            if(this.playerList[i].playerUsername == playerUsername) {
+            if(this.playerList[i].playerUsername.toLowerCase() == playerUsername) {
                 return this.playerList[i];
             }      
         }
@@ -408,6 +409,7 @@ class Room {
 
     handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
         message = message.substring(2).trim(); //Remove the /v, then spaces at the front/back
+        //messageRecipientName is compared to actual names, which are also made lowercase
         let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /v, which should be the username of the recipient
         let recipient = this.getPlayerByUsername(messageRecipientName);
         message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
