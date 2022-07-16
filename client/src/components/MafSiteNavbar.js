@@ -29,7 +29,7 @@ class MafSiteNavbar extends React.Component {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link as={Link} to="/play">Play</Nav.Link>                  
+                            <Nav.Link as={Link} to="/">Play</Nav.Link>                  
                             <Nav.Link as={Link} to="/faq">FAQ</Nav.Link>
                             <Nav.Link as={Link} to="/stats">Stats</Nav.Link>
                             <Nav.Link as={Link} to="/settings">Settings</Nav.Link> 

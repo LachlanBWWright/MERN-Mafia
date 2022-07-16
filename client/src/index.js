@@ -4,7 +4,6 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 import reportWebVitals from './reportWebVitals';
 import MafSiteNavbar from './components/MafSiteNavbar';
-import IntroScreen from './components/IntroScreen';
 import FourOFour from './components/FourOFour';
 import FAQPage from './components/FAQPage';
 import SettingPage from './components/SettingPage';
@@ -16,11 +15,10 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 ReactDOM.render(
   <React.StrictMode>
     <GoogleReCaptchaProvider reCaptchaKey='6LcNfuYgAAAAADlGlOaDcs6-3x3vNfDB3ZoRuzyO'>
-
       <BrowserRouter>
         <Routes>  
           <Route path="/" element={<MafSiteNavbar />}>
-            <Route index element={<IntroScreen/>} />
+            <Route index element={<PlayPage/>} /> {/*TODO: Implement IntroScreen conntent into playpage*/}
             <Route path="play" element={<PlayPage />} />
             <Route path="stats" element={<Stats/>} />
             <Route path="faq" element={<FAQPage />} />

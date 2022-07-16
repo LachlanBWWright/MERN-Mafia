@@ -195,8 +195,8 @@ class Room extends React.Component {
             this.setState({canTalk: false});
         })
 
-        this.socket.emit('playerJoinRoom', this.props.playerName, this.props.playerRoom, this.props.captchaToken, callback => {
-            if(callback !== 0) {
+        this.socket.emit('playerJoinRoom', this.props.playerRoom, this.props.captchaToken, callback => {
+            if(typeof callback == 'number') {
                 if(callback === 1) this.props.setFailReason('Your socket ID was equal to existing player in room.');
                 else if(callback === 2) this.props.setFailReason('Your selected username was the same as another player in the room.');
                 else if(callback === 3) this.props.setFailReason('The room was full.');
@@ -204,7 +204,10 @@ class Room extends React.Component {
                 this.props.setName('');
                 this.props.setRole('not yet assigned');
             }
-            else this.props.setFailReason('');
+            else {
+                this.props.setFailReason('');
+                this.props.setName(callback);
+            }
         });
 
     }
@@ -220,8 +223,6 @@ class Room extends React.Component {
         this.socket.off('update-player-visit');
         this.socket.disconnect();
     }
-
-
 }
 
 export default Room;

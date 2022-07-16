@@ -11,7 +11,11 @@ const gameSchema = new mongoose.Schema({
     winningFaction: String,
     date: {type: Date, default: Date.now}
 })
+
 const Game = mongoose.model('Game', gameSchema);
+
+const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", 
+    "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
 
 class Room {
     constructor(size, io, databaseServer) {
@@ -38,12 +42,24 @@ class Room {
         }
 
     //Adds a new player to the room, and makes the game start if it is full
-    addPlayer(playerSocketId, playerUsername) {
+    addPlayer(playerSocketId) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId) return 1;
-            else if(this.playerList[i].playerUsername == playerUsername) return 2;
             else if(this.playerList.length == this.size) return 3;
+        }
+
+        //Generates username
+        let playerUsername = "";
+        let takenNames = [];
+        for(let i = 0; i < this.playerList.length; i++) {
+            takenNames.push(this.playerList[i].playerUsername);
+        }
+        for(let i = 0; i < names.length; i++) {
+            if(!takenNames.includes(names[i])) {
+                playerUsername = names[i];
+                break;
+            }
         }
 
         this.emitPlayerList(playerSocketId);
@@ -66,7 +82,7 @@ class Room {
             })
             this.startGame();
         }
-        return 0; //Successfully joined
+        return playerUsername; //Successfully joined
     }
 
     //Handles a player being removed if they've disconnected
@@ -101,7 +117,7 @@ class Room {
 
     getPlayerByUsername(playerUsername) {
         for(let i = 0; i < this.playerList.length; i++) {
-            if(this.playerList[i].playerUsername == playerUsername) {
+            if(this.playerList[i].playerUsername.toLowerCase() == playerUsername) {
                 return this.playerList[i];
             }      
         }
@@ -393,6 +409,7 @@ class Room {
 
     handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
         message = message.substring(2).trim(); //Remove the /v, then spaces at the front/back
+        //messageRecipientName is compared to actual names, which are also made lowercase
         let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /v, which should be the username of the recipient
         let recipient = this.getPlayerByUsername(messageRecipientName);
         message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message

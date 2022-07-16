@@ -76,26 +76,26 @@ io.on('connection', socket => {
     });
 
     //Handle players joining a room
-    socket.on('playerJoinRoom', async (name, room, captchaToken, cb) => {  
+    socket.on('playerJoinRoom', async (room, captchaToken, cb) => {  
         try {
-            console.log(captchaToken)
+            console.log("Token " + captchaToken)
             console.log(process.env.CAPTCHA_KEY)
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
             let score = res.data.score
-            name = name.toLowerCase().replace(/[^a-zA-Z]+/g, '');
-            if(name.length >=3 && name.length <= 12 && score >= 0.7) {  
+            console.log(res.data)
+            if(score >= 0.7) {  
                 socket.join(room); //Joins room, messages will be received accordingly
                 socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
                 
-                let successNumber = socket.data.roomObject.addPlayer(socket.id, name);
-                /* cb(socket.data.roomObject.isInRoom(socket.id)); */
-                cb(successNumber);
+                let result = socket.data.roomObject.addPlayer(socket.id);
+                console.log("TEST")
+                cb(result);
             }
-            else cb(false)
+            else cb(2)
         }
         catch (error) {
             console.log('CatchTest: ' + error)
-            cb(false); //If a room isn't found, socketio tries to callback null.
+            //cb(2); //If a room isn't found, socketio tries to callback null.
         }
     });
     
