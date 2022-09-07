@@ -1,21 +1,28 @@
 import React from 'react';
 import {Navbar, Nav} from 'react-bootstrap';
-import { Outlet, Link} from 'react-router-dom';
-import axios from 'axios';
-
+import {Outlet, Link} from 'react-router-dom';
 
 class MafSiteNavbar extends React.Component {
-    state = {
-        isLoggedIn: false,
-        userID: '',
-        name: '',
-        email: '',
-        picture: ''
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isLoggedIn: false,
+            userID: '',
+            name: '',
+            email: '',
+            picture: '',
+            inGame: false
+        }
+
+        this.setInGame = this.setInGame.bind(this);
     }
 
-    handleTestClick() {
-        console.log('Click test!');
-        axios.get('/auth/facebook');
+    setInGame(inGame) {
+        console.log('TEST setInGame')
+        this.setState({
+            inGame: inGame
+        })
     }
 
     render() {
@@ -23,25 +30,26 @@ class MafSiteNavbar extends React.Component {
             <>            
                 <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
                     <Nav>
-                        <Navbar.Brand as={Link} to="/">MERN Mafia</Navbar.Brand>         
+                        <Navbar.Brand as={Link} to="/" disabled={this.state.inGame}>MERN Mafia</Navbar.Brand>         
                     </Nav>                              
 
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link as={Link} to="/">Play</Nav.Link>                  
-                            <Nav.Link as={Link} to="/faq">FAQ</Nav.Link>
-                            <Nav.Link as={Link} to="/stats">Stats</Nav.Link>
-                            <Nav.Link as={Link} to="/settings">Settings</Nav.Link> 
+                            <Nav.Link as={Link} to="/" disabled={this.state.inGame}>Play</Nav.Link>                  
+                            <Nav.Link as={Link} to="/faq" disabled={this.state.inGame}>FAQ</Nav.Link>
+                            <Nav.Link as={Link} to="/roles" disabled={this.state.inGame}>Roles</Nav.Link>
+                            <Nav.Link  as={Link} to="/stats" disabled={this.state.inGame}>Stats</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
-
-                    <Nav>
-                        { true && (<Nav.Link as={Link} className="justify-content-end" to="/settings">Login Placeholder</Nav.Link>) }
-                    </Nav>
+                    {!this.state.isLoggedIn && 
+                    (<Nav>
+                        <Nav.Link as={Link} to="/settings" disabled={this.state.inGame}>Settings</Nav.Link> 
+                        <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={this.state.inGame}>Login Placeholder</Nav.Link>
+                    </Nav>)
+                    }
                 </Navbar>
-                
-                <Outlet/>
+                <Outlet context={this.setInGame} />
             </>
         )
     }

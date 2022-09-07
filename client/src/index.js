@@ -9,6 +9,7 @@ import FAQPage from './components/FAQPage';
 import SettingPage from './components/SettingPage';
 import PlayPage from './components/PlayPage';
 import Stats from './components/Stats';
+import RolesPage from './components/Roles';
 
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
@@ -22,6 +23,7 @@ ReactDOM.render(
             <Route path="play" element={<PlayPage />} />
             <Route path="stats" element={<Stats/>} />
             <Route path="faq" element={<FAQPage />} />
+            <Route path="roles" element={<RolesPage />} />
             <Route path="settings" element={<SettingPage />} />
             <Route path="*" element={<FourOFour/>} />
           </Route>
