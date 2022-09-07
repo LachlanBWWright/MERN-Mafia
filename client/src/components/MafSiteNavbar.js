@@ -23,7 +23,7 @@ class MafSiteNavbar extends React.Component {
             <>            
                 <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
                     <Nav>
-                            <Navbar.Brand as={Link} to="/">MERN Mafia</Navbar.Brand>         
+                        <Navbar.Brand as={Link} to="/">MERN Mafia</Navbar.Brand>         
                     </Nav>                              
 
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -35,6 +35,10 @@ class MafSiteNavbar extends React.Component {
                             <Nav.Link as={Link} to="/settings">Settings</Nav.Link> 
                         </Nav>
                     </Navbar.Collapse>
+
+                    <Nav>
+                        { true && (<Nav.Link as={Link} className="justify-content-end" to="/settings">Login Placeholder</Nav.Link>) }
+                    </Nav>
                 </Navbar>
                 
                 <Outlet/>

@@ -18,7 +18,7 @@ ReactDOM.render(
       <BrowserRouter>
         <Routes>  
           <Route path="/" element={<MafSiteNavbar />}>
-            <Route index element={<PlayPage/>} /> {/*TODO: Implement IntroScreen conntent into playpage*/}
+            <Route index element={<PlayPage/>} />
             <Route path="play" element={<PlayPage />} />
             <Route path="stats" element={<Stats/>} />
             <Route path="faq" element={<FAQPage />} />
