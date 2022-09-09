@@ -3,7 +3,7 @@ import Role from './role.js'
 class Jailor extends Role {
     constructor(room, player) {
         super('Jailor', 'At day, you can choose to jail a player, blocking their abilities. You can then interrogate them, and choose to execute them.', 
-        'town', 'At day and night, use /c playerName to choose who to tap.', room, player, 0, false);
+        'town', 'At day and night, use /c playerName to choose who to jail.', room, player, 0, false);
     }
 
     handleDayAction(message) { //Choose to jail a player
