@@ -3,7 +3,7 @@ import Role from './role.js'
 class Tracker extends Role {
     constructor(room, player) {
         super('Tracker', 'Choose a player to track, and see who they visit.', 
-        'town', 'At night, use /c playerName to choose track.', room, player, 0, false);
+        'town', 'At night, use /c playerName to choose who to track.', room, player, 0, false);
     }
 
     handleNightAction(message) { //Vote on who should be attacked
