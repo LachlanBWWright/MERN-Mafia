@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Card} from 'react-bootstrap';
+import {Card, Tooltip, OverlayTrigger, Button} from 'react-bootstrap';
 import {Outlet, useOutletContext} from 'react-router-dom';
 import Room from './Room';
 import RoomList from './RoomList';
+import roles from '../info/roles';
 import {GoogleReCaptcha} from 'react-google-recaptcha-v3'
 
 function PlayPage() {
@@ -15,14 +16,17 @@ function PlayPage() {
 
     useEffect(() => {
             setInGame(playerRole !== '');
-    })
+    }, [playerRole, setInGame])
 
     if(playerRoom !== '') { /* Shows the room if a name and room has been selected */
         return (
             <div style={{padding: '2vh', width: '30 rem'}}>
                 <Card>
                     <Card.Body>
-                        <Card.Text>Your Name is {playerName}. Your role is {playerRole}.</Card.Text>
+                        <Card.Text>Your Name is {playerName}.{playerRole !== "" ? " Your role is " + playerRole + "." : "" } {playerRole !== '' && <OverlayTrigger placement="right" delay={{show: 250, hide: 400}} 
+                            overlay={(props) => <Tooltip id="button-tooltip" {...props}>{roles.get(playerRole)}</Tooltip>
+                        }>
+                        <Button size ="sm" variant="danger">?</Button></OverlayTrigger>} </Card.Text>
                         <Room captchaToken={captchaToken} playerName={playerName} playerRoom={playerRoom} setFailReason={setFailReason} 
                             setName={setPlayerName} setRoom={setPlayerRoom} setRole={setPlayerRole}
                         /> 
