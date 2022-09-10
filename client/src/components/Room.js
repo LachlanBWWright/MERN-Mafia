@@ -70,7 +70,7 @@ class Room extends React.Component {
                         : 
                             <Row className="justify-content-xl-center" xs="auto">
                                 <Col md={2}>
-                                    <Button variant='danger' onClick={() => {this.props.setRoom(''); this.props.setName(''); }} className="btn-block">Disconnect</Button> 
+                                    <Button variant='danger' onClick={() => {this.props.setRoom(''); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
                                 </Col>
                             </Row>
                         }
@@ -202,7 +202,7 @@ class Room extends React.Component {
                 else if(callback === 3) this.props.setFailReason('The room was full.');
                 this.props.setRoom('');
                 this.props.setName('');
-                this.props.setRole('not yet assigned');
+                this.props.setRole('');
             }
             else {
                 this.props.setFailReason('');

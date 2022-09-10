@@ -83,7 +83,7 @@ io.on('connection', socket => {
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
             let score = res.data.score
             console.log(res.data)
-            if(score >= 0.7) {  
+            if(score >= 0.7) {  //Blocks players from joining if ReCaptcha V3 score is too low 
                 socket.join(room); //Joins room, messages will be received accordingly
                 socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
                 
