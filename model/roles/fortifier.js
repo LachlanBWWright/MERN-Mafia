@@ -2,8 +2,7 @@ import Role from './role.js'
 
 class Fortifier extends Role {
     constructor(room, player) {
-        super('Fortifier', 'Once per game, you can choose to fortify someone\s house. They will survive most attacks, and if you\'re alive, you can kill the attackers. If you regret your decision, you can try to take their defences down, but a brawl will ensue, killing one of you at random.', 
-        'town', 'At night, use /c playerName to choose whose house to fprtofu. Type /c playerName again to try and remove their defences.', room, player, 0, false);
+        super('Fortifier', 'town', room, player, 0, false);
 
         this.playerFortified = null;
         this.canFortify = true;

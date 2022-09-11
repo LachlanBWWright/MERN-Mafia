@@ -2,8 +2,7 @@ import Role from './role.js'
 
 class Watchman extends Role {
     constructor(room, player) {
-        super('Watchman', 'Choose a player to watch, and see who visits them. If only one person visits, you may struggle to determine who the visitor was, but your vision will improve over time.', 
-        'town', 'At night, use /c playerName to choose watch.', room, player, 0, false);
+        super('Watchman', 'town', room, player, 0, false);
     }
 
     handleNightAction(message) { //Vote on who should be attacked

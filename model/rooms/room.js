@@ -144,11 +144,8 @@ class Room {
             let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId);
             if(this.started) { //If the game has started, handle the message with the role object
                 if(foundPlayer.isAlive) {
-                    if(message.charAt(0) == '?') {  //Starts with a ? - Help Command
-                        this.io.to(playerSocketId).emit('receive-message', foundPlayer.role.helpText);
-                    }
                     //Starts with a / - Whisper/Role Command
-                    else if(message.charAt(0) == '/') {
+                    if(message.charAt(0) == '/') {
                         if(message.charAt(1) == 'w' || message.charAt(1) == 'W') { //Handle whispering
                             foundPlayer.role.handlePrivateMessage(message);
                         }
@@ -208,7 +205,6 @@ class Room {
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
-            this.io.to(this.playerList[i].socketId).emit('receive-message', ('Your role is: ' + this.playerList[i].role.name + '. ' + this.playerList[i].role.description)); //Sends each player their role
 
             let playerReturned = {};
             playerReturned.name = this.playerList[i].playerUsername;

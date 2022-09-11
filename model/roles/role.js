@@ -1,12 +1,10 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, description, group, helpText, room, player, baseDefence, roleblocker) {
+    constructor(name, group, room, player, baseDefence, roleblocker) {
         //Text info
         this.name = name; //Name of the role
-        this.description = description; //Description of the role
         this.group = group; //group for determining group-actions / group night chats / Ending the game
-        this.helpText = helpText; //Role info that is sent when the player sends a help command
 
         //Classes
         this.room = room; //io for SocketIo emitting

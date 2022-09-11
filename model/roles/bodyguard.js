@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Bodyguard extends Role {
     constructor(room, player) {
-        super('Bodyguard', 'You can choose a person to protect every night. You will protect them, and kill everybody who visited them. Excluding yourself.', 'town', 'At night, use /c playerName to choose who to protect.', room, player, 0, false);
+        super('Bodyguard', 'town', room, player, 0, false);
     }
 
     handleNightAction(message) { //Vote on who should be attacked
