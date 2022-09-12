@@ -10,12 +10,10 @@ const gameSchema = new mongoose.Schema({
     messages: [{message: String}],
     winningFaction: String,
     date: {type: Date, default: Date.now}
-})
-
+});
 const Game = mongoose.model('Game', gameSchema);
 
-const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", 
-    "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
+const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
 
 class Room {
     constructor(size, io, databaseServer) {
@@ -34,14 +32,12 @@ class Room {
         this.roleList = []; //List of role ES6 classes
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
         this.sessionLength = size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 
-
         this.gameHasEnded = false;
 
         this.gameDB = new Game({name: this.name});
-        
-        }
+    }
 
-    //Adds a new player to the room, and makes the game start if it is full
+    //Adds a new player to the room, and makes the game start if it is full. Returns error code if the user failed to join, or their username
     addPlayer(playerSocketId) {
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
@@ -52,9 +48,7 @@ class Room {
         //Generates username
         let playerUsername = "";
         let takenNames = [];
-        for(let i = 0; i < this.playerList.length; i++) {
-            takenNames.push(this.playerList[i].playerUsername);
-        }
+        for(let i = 0; i < this.playerList.length; i++) takenNames.push(this.playerList[i].playerUsername);
         for(let i = 0; i < names.length; i++) {
             if(!takenNames.includes(names[i])) {
                 playerUsername = names[i];
@@ -414,28 +408,17 @@ class Room {
             this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed!'));
             voterPlayer.votingFor = recipient; //Casts the vote
 
-            let votesForPlayer = 0;
-            //Iterate through playerList, and find out how many people have voted for them
-            for(let i = 0; i < this.playerList.length; i++) {
-                if(this.playerList[i].isAlive && this.playerList[i].votingFor == recipient) {
-                    votesForPlayer++;
-                }
-            }
-            if(votesForPlayer > 1) {
-                this.io.to(this.name).emit('receive-message', ('There are ' + votesForPlayer + ' votes for ' + recipient.playerUsername + ' to be killed.'));
-            }
-            else {
-                this.io.to(this.name).emit('receive-message', ('There is one vote for ' + recipient.playerUsername + ' to be killed.'));
-            }
+            let votesForPlayer = 0; //Iterate through playerList, and find out how many people have voted for them
+            for(let i = 0; i < this.playerList.length; i++) if(this.playerList[i].isAlive && this.playerList[i].votingFor == recipient) votesForPlayer++;
+            if(votesForPlayer > 1) this.io.to(this.name).emit('receive-message', ('There are ' + votesForPlayer + ' votes for ' + recipient.playerUsername + ' to be killed.'));
+            else this.io.to(this.name).emit('receive-message', ('There is one vote for ' + recipient.playerUsername + ' to be killed.'));
         }
         else if(message == '' && voterPlayer.votingFor != null) {
             this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote has been rescinded.');
             this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has cancelled their vote.'));
             voterPlayer.votingFor = null;
         }
-        else {
-            this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote wasn\'t valid.');
-        }
+        else this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote was invalid.');
     }
 
     findWinningFaction() {
