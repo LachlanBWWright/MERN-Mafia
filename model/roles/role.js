@@ -37,15 +37,15 @@ class Role {
     //Handles sending general message
     handleMessage(message) {
         if(this.room.time == 'day') { //Free speaking only at daytime
-            this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.room.name).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
         }
         else if(this.jailed != null) { //Special logic for jailee-jailor messaging conversation
-            this.room.io.to(this.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
-            this.room.io.to(this.jailed.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.jailed.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
         }
         else if(this.name == 'Jailor' && this.dayVisiting != null) { //Special logic for jailor => jailee messaging
-            this.room.io.to(this.player.socketId).emit('receive-message', ('Jailor: ' + message));
-            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', ('Jailor: ' + message));
+            this.room.io.to(this.player.socketId).emit('receive-chat-message', ('Jailor: ' + message));
+            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-chat-message', ('Jailor: ' + message));
         }
         else if (typeof this.faction === 'undefined'){ //If the player isn't in a faction, they can't talk at night
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
@@ -53,7 +53,7 @@ class Role {
         else { //Calls the function for handling the night chat.
             try {
                 this.faction.handleNightMessage(message, this.player.playerUsername);
-                if(this.nightTapped != false) this.room.io.to(this.nightTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+                if(this.nightTapped != false) this.room.io.to(this.nightTapped.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
             }
             catch(error) {
                 console.log(error);
@@ -79,8 +79,8 @@ class Role {
                     this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + ', but was overheard by the town!'));
                 }
                 else {
-                    this.room.io.to(recipient.socketId).emit('receive-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
-                    this.room.io.to(this.player.socketId).emit('receive-message', 'Whisper to ' + messageRecipientName + ': ' + message);
+                    this.room.io.to(recipient.socketId).emit('receive-whisper-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
+                    this.room.io.to(this.player.socketId).emit('receive-whisper-message', 'Whisper to ' + messageRecipientName + ': ' + message);
                     if(this.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
                     else if(recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
                 } 

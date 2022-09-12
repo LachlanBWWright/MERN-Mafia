@@ -50,7 +50,9 @@ class Room extends React.Component {
                             <div style={{height: '70vh', overflowY: 'scroll'}} ref={this.scrollRef}>
                                 {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
                                     if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
-                                    else return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
+                                    else if(msg.type === 1) return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
+                                    else if(msg.type === 2) return (<p key={index} style={{fontStyle: 'italic'}}>{msg.text}</p>) // 2 - Whisper Message (Italics)     
+                                    else return (<p key={index}>{msg.text}</p>) // Fallback Message (No effects)     
                                 })}
                             </div>
                         </Col>
@@ -141,6 +143,34 @@ class Room extends React.Component {
             else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
         })
 
+        this.socket.on('receive-chat-message', (inMsg) => {
+            //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
+            let msg = {
+                type: 1,
+                text: inMsg
+            }
+
+            if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
+                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+                this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
+            }
+            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+        })
+
+        this.socket.on('receive-whisper-message', (inMsg) => {
+            //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
+            let msg = {
+                type: 2,
+                text: inMsg
+            }
+
+            if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
+                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+                this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
+            }
+            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+        })
+
         this.socket.on('receive-player-list', (listJson) => { //Receive all players upon joining, and the game starting
             this.setState({playerList: listJson});
         });
@@ -220,6 +250,8 @@ class Room extends React.Component {
 
     componentWillUnmount() {
         this.socket.off('receive-message');
+        this.socket.off('receive-chat-message');
+        this.socket.off('receive-whisper-message');
         this.socket.off('block-messages');
         this.socket.off('receive-role');
         this.socket.off('receive-player-list');

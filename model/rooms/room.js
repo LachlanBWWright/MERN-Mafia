@@ -174,7 +174,7 @@ class Room {
                 }
             }
             else { //If the game hasn't started, no roles have been assigned, just send the message directly
-                this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ': ' + message));
+                this.io.to(this.name).emit('receive-chat-message', (foundPlayer.playerUsername + ': ' + message));
             }
         }
         catch (error) {
