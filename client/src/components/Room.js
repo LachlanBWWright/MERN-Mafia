@@ -48,7 +48,10 @@ class Room extends React.Component {
                         </Col>
                         <Col>
                             <div style={{height: '70vh', overflowY: 'scroll'}} ref={this.scrollRef}>
-                                {this.state.messages && this.state.messages.map((msg, index) => <p key={index}>{msg}</p>)}
+                                {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
+                                    if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
+                                    else return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
+                                })}
                             </div>
                         </Col>
                     </Row>
@@ -126,11 +129,16 @@ class Room extends React.Component {
         
         this.socket.on('receive-message', (inMsg) => {
             //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
+            let msg = {
+                type: 0,
+                text: inMsg
+            }
+
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-                this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
+                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            else this.setState({messages: [...this.state.messages, inMsg]}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
         })
 
         this.socket.on('receive-player-list', (listJson) => { //Receive all players upon joining, and the game starting
@@ -152,9 +160,7 @@ class Room extends React.Component {
             tempPlayerList[index].role = playerJson.role;
             tempPlayerList[index].isUser = true;
             //TODO: Who player visits at day (living) (0 - Nobody, 1 - Self, 2 - Others, 3 - Everybody)
-            //TODO: Who player visits at day (dead, will apply to almost (or currently) no roles) 
             //TODO: Who player visits at night (living)
-            //TODO: Who player visits at night (dead)
             this.props.setRole(playerJson.role);
             this.setState({playerList: tempPlayerList});
         })

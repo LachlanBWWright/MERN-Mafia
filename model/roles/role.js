@@ -11,7 +11,7 @@ class Role {
         this.player = player; //The player object paired to the class
 
         //Role stats
-        this.baseDefence = baseDefence; //The minimum 'defence power' the player hase
+        this.baseDefence = baseDefence; //The minimum 'defence power' the player has
         this.defence = this.baseDefence; //The variable 'defence power' the player has each night
         this.damage = 0; //The amount of damage that is received on a single night. If it's above defence, the player dies.
 
@@ -39,11 +39,11 @@ class Role {
         if(this.room.time == 'day') { //Free speaking only at daytime
             this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
         }
-        else if(this.jailed != null) { //Special logic for jailor-jailee conversation
+        else if(this.jailed != null) { //Special logic for jailee-jailor messaging conversation
             this.room.io.to(this.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
             this.room.io.to(this.jailed.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
         }
-        else if(this.name == 'Jailor' && this.dayVisiting != null) {
+        else if(this.name == 'Jailor' && this.dayVisiting != null) { //Special logic for jailor => jailee messaging
             this.room.io.to(this.player.socketId).emit('receive-message', ('Jailor: ' + message));
             this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', ('Jailor: ' + message));
         }
@@ -112,26 +112,8 @@ class Role {
         this.visiting = null;
     }
 
-    dayVisit() { //Visit another player (Day)
-
-    }
-
-    visit() { //Visit another player (Night)
-        console.log('This should be overridden by a child class.');
-    }
-
-    receiveDayVisit(role) { //Called by another player visiting at night
-        //TODO: Consider adding to this
-    }
-
     receiveVisit(role) { //Called by another player visiting at day
         this.visitors.push(role);
-    }
-
-    handleDayVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
-    }
-
-    handleVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
     }
 
     handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage
@@ -159,6 +141,13 @@ class Role {
             this.attackers = [];
         }
     }
+
+    //These should be overriden by child classes if applicable
+    dayVisit() {} //Visit another player (Day)
+    visit() {} //Visit another player (Night)
+    receiveDayVisit(role) {} //Called by another player visiting at night
+    handleDayVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
+    handleVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
 }
 
 export default Role

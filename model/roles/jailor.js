@@ -50,7 +50,7 @@ class Jailor extends Role {
     visit() { //Executes the player being jailed
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
-            if(this.visiting.damage == 0) this.visiting.damage = 3; //Attacks the victim
+            if(this.visiting.damage < 3) this.visiting.damage = 3; //Attacks the victim
             this.visiting.attackers.push(this);
         }
     }
