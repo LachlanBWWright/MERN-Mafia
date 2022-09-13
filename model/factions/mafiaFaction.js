@@ -40,7 +40,7 @@ class MafiaFaction extends Faction {
 
     sendMessage(message) {
         for(let i = 0; i < this.memberList.length; i++) {
-            this.io.to(this.memberList[i].socketId).emit('receive-message', message);
+            this.io.to(this.memberList[i].socketId).emit('receive-chat-message', message);
         }
     }
 
