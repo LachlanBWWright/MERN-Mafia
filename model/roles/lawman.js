@@ -2,9 +2,7 @@ import Role from './role.js'
 
 class Lawman extends Role {
     constructor(room, player) {
-        super('Lawman', 'You can choose a person to shoot every night. If you shoot a town member, you will go insane, and shoot a living player at random every night - including yourself!', 
-        'town', 'At night, use /c playerName to choose who to shoot.', room, player, 0, false);
-
+        super('Lawman', 'town', room, player, 0, false);
         this.isInsane = false;
     }
 

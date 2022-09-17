@@ -14,9 +14,7 @@ import Sacrificer from './sacrificer.js';
 import Fortifier from './fortifier.js';
 import Roleblocker from './roleblocker.js';
 import Jailor from './jailor.js';
-
 import Mafia from './mafia.js';
-
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js';

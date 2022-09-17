@@ -1,19 +1,17 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, description, group, helpText, room, player, baseDefence, roleblocker) {
+    constructor(name, group, room, player, baseDefence, roleblocker) {
         //Text info
         this.name = name; //Name of the role
-        this.description = description; //Description of the role
         this.group = group; //group for determining group-actions / group night chats / Ending the game
-        this.helpText = helpText; //Role info that is sent when the player sends a help command
 
         //Classes
         this.room = room; //io for SocketIo emitting
         this.player = player; //The player object paired to the class
 
         //Role stats
-        this.baseDefence = baseDefence; //The minimum 'defence power' the player hase
+        this.baseDefence = baseDefence; //The minimum 'defence power' the player has
         this.defence = this.baseDefence; //The variable 'defence power' the player has each night
         this.damage = 0; //The amount of damage that is received on a single night. If it's above defence, the player dies.
 
@@ -39,15 +37,15 @@ class Role {
     //Handles sending general message
     handleMessage(message) {
         if(this.room.time == 'day') { //Free speaking only at daytime
-            this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.room.name).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
         }
-        else if(this.jailed != null) { //Special logic for jailor-jailee conversation
-            this.room.io.to(this.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
-            this.room.io.to(this.jailed.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+        else if(this.jailed != null) { //Special logic for jailee-jailor messaging conversation
+            this.room.io.to(this.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
+            this.room.io.to(this.jailed.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
         }
-        else if(this.name == 'Jailor' && this.dayVisiting != null) {
-            this.room.io.to(this.player.socketId).emit('receive-message', ('Jailor: ' + message));
-            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-message', ('Jailor: ' + message));
+        else if(this.name == 'Jailor' && this.dayVisiting != null) { //Special logic for jailor => jailee messaging
+            this.room.io.to(this.player.socketId).emit('receive-chat-message', ('Jailor: ' + message));
+            this.room.io.to(this.dayVisiting.player.socketId).emit('receive-chat-message', ('Jailor: ' + message));
         }
         else if (typeof this.faction === 'undefined'){ //If the player isn't in a faction, they can't talk at night
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot speak at night.');
@@ -55,7 +53,7 @@ class Role {
         else { //Calls the function for handling the night chat.
             try {
                 this.faction.handleNightMessage(message, this.player.playerUsername);
-                if(this.nightTapped != false) this.room.io.to(this.nightTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ': ' + message));
+                if(this.nightTapped != false) this.room.io.to(this.nightTapped.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
             }
             catch(error) {
                 console.log(error);
@@ -81,8 +79,8 @@ class Role {
                     this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + ', but was overheard by the town!'));
                 }
                 else {
-                    this.room.io.to(recipient.socketId).emit('receive-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
-                    this.room.io.to(this.player.socketId).emit('receive-message', 'Whisper to ' + messageRecipientName + ': ' + message);
+                    this.room.io.to(recipient.socketId).emit('receive-whisper-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
+                    this.room.io.to(this.player.socketId).emit('receive-whisper-message', 'Whisper to ' + messageRecipientName + ': ' + message);
                     if(this.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
                     else if(recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
                 } 
@@ -114,26 +112,8 @@ class Role {
         this.visiting = null;
     }
 
-    dayVisit() { //Visit another player (Day)
-
-    }
-
-    visit() { //Visit another player (Night)
-        console.log('This should be overridden by a child class.');
-    }
-
-    receiveDayVisit(role) { //Called by another player visiting at night
-        //TODO: Consider adding to this
-    }
-
     receiveVisit(role) { //Called by another player visiting at day
         this.visitors.push(role);
-    }
-
-    handleDayVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
-    }
-
-    handleVisits() { //Called after visit. For roles such as the watchman, who can see who has visited who
     }
 
     handleDamage() { //Kills the player if they don't have adequate defence, then resets attack/damage
@@ -161,6 +141,13 @@ class Role {
             this.attackers = [];
         }
     }
+
+    //These should be overriden by child classes if applicable
+    dayVisit() {} //Visit another player (Day)
+    visit() {} //Visit another player (Night)
+    receiveDayVisit(role) {} //Called by another player visiting at night
+    handleDayVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
+    handleVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
 }
 
 export default Role

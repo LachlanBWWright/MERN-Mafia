@@ -2,8 +2,7 @@ import Role from './role.js'
 
 class Jailor extends Role {
     constructor(room, player) {
-        super('Jailor', 'At day, you can choose to jail a player, blocking their abilities. You can then interrogate them, and choose to execute them.', 
-        'town', 'At day and night, use /c playerName to choose who to jail.', room, player, 0, false);
+        super('Jailor', 'town', room, player, 0, false);
     }
 
     handleDayAction(message) { //Choose to jail a player
@@ -51,7 +50,7 @@ class Jailor extends Role {
     visit() { //Executes the player being jailed
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
-            if(this.visiting.damage == 0) this.visiting.damage = 3; //Attacks the victim
+            if(this.visiting.damage < 3) this.visiting.damage = 3; //Attacks the victim
             this.visiting.attackers.push(this);
         }
     }

@@ -3,8 +3,7 @@ import Role from './role.js'
 //This class judges the alignment of the selected target (usually!)
 class Investigator extends Role {
     constructor(room, player) {
-        super('Investigator', 'You can visit a player each night to check make three guesses as to their role. Each guess has a 30% chance of being correct, otherwise it will be the role of a random player.'
-        , 'town', 'At night, use /c playerName to choose who to inspect.', room, player, 0, false);
+        super('Investigator', 'town', room, player, 0, false);
     }
     
     handleNightAction(message) { //Vote on who should be attacked
