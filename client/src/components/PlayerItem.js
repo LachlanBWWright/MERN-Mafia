@@ -30,7 +30,7 @@ class PlayerItem extends React.Component {
         )
     }
 
-    canVisit() { //For now, if the 
+    canVisit() { //For now, if the player's role is known, they are interpreted as a member of the same faction
         if(!this.props.canTalk || !this.state.canVisit) return false;
         if(this.props.time === 'Day') {
             if(this.props.canVisit[0] && this.props.isAlive && this.props.isUser) return true;
