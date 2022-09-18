@@ -1,7 +1,8 @@
 //This is the base class for a role
 
 class Role {
-    constructor(name, group, room, player, baseDefence, roleblocker) {
+    // Role name, Group Name, SocketIo Room, Player Class, Base Defence, Is Roleblocker, Day visits, night visits
+    constructor(name, group, room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction) {
         //Text info
         this.name = name; //Name of the role
         this.group = group; //group for determining group-actions / group night chats / Ending the game
@@ -14,6 +15,14 @@ class Role {
         this.baseDefence = baseDefence; //The minimum 'defence power' the player has
         this.defence = this.baseDefence; //The variable 'defence power' the player has each night
         this.damage = 0; //The amount of damage that is received on a single night. If it's above defence, the player dies.
+
+        //Who the role can visit, for UI purposes (True/False)
+        this.dayVisitSelf = dayVisitSelf;
+        this.dayVisitOthers = dayVisitOthers;
+        this.dayVisitFaction = dayVisitFaction; //Also false if the role does not have a faction
+        this.nightVisitSelf = nightVisitSelf;
+        this.nightVisitOthers = nightVisitOthers;
+        this.nightVisitFaction = nightVisitFaction; //Also false if the role does not have a faction
 
         //Role Action
         this.dayVisiting = null; //The role that the player is visiting (from a rarer day command).

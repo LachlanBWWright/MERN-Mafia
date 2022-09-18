@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Doctor extends Role {
     constructor(room, player) {
-        super('Doctor', 'town', room, player, 0, false);
+        super('Doctor', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
 
     handleNightAction(message) { //Vote on who should be attacked
