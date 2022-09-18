@@ -173,6 +173,12 @@ class Room {
             let playerReturned = {};
             playerReturned.name = this.playerList[i].playerUsername;
             playerReturned.role = this.playerList[i].role.name;
+            playerReturned.dayVisitSelf = this.playerList[i].role.dayVisitSelf;
+            playerReturned.dayVisitOthers = this.playerList[i].role.dayVisitOthers;
+            playerReturned.dayVisitFaction = this.playerList[i].role.dayVisitFaction;
+            playerReturned.nightVisitSelf = this.playerList[i].role.nightVisitSelf;
+            playerReturned.nightVisitOthers = this.playerList[i].role.nightVisitOthers;
+            playerReturned.nightVisitFaction = this.playerList[i].role.nightVisitFaction; 
 
             this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
@@ -345,11 +351,12 @@ class Room {
         let recipient = this.getPlayerByUsername(messageRecipientName);
         message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
     
-        if(this.time == 'day' && recipient.isAlive && !voterPlayer.hasVoted) {
+        if(voterPlayer === recipient) this.io.to(voterPlayer.socketId).emit('receive-message', 'You cannot vote for yourself.');
+        else if(this.time == 'day' && recipient.isAlive && !voterPlayer.hasVoted) {
             voterPlayer.hasVoted = true;
             recipient.votesReceived++;
             if(recipient.votesReceived > 1) this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed! There are ' + recipient.votesReceived + ' votes for ' + recipient.playerUsername + ' to be killed.'));
-            else this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed! There is one vote for ' + recipient.playerUsername + ' to be killed.'));
+            else this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed! There is 1 vote for ' + recipient.playerUsername + ' to be killed.'));
         }
         else if(voterPlayer.hasVoted) this.io.to(voterPlayer.socketId).emit('receive-message', 'You cannot change your vote.');
         else this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote was invalid.');

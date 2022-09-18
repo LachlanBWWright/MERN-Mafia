@@ -34,13 +34,13 @@ class MafiaFaction extends Faction {
 
         //Sends the message to every member of the faction.
         for(let i = 0; i < this.memberList.length; i++) {
-            this.io.to(this.memberList[i].socketId).emit('receive-message', nightMessage);
+            this.io.to(this.memberList[i].socketId).emit('receive-chat-message', nightMessage);
         }
     }
 
     sendMessage(message) {
         for(let i = 0; i < this.memberList.length; i++) {
-            this.io.to(this.memberList[i].socketId).emit('receive-chat-message', message);
+            this.io.to(this.memberList[i].socketId).emit('receive-message', message);
         }
     }
 

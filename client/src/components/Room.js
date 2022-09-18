@@ -16,7 +16,8 @@ class Room extends React.Component {
             messages: [],
             playerList: [],
             visiting: null,
-            votingFor: null
+            votingFor: null,
+            canVisit: [false, false, false, false, false, false] //dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction
         };
 
         this.changeText = this.changeText.bind(this);
@@ -41,9 +42,12 @@ class Room extends React.Component {
                             {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
                             <ListGroup>
                                 {this.state.playerList && this.state.playerList.map(player => 
-                                <PlayerItem key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} 
-                                dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
-                                visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk}/> )}
+                                    <PlayerItem 
+                                        key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} dayNumber={this.state.dayNumber}
+                                        dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
+                                        visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
+                                    /> 
+                                )}
                             </ListGroup>
                         </Col>
                         <Col>
@@ -192,6 +196,24 @@ class Room extends React.Component {
             //TODO: Who player visits at day (living) (0 - Nobody, 1 - Self, 2 - Others, 3 - Everybody)
             //TODO: Who player visits at night (living)
             this.props.setRole(playerJson.role);
+            this.setState({
+                playerList: tempPlayerList,
+                canVisit: [playerJson.dayVisitSelf, playerJson.dayVisitOthers, playerJson.dayVisitFaction, playerJson.nightVisitSelf, playerJson.nightVisitOthers, playerJson.nightVisitFaction]
+            });
+
+            console.log(this.state.canVisit)
+/*             playerReturned.dayVisitSelf = this.playerList[i].role.dayVisitSelf;
+            playerReturned.dayVisitOthers = this.playerList[i].role.dayVisitOthers;
+            playerReturned.dayVisitFaction = this.playerList[i].role.dayVisitFaction;
+            playerReturned.nightVisitSelf = this.playerList[i].role.nightVisitSelf;
+            playerReturned.nightVisitOthers = this.playerList[i].role.nightVisitOthers;
+            playerReturned.nightVisitFaction = this.playerList[i].role.nightVisitFaction;  */
+        })
+
+        this.socket.on('update-faction-role', (playerJson) => { //Reveals the role of factional allies
+            let tempPlayerList = [...this.state.playerList];
+            let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
+            if(playerJson.role !== undefined) tempPlayerList[index].role = playerJson.role;
             this.setState({playerList: tempPlayerList});
         })
 

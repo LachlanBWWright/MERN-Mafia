@@ -3,13 +3,13 @@ import Role from './role.js'
 //This class judges the alignment of the selected target (usually!)
 class Judge extends Role {
     constructor(room, player) {
-        super('Judge', 'town', room, player, 0, false);
+        super('Judge', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
     
     handleNightAction(message) { //Vote on who should be attacked
         let inspectee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
         if(inspectee == this.player) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot inspect your owm alignment.');
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot inspect your own alignment.');
         }
         else if(inspectee.playerUsername != undefined && inspectee.isAlive) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to inspect ' + inspectee.playerUsername + '.');
