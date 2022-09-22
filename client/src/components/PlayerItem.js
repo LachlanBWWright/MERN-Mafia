@@ -1,5 +1,5 @@
 import React from 'react';
-import {ListGroup, Row, Col, Button} from 'react-bootstrap';
+import {ListGroup, Row, Col, Button, ButtonGroup} from 'react-bootstrap';
 
 class PlayerItem extends React.Component {
     constructor(props) {
@@ -21,9 +21,11 @@ class PlayerItem extends React.Component {
                         {this.props.username} {this.props.role !== undefined?`(${this.props.role})`:""}
                     </Col>
                     <Col md="auto">
-                        {this.canWhisper() && <Button variant="primary" onClick={() => this.props.handleWhisper(this.props.username)}>🗩</Button>}
-                        {this.canVote() && <Button variant={this.props.votingFor===this.props.username?"success":"primary"} onClick={() => this.props.handleVote(this.props.username)}>☑</Button>}
-                        {this.canVisit() && <Button variant={this.props.visiting===this.props.username?"success":"primary"} onClick={() => this.props.handleVisit(this.props.username)}>◎</Button>}
+                        <ButtonGroup>             
+                            {this.canWhisper() && <Button variant="primary" onClick={() => this.props.handleWhisper(this.props.username)}>🗩</Button>}
+                            {this.canVote() && <Button variant={this.props.votingFor===this.props.username?"success":"primary"} onClick={() => this.props.handleVote(this.props.username)}>☑</Button>}
+                            {this.canVisit() && <Button variant={this.props.visiting===this.props.username?"success":"primary"} onClick={() => this.props.handleVisit(this.props.username)}>◎</Button>}
+                        </ButtonGroup>
                     </Col>
                 </Row>
             </ListGroup.Item>
