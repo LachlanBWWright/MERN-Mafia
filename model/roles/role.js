@@ -76,7 +76,6 @@ class Role {
             let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /w, which should be the username of the recipient
             
             recipient = this.room.getPlayerByUsername(messageRecipientName);
-            console.log(message + ' to: ' + recipient.playerUsername);
             message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
 
             if(this.room.time == 'night') {
