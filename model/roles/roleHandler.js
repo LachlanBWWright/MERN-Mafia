@@ -86,7 +86,6 @@ class RoleHandler {
                 if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
             }
         }
-        console.log(roleList)
         return roleList;
     }
 
@@ -111,12 +110,9 @@ class RoleHandler {
     }
 
     uniqueRoleCheck(role) {
-        console.log('Role check called')
         if(role === Jailor) {
-            console.log('Is jailor')
             return true;
         }
-        console.log('Role check failed, not jailor')
         return false;
     }
 
