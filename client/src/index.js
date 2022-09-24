@@ -15,21 +15,21 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 ReactDOM.render(
   <React.StrictMode>
-    <GoogleReCaptchaProvider reCaptchaKey='6LcNfuYgAAAAADlGlOaDcs6-3x3vNfDB3ZoRuzyO'>
-      <BrowserRouter>
-        <Routes>  
-          <Route path="/" element={<MafSiteNavbar />}>
-            <Route index element={<PlayPage/>} />
-            <Route path="play" element={<PlayPage />} />
-            <Route path="stats" element={<Stats/>} />
-            <Route path="faq" element={<FAQPage />} />
-            <Route path="roles" element={<RolesPage />} />
-            <Route path="settings" element={<SettingPage />} />
-            <Route path="*" element={<FourOFour/>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </GoogleReCaptchaProvider>
+      <GoogleReCaptchaProvider reCaptchaKey='6LcNfuYgAAAAADlGlOaDcs6-3x3vNfDB3ZoRuzyO'>
+        <BrowserRouter>
+          <Routes>  
+            <Route path="/" element={<MafSiteNavbar />}>
+              <Route index element={<PlayPage/>} />
+              <Route path="play" element={<PlayPage />} />
+              <Route path="stats" element={<Stats/>} />
+              <Route path="faq" element={<FAQPage />} />
+              <Route path="roles" element={<RolesPage />} />
+              <Route path="settings" element={<SettingPage />} />
+              <Route path="*" element={<FourOFour/>} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </GoogleReCaptchaProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

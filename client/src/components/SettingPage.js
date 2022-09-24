@@ -4,16 +4,14 @@ import {Card} from 'react-bootstrap';
 class SettingPage extends React.Component {    
     render() {
         return (
-            <div style={{padding: '2vh'}}>
-                <Card style={{margin: 'auto'}}>
-                    <Card.Body>
-                        <Card.Title className='text-center'>Settings</Card.Title>
-                        <Card.Text>
-                            Settings page.
-                        </Card.Text>  
-                    </Card.Body>
-                </Card>   
-            </div>
+            <Card style={{margin: '2vh', flex: 1}}>
+                <Card.Body>
+                    <Card.Title className='text-center'>Settings</Card.Title>
+                    <Card.Text>
+                        Settings page.
+                    </Card.Text>  
+                </Card.Body>
+            </Card>   
         )
     }
 }

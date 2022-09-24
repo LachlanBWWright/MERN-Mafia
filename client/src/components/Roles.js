@@ -10,15 +10,13 @@ function RolesPage() {
         </>
     ));
 
-    return (
-        <div style={{padding: '2vh'}}>
-            <Card style={{ margin: 'auto'}}>
-                <Card.Body>
-                    <Card.Title className='text-center'>Roles</Card.Title>
-                    {roleList}
-                </Card.Body>
-            </Card>   
-        </div>
+    return (     
+        <Card style={{margin: '2vh', flex: 1, overflow: 'auto'}}>
+            <Card.Body>
+                <Card.Title className='text-center'>Roles</Card.Title>
+                {roleList}
+            </Card.Body>
+        </Card>   
     )
 }
 

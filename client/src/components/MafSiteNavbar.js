@@ -27,7 +27,7 @@ class MafSiteNavbar extends React.Component {
 
     render() {
         return (
-            <>            
+            <div style={{width: '100%', height: '100vh', flex: 1, display: 'flex', flexDirection: 'column'}}>           
                 <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
                     <Nav>
                         <Navbar.Brand as={Link} to="/" disabled={this.state.inGame}>MERN Mafia</Navbar.Brand>         
@@ -49,8 +49,10 @@ class MafSiteNavbar extends React.Component {
                     </Nav>)
                     }
                 </Navbar>
-                <Outlet context={this.setInGame} />
-            </>
+                <div style={{flex: 1, display: 'flex', flexDirection: 'column',  overflow: 'hidden'}}>
+                    <Outlet context={this.setInGame} />
+                </div>
+            </div>
         )
     }
 }

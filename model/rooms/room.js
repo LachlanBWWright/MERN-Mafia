@@ -16,13 +16,13 @@ const Game = mongoose.model('Game', gameSchema);
 const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
 
 class Room {
-    constructor(size, io, databaseServer) {
+    constructor(io, databaseServer) {
         this.io = io; //SocketIo
         this.databaseServer = databaseServer;
 
         //Data relating to the players in the room
         this.name = Crypto.randomBytes(8).toString('hex'); //Generates the room's name
-        this.size = size; //Capacity of the room
+        this.size = 13; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
             
@@ -31,7 +31,7 @@ class Room {
         this.time = ''; //The time of day (Night, day)
         this.roleList = []; //List of role ES6 classes
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
-        this.sessionLength = size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 
+        this.sessionLength = this.size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 
         this.gameHasEnded = false;
 
         this.gameDB = new Game({name: this.name});

@@ -29,33 +29,21 @@ const io = new Server(httpServer, {
 });
 
 //Creates the first batch of rooms
-var roomList = [];
-function createRooms(roomArray) {
-    roomArray.push(new Room(20, io, mongoose));
-    roomArray.push(new Room(13, io, mongoose));
-    roomArray.push(new Room(4, io, mongoose));
-}
-createRooms(roomList);
+let playRoom = new Room(io, mongoose);
 
 io.on('connection', socket => {
     socket.on('getRoomList', (cb) => {
         try {
             let roomJson = [];
-            //Adds each available room to the JSON that is returned.
-            for(let i = 0; i < roomList.length; i++) {
-                if(!roomList[i].started) {
-                    let roomItem = {};
-                    roomItem.name = roomList[i].name;
-                    roomItem.roomType = roomList[i].roomType;
-                    roomItem.size = roomList[i].size;
-                    roomItem.playerCount = roomList[i].playerCount;
-                    roomJson.push(roomItem);
-                }
-                else { //Aims to replace the removed room with a new, identical room
-                    roomList[i] = new Room(roomList[i].size, io, mongoose);
-                    i--; //Otherwise the new room won't be added to roomJson.
-                }
-            }
+            if(playRoom.started) playRoom = new Room(io, mongoose)
+
+            let roomItem = {};
+            roomItem.name = playRoom.name;
+            roomItem.roomType = playRoom.roomType;
+            roomItem.size = playRoom.size;
+            roomItem.playerCount = playRoom.playerCount;
+            roomJson.push(roomItem);
+
             cb(roomJson);   
         }
         catch(error) {
@@ -64,7 +52,7 @@ io.on('connection', socket => {
     })
 
     //Handle users sending a chat message 
-    socket.on('messageSentByUser', (message, name, room) => {
+    socket.on('messageSentByUser', (message) => {
         try {
             if(message.length > 0 && message.length <= 150) {
                 socket.data.roomObject.handleSentMessage(socket.id, message);
@@ -76,7 +64,7 @@ io.on('connection', socket => {
     });
 
     //Handle players joining a room
-    socket.on('playerJoinRoom', async (room, captchaToken, cb) => {  
+    socket.on('playerJoinRoom', async (captchaToken, cb) => {  
         try {
             console.log("Token " + captchaToken)
             console.log(process.env.CAPTCHA_KEY)
@@ -84,11 +72,10 @@ io.on('connection', socket => {
             let score = res.data.score
             console.log(res.data)
             if(score >= 0.7) {  //Blocks players from joining if ReCaptcha V3 score is too low 
-                socket.join(room); //Joins room, messages will be received accordingly
-                socket.data.roomObject = roomList.find(foundRoom => foundRoom.name===room)
-                
+                if(playRoom.started) playRoom = new Room(io, mongoose);
+                socket.data.roomObject = playRoom;
+                socket.join(playRoom.name); //Joins room, messages will be received accordingly
                 let result = socket.data.roomObject.addPlayer(socket.id);
-                console.log("TEST")
                 cb(result);
             }
             else cb(2)

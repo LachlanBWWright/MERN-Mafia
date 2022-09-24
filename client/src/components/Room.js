@@ -79,7 +79,7 @@ class Room extends React.Component {
                         : 
                             <Row className="justify-content-xl-center" xs="auto">
                                 <Col md={2}>
-                                    <Button variant='danger' onClick={() => {this.props.setRoom(''); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
+                                    <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
                                 </Col>
                             </Row>
                         }
@@ -123,7 +123,7 @@ class Room extends React.Component {
 
     sendMessage() {
         if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
-            this.socket.emit('messageSentByUser', this.state.textMessage, this.props.playerName, this.props.playerRoom); //Sends to server
+            this.socket.emit('messageSentByUser', this.state.textMessage); //Sends to server
             this.setState({textMessage: ''}) //Clears the text box
         }
     }
@@ -253,12 +253,12 @@ class Room extends React.Component {
             this.setState({canTalk: false});
         })
 
-        this.socket.emit('playerJoinRoom', this.props.playerRoom, this.props.captchaToken, callback => {
+        this.socket.emit('playerJoinRoom', this.props.captchaToken, callback => {
             if(typeof callback == 'number') {
                 if(callback === 1) this.props.setFailReason('Your socket ID was equal to existing player in room.');
                 else if(callback === 2) this.props.setFailReason('Your selected username was the same as another player in the room.');
                 else if(callback === 3) this.props.setFailReason('The room was full.');
-                this.props.setRoom('');
+                this.props.setRoom(false);
                 this.props.setName('');
                 this.props.setRole('');
             }

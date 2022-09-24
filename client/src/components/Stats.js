@@ -15,19 +15,17 @@ class Stats extends React.Component {
 
     render() {
         return (
-            <div style={{padding: '2vh'}}>
-                <Card style={{margin: 'auto'}}>
-                    <Card.Body>
-                        <Card.Title className='text-center'>Statistics</Card.Title>
-                            {
-                                this.state.stats !== undefined ?
-                                <Card.Text>Stats go here! </Card.Text>  
-                                :
-                                <Card.Text>Loading...</Card.Text>                              
-                            }
-                    </Card.Body>
-                </Card>   
-            </div>
+            <Card style={{flex: 1, margin: '2vh'}}>
+                <Card.Body>
+                    <Card.Title className='text-center'>Statistics</Card.Title>
+                        {
+                            this.state.stats !== undefined ?
+                            <Card.Text>Stats go here! </Card.Text>  
+                            :
+                            <Card.Text>Loading...</Card.Text>                              
+                        }
+                </Card.Body>
+            </Card>   
         )
     }
 
