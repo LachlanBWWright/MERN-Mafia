@@ -35,8 +35,8 @@ class Room extends React.Component {
 
     render() {
         return (
-            <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
-                <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh'}}>
+            <div style={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
+                <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh', overflow: 'auto'}}>
                     <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
                         {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
                         <ListGroup style={{flex: 1}}>
@@ -50,7 +50,7 @@ class Room extends React.Component {
                         </ListGroup>
                     </div>
                 
-                    <div ref={this.scrollRef} style={{overflow: 'auto', display: 'flex', flexDirection: 'column', flex: 1, maxHeight: '75vh'}}>
+                    <div ref={this.scrollRef} style={{/* display: 'flex', flexDirection: 'column',  */flex: 1, minHeight: 0, overflow: 'auto'}}>
                         {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
                             if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
                             else if(msg.type === 1) return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
