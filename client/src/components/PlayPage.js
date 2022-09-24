@@ -19,13 +19,14 @@ function PlayPage() {
 
     if(playerRoom) { /* Shows the room if a name and room has been selected */
         return (
-            <Card style={{margin: '2vh', flex: 1}}>
-                <Card.Body>
+            <Card style={{margin: '2vh', flex: 1, overflow: 'hidden'}}>
+                <Card.Body style={{display: 'flex', flexDirection: 'column'}}>
                     <Card.Text>Your Name is {playerName}.{playerRole !== "" ? " Your role is " + playerRole + "." : "" } {playerRole !== '' && <OverlayTrigger placement="right" delay={{show: 250, hide: 400}} 
-                        overlay={(props) => <Tooltip id="button-tooltip" {...props}>{roles.get(playerRole)}</Tooltip>
-                    }>
-                    <Button size ="sm" variant="danger">?</Button></OverlayTrigger>} </Card.Text>
-                    <Room captchaToken={captchaToken} setFailReason={setFailReason} setName={setPlayerName} setRoom={setPlayerRoom} setRole={setPlayerRole}/> 
+                            overlay={(props) => <Tooltip id="button-tooltip" {...props}>{roles.get(playerRole)}</Tooltip>
+                        }>
+                        <Button size ="sm" variant="danger">?</Button></OverlayTrigger>} 
+                    </Card.Text>
+                    <Room captchaToken={captchaToken} setFailReason={setFailReason} setName={setPlayerName} setRoom={setPlayerRoom} setRole={setPlayerRole} style={{flex: 1, display: 'flex'}}/> 
                 </Card.Body>
             </Card>
         )

@@ -1,6 +1,6 @@
 import React from 'react';
 import io from 'socket.io-client'/* '../socket' */
-import {Form, Container, Row, Col, Button, ListGroup} from 'react-bootstrap';
+import {Form, Button, ListGroup} from 'react-bootstrap';
 import PlayerItem from './PlayerItem.js'
 
 class Room extends React.Component {
@@ -35,57 +35,42 @@ class Room extends React.Component {
 
     render() {
         return (
-            <>
-                <Container fluid>
-                    <Row>
-                        <Col md="auto" style={{height: '70vh', overflow: 'auto'}}>
-                            {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
-                            <ListGroup>
-                                {this.state.playerList && this.state.playerList.map(player => 
-                                    <PlayerItem 
-                                        key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} dayNumber={this.state.dayNumber}
-                                        dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
-                                        visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
-                                    /> 
-                                )}
-                            </ListGroup>
-                        </Col>
-                        <Col>
-                            <div style={{height: '70vh', overflowY: 'scroll'}} ref={this.scrollRef}>
-                                {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
-                                    if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
-                                    else if(msg.type === 1) return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
-                                    else if(msg.type === 2) return (<p key={index} style={{fontStyle: 'italic'}}>{msg.text}</p>) // 2 - Whisper Message (Italics)     
-                                    else return (<p key={index}>{msg.text}</p>) // Fallback Message (No effects)     
-                                })}
-                            </div>
-                        </Col>
-                    </Row>
-                </Container>
-
-                <hr></hr>
+            <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh'}}>
+                    <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
+                        {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
+                        <ListGroup style={{flex: 1}}>
+                            {this.state.playerList && this.state.playerList.map(player => 
+                                <PlayerItem 
+                                    key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} dayNumber={this.state.dayNumber}
+                                    dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
+                                    visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
+                                /> 
+                            )}
+                        </ListGroup>
+                    </div>
+                
+                    <div ref={this.scrollRef} style={{overflow: 'auto', display: 'flex', flexDirection: 'column', flex: 1, maxHeight: '75vh'}}>
+                        {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
+                            if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
+                            else if(msg.type === 1) return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
+                            else if(msg.type === 2) return (<p key={index} style={{fontStyle: 'italic'}}>{msg.text}</p>) // 2 - Whisper Message (Italics)     
+                            else return (<p key={index}>{msg.text}</p>) // Fallback Message (No effects)     
+                        })}
+                    </div>
+                </div>       
 
                 <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
-                    <Container fluid>
                         {this.state.canTalk ?
-                            <Row className="justify-content-xl-center" xs="auto"> 
-                                <Col md={8}>
-                                    <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
-                                </Col>
-                                <Col md={2}>
-                                    <Button variant='danger' onClick={this.sendMessage} className="btn-block">Submit</Button> 
-                                </Col>
-                            </Row>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
+                            </div>
                         : 
-                            <Row className="justify-content-xl-center" xs="auto">
-                                <Col md={2}>
-                                    <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
-                                </Col>
-                            </Row>
+                            <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
                         }
-                    </Container>
                 </Form>
-           </>
+           </div>
         )
 
     }
@@ -193,21 +178,11 @@ class Room extends React.Component {
             let index = tempPlayerList.findIndex(player => player.name === playerJson.name);
             tempPlayerList[index].role = playerJson.role;
             tempPlayerList[index].isUser = true;
-            //TODO: Who player visits at day (living) (0 - Nobody, 1 - Self, 2 - Others, 3 - Everybody)
-            //TODO: Who player visits at night (living)
             this.props.setRole(playerJson.role);
             this.setState({
                 playerList: tempPlayerList,
                 canVisit: [playerJson.dayVisitSelf, playerJson.dayVisitOthers, playerJson.dayVisitFaction, playerJson.nightVisitSelf, playerJson.nightVisitOthers, playerJson.nightVisitFaction]
             });
-
-            console.log(this.state.canVisit)
-/*             playerReturned.dayVisitSelf = this.playerList[i].role.dayVisitSelf;
-            playerReturned.dayVisitOthers = this.playerList[i].role.dayVisitOthers;
-            playerReturned.dayVisitFaction = this.playerList[i].role.dayVisitFaction;
-            playerReturned.nightVisitSelf = this.playerList[i].role.nightVisitSelf;
-            playerReturned.nightVisitOthers = this.playerList[i].role.nightVisitOthers;
-            playerReturned.nightVisitFaction = this.playerList[i].role.nightVisitFaction;  */
         })
 
         this.socket.on('update-faction-role', (playerJson) => { //Reveals the role of factional allies
