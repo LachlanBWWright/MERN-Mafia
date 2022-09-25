@@ -19,7 +19,6 @@ class MafSiteNavbar extends React.Component {
     }
 
     setInGame(inGame) {
-        console.log('TEST setInGame')
         this.setState({
             inGame: inGame
         })

@@ -17,18 +17,21 @@ class Room extends React.Component {
             playerList: [],
             visiting: null,
             votingFor: null,
+            whisperingTo: null,
             canVisit: [false, false, false, false, false, false] //dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction
         };
 
         this.changeText = this.changeText.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         
-
         this.handleVisit = this.handleVisit.bind(this);
         this.handleVote = this.handleVote.bind(this);
+        this.openWhisperMenu = this.openWhisperMenu.bind(this);
         this.handleWhisper = this.handleWhisper.bind(this);
 
-        this.scrollRef = React.createRef(); //React reference
+        this.scrollRef = React.createRef(); //For scrolling down when new messages arrive
+        this.whisperRef = React.createRef(); //For focusing in textbox when whispering
+        this.chatRef = React.createRef(); //For focusing in textbox when sendding a message
 
         this.socket = io('/');
     }
@@ -40,9 +43,9 @@ class Room extends React.Component {
                     <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
                         {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
                         <ListGroup style={{flex: 1}}>
-                            {this.state.playerList && this.state.playerList.map(player => 
+                            {this.state.playerList && this.state.playerList.map((player, index) => 
                                 <PlayerItem 
-                                    key={player.name} handleVisit={this.handleVisit} handleVote={this.handleVote} handleWhisper={this.handleWhisper} dayNumber={this.state.dayNumber}
+                                    key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber}
                                     dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
                                     visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
                                 /> 
@@ -60,12 +63,22 @@ class Room extends React.Component {
                     </div>
                 </div>       
 
-                <Form onSubmit={e => {e.preventDefault(); this.sendMessage()}}>
+                <Form onSubmit={e => {
+                    e.preventDefault();
+                    if(this.state.whisperingTo !== null) this.handleWhisper();
+                    else this.sendMessage();
+                }}>
                         {this.state.canTalk ?
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Form.Control value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
-                                <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
-                            </div>
+                            this.state.whisperingTo !== null ? 
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <Form.Control ref={this.whisperRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                    <Button variant='info' onClick={this.handleWhisper} className="btn-block" style={{flex: 1}}>Whisper</Button> 
+                                </div>
+                            :
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <Form.Control  ref={this.chatRef} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                    <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
+                                </div>
                         : 
                             <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
                         }
@@ -79,36 +92,54 @@ class Room extends React.Component {
         this.setState({textMessage: event.target.value})  
     }
 
-    handleVisit(playerUsername) {
-        
-        if(this.state.visiting !== playerUsername) {
-            this.setState({visiting: playerUsername});
-            this.socket.emit('messageSentByUser', '/c ' + playerUsername);
+    handleVisit(playerIndex) {
+        if(this.state.visiting !== playerIndex) {
+            this.setState({visiting: playerIndex});
+            this.socket.emit('handleVisit', playerIndex, this.state.time === 'Day');
         }
         else {
             this.setState({visiting: null});
-            this.socket.emit('messageSentByUser', '/c');
+            this.socket.emit('handleVisit', null, this.state.time === 'Day');
         }
     }
-
-    handleWhisper(playerUsername) {
-        this.setState({textMessage: '/w ' + playerUsername + ' '});
+    
+    
+    openWhisperMenu(playerIndex) {
+        if(this.state.whisperingTo === playerIndex) {
+            this.setState({whisperingTo: null});
+            this.chatRef.current.focus(); //TODO: Fix focusing
+        } 
+        else {
+            this.setState({whisperingTo: playerIndex});
+            this.whisperRef.current.focus();
+        }
+    }
+    
+    handleWhisper() {
+        if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
+            this.socket.emit('handleWhisper', this.state.whisperingTo, this.state.textMessage, this.state.time === 'Day');
+        }
+        this.setState({
+            textMessage: '',
+            whisperingTo: null
+        })
+        this.openWhisperMenu(this.state.whisperingTo);
     }
 
-    handleVote(playerUsername) {
-        if(this.state.votingFor !== playerUsername) {
-            this.setState({votingFor: playerUsername});
-            this.socket.emit('messageSentByUser', '/v ' + playerUsername);
+    handleVote(playerIndex) {
+        if(this.state.votingFor !== playerIndex) {
+            this.setState({votingFor: playerIndex});
+            this.socket.emit('handleVote', playerIndex, this.state.time === 'Day');
         }
         else {
             this.setState({votingFor: null});
-            this.socket.emit('messageSentByUser', '/v ');
+            this.socket.emit('handleVote', null, this.state.time === 'Day');
         }
     }
 
     sendMessage() {
         if(this.state.textMessage.length > 0 && this.state.textMessage.length <= 150) {
-            this.socket.emit('messageSentByUser', this.state.textMessage); //Sends to server
+            this.socket.emit('messageSentByUser', this.state.textMessage, this.state.time === 'Day'); //Sends to server
             this.setState({textMessage: ''}) //Clears the text box
         }
     }
@@ -207,10 +238,13 @@ class Room extends React.Component {
         })
 
         this.socket.on('update-day-time', (infoJson) => { //Gets whether it is day or night, and how long there is left in the session
-            this.setState({time: infoJson.time});
-            this.setState({dayNumber: infoJson.dayNumber});
-            this.setState({visiting: null}); //Resets who the player is visiting
-            this.setState({votingFor: null});
+            this.setState({
+                time: infoJson.time,
+                dayNumber: infoJson.dayNumber,
+                visiting: null, //Resets who the player is visiting
+                votingFor: null,
+                whisperingTo: null
+            });
             let timeLeft = infoJson.timeLeft;
             let countDown = setInterval(() => {
                 if(timeLeft > 0) {

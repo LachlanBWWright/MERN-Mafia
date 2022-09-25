@@ -22,7 +22,7 @@ class Room {
 
         //Data relating to the players in the room
         this.name = Crypto.randomBytes(8).toString('hex'); //Generates the room's name
-        this.size = 13; //Capacity of the room
+        this.size = 4; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
             
@@ -38,11 +38,12 @@ class Room {
     }
 
     //Adds a new player to the room, and makes the game start if it is full. Returns error code if the user failed to join, or their username
-    addPlayer(playerSocketId) {
+    addPlayer(playerSocket) {
+        let playerSocketId = playerSocket.id;
         //Stops the user from being added if there's an existing user with the same username or socketId, or if the room is full
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId) return 1;
-            else if(this.playerList.length == this.size) return 3;
+            else if(this.playerList.length >= this.size) return 3;
         }
 
         //Generates username
@@ -59,7 +60,7 @@ class Room {
         this.emitPlayerList(playerSocketId);
 
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
-        this.playerList.push(new Player(playerSocketId, playerUsername)); //Adds a player to the array
+        playerSocket.data.position = this.playerList.push(new Player(playerSocket, playerSocketId, playerUsername)) - 1; //Adds a player to the array
         this.playerCount = this.playerList.length; //Updates the player count
 
         let playerObject = {};
@@ -87,7 +88,8 @@ class Room {
                     this.io.to(this.name).emit('remove-player', playerObject);
                     this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
                     this.playerList.splice(i, 1);
-                    this.playerCount = Object.keys(this.playerList).length;
+                    for(let x = i; x < this.playerList.length; x++) this.playerList[x].socket.data.position = x; //Updates positions
+                    this.playerCount = this.playerList.length;
                 }
                 else { //Kills the player if the game has started
                     this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has abandoned the game!'))
@@ -120,15 +122,16 @@ class Room {
     }
 
     //Handles users sending messages to the chat 
-    handleSentMessage(playerSocketId, message) {
+    handleSentMessage(playerSocket, message, isDay) {
         try {
-            let foundPlayer = this.playerList.find(player => player.socketId === playerSocketId);
+            if(!isDay && this.time === 'day' || isDay && this.time === 'night') return;
+
+            let foundPlayer = this.playerList[playerSocket.data.position];
             if(this.started) { //If the game has started, handle the message with the role object
                 if(foundPlayer.isAlive) {
                     //Starts with a / - Whisper/Role Command
                     if(message.charAt(0) == '/') {
-                        if(message.charAt(1) == 'w' || message.charAt(1) == 'W') foundPlayer.role.handlePrivateMessage(message); //Handle whispering
-                        else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'day') { //Handle daytime commands
+                        if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'day') { //Handle daytime commands
                             if(message.length == 2) foundPlayer.role.cancelDayAction();
                             else foundPlayer.role.handleDayAction(message);
                         }
@@ -137,20 +140,84 @@ class Room {
                                 if(message.length == 2)  foundPlayer.role.cancelNightAction();
                                 else foundPlayer.role.handleNightAction(message);
                             }
-                            else this.io.to(playerSocketId).emit('receive-message', 'You are roleblocked, and cannot call commands.'); //Generally, the only time when a player is roleblocked before the end of night is when they are jailed
+                            else this.io.to(playerSocket.id).emit('receive-message', 'You are roleblocked, and cannot call commands.'); //Generally, the only time when a player is roleblocked before the end of night is when they are jailed
                         }
-                        else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time != 'day') this.io.to(playerSocketId).emit('receive-message', 'You cannot vote at night.');
-                        else if((message.charAt(1) == 'v' || message.charAt(1) == 'V') && this.time == 'day') this.handleVote(message, foundPlayer);
                     }
                     else foundPlayer.role.handleMessage(message); //Doesn't start with either - send as a regular message
                 }
-                else this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead.');
+                else this.io.to(playerSocket.id).emit('receive-message', 'You cannot speak, as you are dead.');
             }
             else this.io.to(this.name).emit('receive-chat-message', (foundPlayer.playerUsername + ': ' + message));  //If the game hasn't started, no roles have been assigned, just send the message directly
         }
         catch (error) {
-            this.io.to(playerSocketId).emit('receive-message', 'You cannot speak, as you are dead. Or an error occured.'); console.log(error);//Error is thrown if a player cannot be found
+            this.io.to(playerSocket.id).emit('receive-message', 'You cannot speak, as you are dead. Or an error occured.'); console.log(error);//Error is thrown if a player cannot be found
         }
+    }
+
+    handleVote(playerSocket, recipient, isDay) {
+        try {
+            if(!isDay && this.time === 'day' || isDay && this.time === 'night' || this.time === '') return;
+            let foundPlayer = this.playerList[playerSocket.data.position];
+            let foundRecipient = this.playerList[recipient];
+
+            if(this.time != 'day') {
+                this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
+                return;
+            }
+            if(foundPlayer === foundRecipient) this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote for yourself.');
+            else if(foundRecipient.isAlive && !foundPlayer.hasVoted) {
+                foundPlayer.hasVoted = true;
+                foundRecipient.votesReceived++;
+                if(foundRecipient.votesReceived > 1) this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ' has voted for ' + foundRecipient.playerUsername + ' to be executed! There are ' + foundRecipient.votesReceived + ' votes for ' + foundRecipient.playerUsername + ' to be killed.'));
+                else this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ' has voted for ' + foundRecipient.playerUsername + ' to be executed! There is 1 vote for ' + foundRecipient.playerUsername + ' to be killed.'));
+            }
+            else if(foundPlayer.hasVoted) this.io.to(playerSocket.id).emit('receive-message', 'You cannot change your vote.');
+            else this.io.to(playerSocket.id).emit('receive-message', 'Your vote was invalid.');
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+    
+    handleWhisper(playerSocket, recipient, message, isDay) {
+        try {
+            if(!isDay && this.time === 'day' || isDay && this.time == 'night' || this.time === '') return;
+            let foundPlayer = this.playerList[playerSocket.data.position];
+            let foundRecipient = this.playerList[recipient];
+
+            if(this.time === 'night') this.io.to(foundPlayer.socketId).emit('receive-message', 'You cannot whisper at night.');
+            else if(this.time === 'day' && foundRecipient.isAlive) {
+                if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
+                    this.io.to(foundPlayer.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
+                    this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ' tried to whisper \"' + message + '\" to ' + foundRecipient.playerUsername + ', but was overheard by the town!'));
+                }
+                else {
+                    this.io.to(foundRecipient.socketId).emit('receive-whisper-message', 'Whisper from ' + foundPlayer.playerUsername + ': ' + message);
+                    this.io.to(foundPlayer.socketId).emit('receive-whisper-message', 'Whisper to ' + foundRecipient.playerUsername + ': ' + message);
+                    if(foundPlayer.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
+                    else if(foundRecipient.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
+                } 
+            }
+            else this.io.to(foundPlayer.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');
+        }
+        catch (error) {
+            console.log(error)
+        }
+        
+    }
+    
+    handleVisit(playerSocket, recipient, isDay) {
+        try {
+            if(!isDay && this.time === 'day' || isDay && this.time === 'night' || this.time === '') return;
+            let foundPlayer = this.playerList[playerSocket.data.position];
+            let foundRecipient = this.playerList[recipient];
+
+
+        }
+        catch (error) {
+            console.log(error)
+        }
+        
     }
 
     async startGame() {
@@ -168,6 +235,7 @@ class Room {
 
         //Allocates the shuffled rolelist to users
         for(let i = 0; i < this.playerList.length ; i++) {
+            this.playerList[i].socket.data.position = i;
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
 
             let playerReturned = {};
@@ -344,7 +412,7 @@ class Room {
         
     }
 
-    handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
+/*     handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
         message = message.substring(2).trim(); //Remove the /v, then spaces at the front/back
         //messageRecipientName is compared to actual names, which are also made lowercase
         let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /v, which should be the username of the recipient
@@ -360,7 +428,7 @@ class Room {
         }
         else if(voterPlayer.hasVoted) this.io.to(voterPlayer.socketId).emit('receive-message', 'You cannot change your vote.');
         else this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote was invalid.');
-    }
+    } */
 
     findWinningFaction() {
         let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
