@@ -30,7 +30,6 @@ class Room extends React.Component {
         this.handleWhisper = this.handleWhisper.bind(this);
 
         this.scrollRef = React.createRef(); //For scrolling down when new messages arrive
-        this.whisperRef = React.createRef(); //For focusing in textbox when whispering
         this.chatRef = React.createRef(); //For focusing in textbox when sendding a message
 
         this.socket = io('/');
@@ -71,7 +70,7 @@ class Room extends React.Component {
                         {this.state.canTalk ?
                             this.state.whisperingTo !== null ? 
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <Form.Control ref={this.whisperRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                    <Form.Control ref={this.chatRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
                                     <Button variant='info' onClick={this.handleWhisper} className="btn-block" style={{flex: 1}}>Whisper</Button> 
                                 </div>
                             :
@@ -111,7 +110,7 @@ class Room extends React.Component {
         } 
         else {
             this.setState({whisperingTo: playerIndex});
-            this.whisperRef.current.focus();
+            this.chatRef.current.focus();
         }
     }
     
