@@ -123,23 +123,7 @@ class Room {
 
             let foundPlayer = this.playerList[playerSocket.data.position];
             if(this.started) { //If the game has started, handle the message with the role object
-                if(foundPlayer.isAlive) {
-                    //Starts with a / - Whisper/Role Command
-                    if(message.charAt(0) == '/') {
-                        if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'day') { //Handle daytime commands
-                            if(message.length == 2) foundPlayer.role.cancelDayAction();
-                            else foundPlayer.role.handleDayAction(message);
-                        }
-                        else if((message.charAt(1) == 'c' || message.charAt(1) == 'C') && this.time == 'night') { //Handle nighttime commands
-                            if(!foundPlayer.role.roleblocked) {
-                                if(message.length == 2)  foundPlayer.role.cancelNightAction();
-                                else foundPlayer.role.handleNightAction(message);
-                            }
-                            else this.io.to(playerSocket.id).emit('receive-message', 'You are roleblocked, and cannot call commands.'); //Generally, the only time when a player is roleblocked before the end of night is when they are jailed
-                        }
-                    }
-                    else foundPlayer.role.handleMessage(message); //Doesn't start with either - send as a regular message
-                }
+                if(foundPlayer.isAlive) foundPlayer.role.handleMessage(message); //Doesn't start with either - send as a regular message
                 else this.io.to(playerSocket.id).emit('receive-message', 'You cannot speak, as you are dead.');
             }
             else this.io.to(this.name).emit('receive-chat-message', (foundPlayer.playerUsername + ': ' + message));  //If the game hasn't started, no roles have been assigned, just send the message directly

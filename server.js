@@ -91,7 +91,7 @@ io.on('connection', socket => {
     //Handles a player visiting another player - Recipient is the player's position in the array
     socket.on('handleVisit', (recipient, isDay) => {
         try {
-            if(typeof recipient === 'number') {
+            if(typeof recipient === 'number' || recipient === null) {
                 socket.data.roomObject.handleVisit(socket, recipient, isDay);
             }
         }
