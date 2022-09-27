@@ -212,6 +212,8 @@ class Room {
             let foundPlayer = this.playerList[playerSocket.data.position];
             let foundRecipient = this.playerList[recipient];
 
+            if(this.time === 'day') foundPlayer.handleDayAction(foundRecipient)
+            else if(this.time === 'night') foundPlayer.handleNightAction(foundRecipient)
 
         }
         catch (error) {
@@ -411,24 +413,6 @@ class Room {
         }, 15000); //Nights are 15 seconds long.
         
     }
-
-/*     handleVote(message, voterPlayer) { //Handles votes for the daytime execution mechanic
-        message = message.substring(2).trim(); //Remove the /v, then spaces at the front/back
-        //messageRecipientName is compared to actual names, which are also made lowercase
-        let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /v, which should be the username of the recipient
-        let recipient = this.getPlayerByUsername(messageRecipientName);
-        message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
-    
-        if(voterPlayer === recipient) this.io.to(voterPlayer.socketId).emit('receive-message', 'You cannot vote for yourself.');
-        else if(this.time == 'day' && recipient.isAlive && !voterPlayer.hasVoted) {
-            voterPlayer.hasVoted = true;
-            recipient.votesReceived++;
-            if(recipient.votesReceived > 1) this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed! There are ' + recipient.votesReceived + ' votes for ' + recipient.playerUsername + ' to be killed.'));
-            else this.io.to(this.name).emit('receive-message', (voterPlayer.playerUsername + ' has voted for ' + recipient.playerUsername + ' to be executed! There is 1 vote for ' + recipient.playerUsername + ' to be killed.'));
-        }
-        else if(voterPlayer.hasVoted) this.io.to(voterPlayer.socketId).emit('receive-message', 'You cannot change your vote.');
-        else this.io.to(voterPlayer.socketId).emit('receive-message', 'Your vote was invalid.');
-    } */
 
     findWinningFaction() {
         let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
