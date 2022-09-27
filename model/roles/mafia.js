@@ -6,9 +6,9 @@ class Mafia extends Role {
         this.attackVote;
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
+    handleNightAction(recipient) { //Vote on who should be attacked
         //TODO: Make sure attackVote if for a proper class
-        this.attackVote = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
+        this.attackVote = recipient
         if(this.attackVote.playerUsername != undefined && this.attackVote.role.faction != this.faction && this.attackVote.isAlive) {
             this.faction.sendMessage(this.player.playerUsername + ' has voted to attack ' + this.attackVote.playerUsername + '.');
             this.attackVote = this.attackVote.role; //uses role for easier visiting

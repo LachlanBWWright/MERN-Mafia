@@ -5,14 +5,13 @@ class Watchman extends Role {
         super('Watchman', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let watchee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(watchee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot watch yourself.');
         }
-        else if(watchee.playerUsername != undefined && watchee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to watch ' + watchee.playerUsername + '.');
-            this.visiting = watchee.role
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to watch ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

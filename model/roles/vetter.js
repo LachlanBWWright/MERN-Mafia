@@ -7,7 +7,7 @@ class Vetter extends Role {
         this.researchSlots = 3;
     }
     
-    handleNightAction(message) { //Vote on who should be attacked
+    handleNightAction(recipient) { //Vote on who should be attacked
         if(this.researchSlots == 0) this.room.io.to(this.player.socketId).emit('receive-message', 'You have no research sessions left!');
         else if(this.visiting == null) {
             this.visiting = this;

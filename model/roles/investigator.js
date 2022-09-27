@@ -6,14 +6,13 @@ class Investigator extends Role {
         super('Investigator', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
     
-    handleNightAction(message) { //Vote on who should be attacked
-        let inspectee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(inspectee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot inspect yourself.');
         }
-        else if(inspectee.playerUsername != undefined && inspectee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to inspect ' + inspectee.playerUsername + '.');
-            this.visiting = inspectee.role;
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to inspect ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role;
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

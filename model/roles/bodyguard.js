@@ -5,14 +5,13 @@ class Bodyguard extends Role {
         super('Bodyguard', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let protectee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(protectee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot protect yourself.');
         }
-        else if(protectee.playerUsername != undefined && protectee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to protect ' + protectee.playerUsername + '.');
-            this.visiting = protectee.role
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to protect ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

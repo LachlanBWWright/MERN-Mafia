@@ -70,39 +70,7 @@ class Role {
         }
     }
 
-    handlePrivateMessage(message, recipient) { //Message string, recipient's class
-        try{
-            message = message.substring(2).trim(); //Remove the /w, then spaces at the front/back
-            let messageRecipientName = message.split(' ')[0].toLowerCase(); //The first words after the /w, which should be the username of the recipient
-            
-            recipient = this.room.getPlayerByUsername(messageRecipientName);
-            message = message.substring(messageRecipientName.length).trim(); //Removes the name, trying to leave just the message
-
-            if(this.room.time == 'night') {
-                this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot whisper at night.');
-            }
-            else if(recipient !== false && this.room.time == 'day' && recipient.isAlive) {
-                if(0.1 > Math.random()) { //10% chance of the whisper being overheard by the town.
-                    this.room.io.to(this.player.socketId).emit('receive-message', 'Your whispers were overheard by the town!');
-                    this.room.io.to(this.room.name).emit('receive-message', (this.player.playerUsername + ' tried to whisper \"' + message + '\" to ' + messageRecipientName + ', but was overheard by the town!'));
-                }
-                else {
-                    this.room.io.to(recipient.socketId).emit('receive-whisper-message', 'Whisper from ' + this.player.playerUsername + ': ' + message);
-                    this.room.io.to(this.player.socketId).emit('receive-whisper-message', 'Whisper to ' + messageRecipientName + ': ' + message);
-                    if(this.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
-                    else if(recipient.role.dayTapped != false) this.room.io.to(this.dayTapped.player.socketId).emit('receive-message', (this.player.playerUsername + ' whispered \"' + message + '\" to ' + messageRecipientName + '.'));
-                } 
-            }
-            else {
-                this.room.io.to(this.player.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');
-            }
-        }
-        catch(error) {
-            console.log(error);
-        }
-    }
-
-    handleDayAction(message) { //Handles the class' daytime action
+    handleDayAction(recipient) { //Handles the class' daytime action
         this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no daytime action.');
     }
 
@@ -111,7 +79,7 @@ class Role {
         this.dayVisiting = null;
     }
 
-    handleNightAction(message) { //Handles the class' nighttime action
+    handleNightAction(recipient) { //Handles the class' nighttime action
         this.room.io.to(this.player.socketId).emit('receive-message', 'Your class has no nighttime action.');
     }
 

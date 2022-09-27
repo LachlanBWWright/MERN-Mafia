@@ -6,18 +6,17 @@ class Lawman extends Role {
         this.isInsane = false;
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let victim = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
+    handleNightAction(recipient) { //Vote on who should be attacked
         if(this.isInsane) {
             //Shoot at random
             this.room.io.to(this.player.socketId).emit('receive-message', 'You have gone insane, and have no control over who you shoot.');
         }
-        else if(victim == this.player) {
+        else if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot shoot yourself.');
         }
-        else if(victim.playerUsername != undefined && victim.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to attack ' + victim.playerUsername + '.');
-            this.visiting = victim.role
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to attack ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

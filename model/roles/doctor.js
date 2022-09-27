@@ -5,14 +5,13 @@ class Doctor extends Role {
         super('Doctor', 'town', room, player, 0, false, false, false, false, false, true, false);
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let healee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(healee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot heal yourself.');
         }
-        else if(healee.playerUsername != undefined && healee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to heal ' + healee.playerUsername + '.');
-            this.visiting = healee.role
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to heal ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

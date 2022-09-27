@@ -5,21 +5,20 @@ class Jailor extends Role {
         super('Jailor', 'town', room, player, 0, false, false, true, false, true, false, false);
     }
 
-    handleDayAction(message) { //Choose to jail a player
-        let jailee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(jailee == this.player) {
+    handleDayAction(recipient) { //Choose to jail a player
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot jail yourself.');
         }
-        else if(jailee.playerUsername != undefined && jailee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to jail ' + jailee.playerUsername + '.');
-            this.dayVisiting = jailee.role;
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to jail ' + recipient.playerUsername + '.');
+            this.dayVisiting = recipient.role;
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');
         }
     }
 
-    handleNightAction(message) { //Choose if the player who is jailed should be executed, or let go
+    handleNightAction(recipient) { //Choose if the player who is jailed should be executed, or let go
         if(this.dayVisiting == null) {
             //this.visiting = this;
             this.room.io.to(this.player.socketId).emit('receive-message', 'You haven\'t jailed anyone, so you cannot do anything.');

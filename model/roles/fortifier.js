@@ -8,20 +8,18 @@ class Fortifier extends Role {
         this.canFortify = true;
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let fortifee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-
-        if(fortifee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot fortify your own house.');
         }
-        else if(fortifee.playerUsername != undefined && fortifee.isAlive && this.canFortify) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to fortify ' + fortifee.playerUsername + '\'s house.');
-            this.visiting = fortifee.role
+        else if(recipient.playerUsername != undefined && recipient.isAlive && this.canFortify) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to fortify ' + recipient.playerUsername + '\'s house.');
+            this.visiting = recipient.role
         }
         else if(this.playerFortified != null) {
-            if(fortifee.playerUsername != undefined && this.playerFortified.player.isAlive && !this.canFortify) {
+            if(recipient.playerUsername != undefined && this.playerFortified.player.isAlive && !this.canFortify) {
                 this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to try and remove ' + this.playerFortified.player.playerUsername + '\'s fortifications.');
-                this.visiting = fortifee.role
+                this.visiting = recipient.role
             }
             else {
                 this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot remove the fortifications from a dead player\'s house.');

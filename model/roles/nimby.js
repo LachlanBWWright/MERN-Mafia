@@ -6,7 +6,7 @@ class Nimby extends Role {
         this.alertSlots = 3;
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
+    handleNightAction(recipient) { //Vote on who should be attacked
         if(this.alertSlots == 0) this.room.io.to(this.player.socketId).emit('receive-message', 'You have no alerts left!');
         else if(this.visiting == null) {
             this.visiting = this;

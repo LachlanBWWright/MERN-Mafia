@@ -5,28 +5,26 @@ class Tapper extends Role {
         super('Tapper', 'town', room, player, 0, false, false, true, false, false, true, false);
     }
 
-    handleDayAction(message) { //Handles the class' daytime action
-        let tapee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(tapee == this.player) {
+    handleDayAction(recipient) { //Handles the class' daytime action
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot tap yourself.');
         }
-        else if(tapee.playerUsername != undefined && tapee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to tap ' + tapee.playerUsername + '.');
-            this.dayVisiting = tapee.role;
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to tap ' + recipient.playerUsername + '.');
+            this.dayVisiting = recipient.role;
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');
         }
     }
 
-    handleNightAction(message) { //Vote on who should be attacked
-        let tapee = this.room.getPlayerByUsername(message.substring(2).trim().toLowerCase()); //Removes the /c, then spaces at the front/back
-        if(tapee == this.player) {
+    handleNightAction(recipient) { //Vote on who should be attacked
+        if(recipient == this.player) {
             this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot tap yourself.');
         }
-        else if(tapee.playerUsername != undefined && tapee.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to tap ' + tapee.playerUsername + '.');
-            this.visiting = tapee.role;
+        else if(recipient.playerUsername != undefined && recipient.isAlive) {
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to tap ' + recipient.playerUsername + '.');
+            this.visiting = recipient.role;
         }
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid choice.');

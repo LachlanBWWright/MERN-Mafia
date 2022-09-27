@@ -104,11 +104,6 @@ class Room {
         return false;
     }
 
-    getPlayerByUsername(playerUsername) {
-        for(let i = 0; i < this.playerList.length; i++) if(this.playerList[i].playerUsername.toLowerCase() == playerUsername) return this.playerList[i];
-        return false;
-    }
-
     emitPlayerList(socketId) { //Returns a player list 
         let playersReturned = [];
         for(let i = 0; i < this.playerList.length; i++) {
@@ -210,16 +205,24 @@ class Room {
         try {
             if(!isDay && this.time === 'day' || isDay && this.time === 'night' || this.time === '') return;
             let foundPlayer = this.playerList[playerSocket.data.position];
-            let foundRecipient = this.playerList[recipient];
+            let foundRecipient = recipient !== null ? this.playerList[recipient] : null;
 
-            if(this.time === 'day') foundPlayer.handleDayAction(foundRecipient)
-            else if(this.time === 'night') foundPlayer.handleNightAction(foundRecipient)
+            if(this.time === 'day') {
+                if(foundRecipient !== null) foundPlayer.role.handleDayAction(foundRecipient)
+                else foundPlayer.role.cancelDayAction();
+            }
+            else if(this.time === 'night') {
+                if(foundPlayer.role.roleblocked) this.io.to(playerSocket.id).emit('receive-message', 'You are roleblocked, and cannot call commands.');
+                else {
+                    if(foundRecipient !== null) foundPlayer.role.handleNightAction(foundRecipient);
+                    else foundPlayer.role.cancelNightAction();
+                }
+            } 
 
         }
         catch (error) {
             console.log(error)
-        }
-        
+        }        
     }
 
     async startGame() {
