@@ -15,6 +15,8 @@ class Room extends React.Component {
             timeLeft: 0,
             messages: [],
             playerList: [],
+            showScrollDown: false,
+            scrollDownRequest: false,
             visiting: null,
             votingFor: null,
             whisperingTo: null,
@@ -29,8 +31,10 @@ class Room extends React.Component {
         this.openWhisperMenu = this.openWhisperMenu.bind(this);
         this.handleWhisper = this.handleWhisper.bind(this);
 
+        this.scrollEvent = this.scrollEvent.bind(this);
+
         this.scrollRef = React.createRef(); //For scrolling down when new messages arrive
-        this.chatRef = React.createRef(); //For focusing in textbox when sendding a message
+        this.chatRef = React.createRef(); //For focusing in textbox when sending a message
 
         this.socket = io('/');
     }
@@ -38,6 +42,7 @@ class Room extends React.Component {
     render() {
         return (
             <div style={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
+                
                 <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh', overflow: 'auto'}}>
                     <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
                         {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
@@ -51,14 +56,24 @@ class Room extends React.Component {
                             )}
                         </ListGroup>
                     </div>
-                
+                                
+
                     <div ref={this.scrollRef} style={{/* display: 'flex', flexDirection: 'column',  */flex: 1, minHeight: 0, overflow: 'auto'}}>
+
                         {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
                             if(msg.type === 0) return (<p key={index} style={{fontWeight: 'bold'}}>{msg.text}</p>); //0 - Bold message - Announcement  
                             else if(msg.type === 1) return (<p key={index}>{msg.text}</p>) // 1 - Normal Message (No effects)     
                             else if(msg.type === 2) return (<p key={index} style={{fontStyle: 'italic'}}>{msg.text}</p>) // 2 - Whisper Message (Italics)     
                             else return (<p key={index}>{msg.text}</p>) // Fallback Message (No effects)     
                         })}
+                        <Button variant='secondary' 
+                                style={{position: 'sticky', bottom: 0, left: '50%', right: '50%', opacity: 0.3, 
+                                    visibility: this.state.showScrollDown ? "visible" : "hidden"
+                                }}
+                                onClick={() => this.setState({scrollDownRequest: true})}
+                            >
+                                Scroll Down
+                        </Button> 
                     </div>
                 </div>       
 
@@ -69,18 +84,19 @@ class Room extends React.Component {
                 }}>
                         {this.state.canTalk ?
                             this.state.whisperingTo !== null ? 
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
                                     <Form.Control ref={this.chatRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
                                     <Button variant='info' onClick={this.handleWhisper} className="btn-block" style={{flex: 1}}>Whisper</Button> 
                                 </div>
                             :
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+
                                     <Form.Control  ref={this.chatRef} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
                                     <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
                                 </div>
                         : 
-                            <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
-                        }
+                        <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
+                    }
                 </Form>
            </div>
         )
@@ -143,7 +159,16 @@ class Room extends React.Component {
         }
     }
 
+    scrollEvent() {
+        if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
+            this.setState({showScrollDown: false});
+        }
+        else this.setState({showScrollDown: true});
+    }
+
     componentDidMount() {
+        this.scrollRef.current.addEventListener('scroll', this.scrollEvent)
+
         this.socket.on('connect', () => {
             console.log('You connected to the socket with ID ' + this.socket.id);
         })
@@ -170,10 +195,10 @@ class Room extends React.Component {
             }
 
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+                this.setState({messages: [...this.state.messages, msg], showScrollDown: false}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, msg], showScrollDown: true}); //Adds message to message list.
         })
 
         this.socket.on('receive-whisper-message', (inMsg) => {
@@ -278,7 +303,16 @@ class Room extends React.Component {
 
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(this.state.scrollDownRequest) {
+            this.setState({scrollDownRequest: false});
+            this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
+        }
+    }
+
     componentWillUnmount() {
+        this.scrollRef.current.removeEventListener('scroll', this.scrollEvent)
+
         this.socket.off('receive-message');
         this.socket.off('receive-chat-message');
         this.socket.off('receive-whisper-message');
