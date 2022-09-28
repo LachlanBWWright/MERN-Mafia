@@ -16,6 +16,7 @@ class Room extends React.Component {
             messages: [],
             playerList: [],
             showScrollDown: false,
+            scrollNewMessages: 0,
             scrollDownRequest: false,
             visiting: null,
             votingFor: null,
@@ -41,23 +42,21 @@ class Room extends React.Component {
 
     render() {
         return (
-            <div style={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
-                
-                <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh', overflow: 'auto'}}>
-                    <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
-                        {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
-                        <ListGroup style={{flex: 1}}>
-                            {this.state.playerList && this.state.playerList.map((player, index) => 
-                                <PlayerItem 
-                                    key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber}
-                                    dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
-                                    visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
-                                /> 
-                            )}
-                        </ListGroup>
-                    </div>
-                                
-
+            <div style={{display: 'flex', flexDirection: 'row', flex: 1, columnGap: '2vh', overflow: 'auto'}}>
+                <div style={{display: 'flex', flexDirection: 'column', maxHeight: '75vh'}}>
+                    {this.state.dayNumber !== 0?<p>{this.state.time} number {this.state.dayNumber}. Seconds remaining: {this.state.timeLeft}</p>:<p>Players in room: {this.state.playerList.length}</p>}
+                    <ListGroup style={{flex: 1}}>
+                        {this.state.playerList && this.state.playerList.map((player, index) => 
+                            <PlayerItem 
+                                key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber}
+                                dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
+                                visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
+                            /> 
+                        )}
+                    </ListGroup>
+                </div>
+                            
+                <div style={{display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto'}}>
                     <div ref={this.scrollRef} style={{/* display: 'flex', flexDirection: 'column',  */flex: 1, minHeight: 0, overflow: 'auto'}}>
 
                         {this.state.messages && this.state.messages.map((msg, index) => { //Msg Types - 0: Bold, black,
@@ -66,39 +65,39 @@ class Room extends React.Component {
                             else if(msg.type === 2) return (<p key={index} style={{fontStyle: 'italic'}}>{msg.text}</p>) // 2 - Whisper Message (Italics)     
                             else return (<p key={index}>{msg.text}</p>) // Fallback Message (No effects)     
                         })}
-                        <Button variant='secondary' 
+                        {this.state.showScrollDown && this.state.scrollNewMessages !== 0 && <Button variant='secondary' 
                                 style={{position: 'sticky', bottom: 0, left: '50%', right: '50%', opacity: 0.3, 
-                                    visibility: this.state.showScrollDown ? "visible" : "hidden"
+                                    visibility: "visible",
                                 }}
                                 onClick={() => this.setState({scrollDownRequest: true})}
                             >
-                                Scroll Down
-                        </Button> 
+                                {this.state.scrollNewMessages === 1 ? "1 New Message" : this.state.scrollNewMessages + " New Messages"}
+                        </Button> }
                     </div>
-                </div>       
 
-                <Form onSubmit={e => {
-                    e.preventDefault();
-                    if(this.state.whisperingTo !== null) this.handleWhisper();
-                    else this.sendMessage();
-                }}>
-                        {this.state.canTalk ?
-                            this.state.whisperingTo !== null ? 
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <Form.Control ref={this.chatRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
-                                    <Button variant='info' onClick={this.handleWhisper} className="btn-block" style={{flex: 1}}>Whisper</Button> 
-                                </div>
-                            :
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Form onSubmit={e => {
+                        e.preventDefault();
+                        if(this.state.whisperingTo !== null) this.handleWhisper();
+                        else this.sendMessage();
+                    }}>
+                            {this.state.canTalk ?
+                                this.state.whisperingTo !== null ? 
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <Form.Control ref={this.chatRef} placeHolder={'Whisper to ' + this.state.playerList[this.state.whisperingTo].name} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                        <Button variant='info' onClick={this.handleWhisper} className="btn-block" style={{flex: 1}}>Whisper</Button> 
+                                    </div>
+                                :
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
 
-                                    <Form.Control  ref={this.chatRef} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
-                                    <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
-                                </div>
-                        : 
-                        <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
-                    }
-                </Form>
-           </div>
+                                        <Form.Control  ref={this.chatRef} value={this.state.textMessage} onChange={this.changeText} maxLength={150} />
+                                        <Button variant='danger' onClick={this.sendMessage} className="btn-block" style={{flex: 1}}>Submit</Button> 
+                                    </div>
+                            : 
+                            <Button variant='danger' onClick={() => {this.props.setRoom(false); this.props.setName(''); this.props.setRole(''); this.props.setFailReason('')}} className="btn-block">Disconnect</Button> 
+                        }
+                    </Form>
+                </div>
+            </div>       
         )
 
     }
@@ -161,7 +160,7 @@ class Room extends React.Component {
 
     scrollEvent() {
         if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-            this.setState({showScrollDown: false});
+            this.setState({showScrollDown: false, scrollNewMessages: 0});
         }
         else this.setState({showScrollDown: true});
     }
@@ -195,10 +194,10 @@ class Room extends React.Component {
             }
 
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-                this.setState({messages: [...this.state.messages, msg], showScrollDown: false}); //Adds message to message list.
+                this.setState({messages: [...this.state.messages, msg], showScrollDown: false, scrollNewMessages: 0}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            else this.setState({messages: [...this.state.messages, msg], showScrollDown: true}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, msg], showScrollDown: true, scrollNewMessages: this.state.scrollNewMessages + 1}); //Adds message to message list.
         })
 
         this.socket.on('receive-whisper-message', (inMsg) => {

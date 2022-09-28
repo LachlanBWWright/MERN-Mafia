@@ -22,7 +22,7 @@ class Room {
 
         //Data relating to the players in the room
         this.name = Crypto.randomBytes(8).toString('hex'); //Generates the room's name
-        this.size = 4; //Capacity of the room
+        this.size = 13; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
             
