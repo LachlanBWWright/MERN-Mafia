@@ -36,8 +36,7 @@ io.on('connection', socket => {
     socket.on('playerJoinRoom', async (captchaToken, cb) => {  
         try {
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
-            let score = res.data.score
-            if(score >= 0.7) {  //Blocks players from joining if ReCaptcha V3 score is too low 
+            if(res.data.success) {  //Blocks players from joining if ReCaptcha V3 score is too low 
                 if(playRoom.started) playRoom = new Room(io, mongoose);
                 socket.data.roomObject = playRoom;
                 socket.join(playRoom.name); //Joins room, messages will be received accordingly

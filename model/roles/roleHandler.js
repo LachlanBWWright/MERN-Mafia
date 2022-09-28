@@ -29,8 +29,8 @@ class RoleHandler {
 
     assignGame() {
         let roleList = []; //The array of roles to be returned to the room object roleList.push;
-        let mafiaPower = 0;
-        let townPower = 0;
+        let mafiaPower = 0; //How 'powerful' the mafia is
+        let townPower = 0; //How 'powerful' the town is
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
 

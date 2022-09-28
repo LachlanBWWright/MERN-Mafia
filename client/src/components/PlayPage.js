@@ -3,7 +3,7 @@ import {Card, Tooltip, OverlayTrigger, Button} from 'react-bootstrap';
 import {useOutletContext} from 'react-router-dom';
 import Room from './Room';
 import roles from '../info/roles';
-import {GoogleReCaptcha} from 'react-google-recaptcha-v3'
+import ReCAPTCHA from "react-google-recaptcha"
 
 function PlayPage() {
     const [playerName, setPlayerName] = useState('');
@@ -11,10 +11,13 @@ function PlayPage() {
     const [playerRole, setPlayerRole] = useState('');
     const [failReason, setFailReason] = useState('');
     const [captchaToken, setCaptchaToken] = useState('');
+    const [captchaEntered, setCaptchaEntered] = useState(false);
+
     const setInGame = useOutletContext();
 
     useEffect(() => {
             setInGame(playerRole !== '');
+            
     }, [playerRole, setInGame])
 
     if(playerRoom) { /* Shows the room if a name and room has been selected */
@@ -37,17 +40,21 @@ function PlayPage() {
                 <Card.Body style={{display: 'flex', flexDirection: 'column'}}>
                     <Card.Title className='text-center'>Play</Card.Title>
                         {failReason !== '' && <Card.Text>{failReason}</Card.Text>}
-                        <GoogleReCaptcha onVerify={setCaptchaToken} />
-
-
                         <Card.Text>This game was created by Lachlan Wright, you can view my GitHub profile <a href="http://www.github.com/LachlanBWWright">here,</a> or the repository for this game <a href="https://github.com/LachlanBWWright/MERN-Mafia">here.</a></Card.Text>
                         <Card.Text>This is an online game similar to the 'mafia' party game. Most players are members of the town, while a few are mafia.</Card.Text>
                         <div style={{flex: 1}}></div>
-                        <Button variant="danger" size='lg' style={{width: '100%'}} onClick={() => setPlayerRoom(true)}>Join A Match!</Button>                             
+                        <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center'}}>
+                            <div style={{flex: 1}}></div>
+                            <ReCAPTCHA sitekey={"6Ld_zH4fAAAAAG24myzdi4un9qbSOtg9J08-xquF"} onChange={(token) => {setCaptchaToken(token); setCaptchaEntered(true);}}/>
+                            <div style={{flex: 1}}></div>
+                        </div>
+                        <Button variant="danger" size='lg' style={{width: '100%'}} onClick={() => {setPlayerRoom(true); setCaptchaEntered(false);}} disabled={!captchaEntered}>Join A Match!</Button>                             
                 </Card.Body>  
             </Card>   
         )
     }
 }
+
+
 
 export default PlayPage;
