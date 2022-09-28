@@ -180,10 +180,10 @@ class Room extends React.Component {
             }
 
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+                this.setState({messages: [...this.state.messages, msg], showScrollDown: false, scrollNewMessages: 0}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, msg], showScrollDown: true, scrollNewMessages: this.state.scrollNewMessages + 1}); //Adds message to message list.
         })
 
         this.socket.on('receive-chat-message', (inMsg) => {
@@ -208,10 +208,10 @@ class Room extends React.Component {
             }
 
             if(this.scrollRef.current.scrollHeight - this.scrollRef.current.scrollTop - this.scrollRef.current.clientHeight <= this.scrollRef.current.clientHeight/5) {
-                this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+                this.setState({messages: [...this.state.messages, msg], showScrollDown: false, scrollNewMessages: 0}); //Adds message to message list.
                 this.scrollRef.current.scrollTop = this.scrollRef.current.scrollHeight;
             }
-            else this.setState({messages: [...this.state.messages, msg]}); //Adds message to message list.
+            else this.setState({messages: [...this.state.messages, msg], showScrollDown: true, scrollNewMessages: this.state.scrollNewMessages + 1}); //Adds message to message list.
         })
 
         this.socket.on('receive-player-list', (listJson) => { //Receive all players upon joining, and the game starting
