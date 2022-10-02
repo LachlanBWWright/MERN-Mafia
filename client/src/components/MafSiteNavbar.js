@@ -44,7 +44,7 @@ class MafSiteNavbar extends React.Component {
                     {!this.state.isLoggedIn && 
                     (<Nav>
                         <Nav.Link as={Link} to="/settings" disabled={this.state.inGame}>Settings</Nav.Link> 
-                        <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={this.state.inGame}>Login Placeholder</Nav.Link>
+                        {/* <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={this.state.inGame}>Login Placeholder</Nav.Link> */}
                     </Nav>)
                     }
                 </Navbar>
