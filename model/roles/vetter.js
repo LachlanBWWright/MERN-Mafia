@@ -22,6 +22,7 @@ class Vetter extends Role {
     visit() { //Selects two random people to visit
         try {
             //Gets two different players at random
+            this.visiting.receiveVisit(this);
             this.researchSlots--
             let randomPlayerOne = Math.floor(Math.random() * this.room.playerList.length);
             let randomPlayerTwo = randomPlayerOne;

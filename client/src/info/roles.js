@@ -58,6 +58,10 @@ const roles = new Map ([
         "You can choose a person to protect every night. You will protect them, but will sacrifice yourself if they were attacked. The protected player will witness the names and roles of everybody who attacked them. At night, visit who want to protect.",
     ], 
     [
+        "Sniper",
+        "You are a sniper, who wishes to snipe everybody else. Visit who you wish to snipe, and if they stay home, you can unleash a powerful attack. If they don't, visiting them two days in a row will guarantee a kill, but with a less powerful attack.",
+    ], 
+    [
         "Tapper",
         "At night, you can select a player to overhear their whispers the following day. At day, you can do the same to overhear any messages they send, but they will be warned. At day and night, visit who to tap during the next period.",
     ], 

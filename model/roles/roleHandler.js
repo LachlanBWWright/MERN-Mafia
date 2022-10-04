@@ -19,7 +19,9 @@ import Jailor from './jailor.js';
 //Mafia Roles
 import Mafia from './mafia.js';
 
+//Neutral Roles
 import Maniac from './maniac.js';
+import Sniper from './sniper.js';
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js';
@@ -39,7 +41,7 @@ class RoleHandler {
         //Role Lists
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
-        let randomNeutralList = [Maniac];
+        let randomNeutralList = [Maniac, Sniper];
 
         for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
@@ -53,7 +55,7 @@ class RoleHandler {
                     if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
                 }
                 else { //Add mafia/neutral role
-                    if(Math.random() > 0.3) {  //Add Mafia
+                    if(Math.random() > 0.3 || randomNeutralList.length == 0) {  //Add Mafia
                         let index = Math.floor(Math.random() * randomMafiaList.length);
                         let addedRole = randomMafiaList[index]
                         roleList.push(addedRole);
@@ -111,6 +113,8 @@ class RoleHandler {
     uniqueRoleCheck(role) {
         switch(role) {
             case Jailor: return true;
+            case Maniac: return true;
+            case Sniper: return true;
             default: return false;
         }
     }
@@ -137,6 +141,7 @@ class RoleHandler {
             case Mafia: return -20;
             //Neutral Roles
             case Maniac: return -12;
+            case Sniper: return -10;
             default: return 0;
         }
     };

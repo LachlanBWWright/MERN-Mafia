@@ -420,7 +420,7 @@ class Room {
         if(winningFactionName == 'nobody') this.io.to(this.name).emit('receive-message', 'The game has ended with a draw!');
         else if(winningFactionName == 'neutral') this.io.to(this.name).emit('receive-message', 'The neutral players have won!');
         else {
-            if(winningFactionName.charAt(winningFactionName.length === 's')) this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' have won!'));
+            if(winningFactionName.endsWith('s')) this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' have won!'));
             else this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won!'));
         }
         this.io.to(this.name).emit('receive-message', 'Closing the room!');
