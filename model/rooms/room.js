@@ -173,8 +173,8 @@ class Room {
                 else {
                     this.io.to(foundRecipient.socketId).emit('receive-whisper-message', 'Whisper from ' + foundPlayer.playerUsername + ': ' + message);
                     this.io.to(foundPlayer.socketId).emit('receive-whisper-message', 'Whisper to ' + foundRecipient.playerUsername + ': ' + message);
-                    if(foundPlayer.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
-                    else if(foundRecipient.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
+                    if(foundPlayer.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-whisper-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
+                    else if(foundRecipient.role.dayTapped != false) this.io.to(foundPlayer.role.dayTapped.player.socketId).emit('receive-whisper-message', (foundPlayer.playerUsername + ' whispered \"' + message + '\" to ' + foundRecipient.playerUsername + '.'));
                 } 
             }
             else this.io.to(foundPlayer.socketId).emit('receive-message', 'You didn\'t whisper to a valid recipient, or they are dead.');

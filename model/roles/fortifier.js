@@ -43,7 +43,7 @@ class Fortifier extends Role {
                 this.visiting.baseDefence -= 2;
                 if(Math.random() > 0.5) {
                     this.room.io.to(this.player.socketId).emit('receive-message', 'You died stripping the house of your fortifications.');
-                    this.room.io.to(this.playerFortified.player.socketId).emit('receive-message', 'You died stripping the house of your fortifications.');
+                    this.room.io.to(this.playerFortified.player.socketId).emit('receive-message', `${this.playerFortified.player.playerUsername} died stripping your house of its fortifications.`);
                     this.damage = 999;
                 }
                 else {
