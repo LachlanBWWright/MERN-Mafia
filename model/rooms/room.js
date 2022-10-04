@@ -402,6 +402,9 @@ class Room {
     }
 
     findWinningFaction() {
+        //Note: Roles considered to be 'neutral' in the roleHandler do NOT necessarily have the 'neutral' group attribute in their role class.
+        //Only roles that can win with anyone else are will be of the 'neutral' group.
+
         let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].role.group != 'neutral' && this.playerList[i].isAlive) {
@@ -416,7 +419,10 @@ class Room {
         this.gameHasEnded = true;
         if(winningFactionName == 'nobody') this.io.to(this.name).emit('receive-message', 'The game has ended with a draw!');
         else if(winningFactionName == 'neutral') this.io.to(this.name).emit('receive-message', 'The neutral players have won!');
-        else this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won!'));
+        else {
+            if(winningFactionName.charAt(winningFactionName.length === 's')) this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' have won!'));
+            else this.io.to(this.name).emit('receive-message', ('The ' + winningFactionName + ' has won!'));
+        }
         this.io.to(this.name).emit('receive-message', 'Closing the room!');
         this.io.to(this.name).emit('block-messages');
         this.io.in(this.name).disconnectSockets();

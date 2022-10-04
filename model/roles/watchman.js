@@ -28,7 +28,7 @@ class Watchman extends Role {
         try {
             if(this.visiting != null) {
                 let allVisitors = this.visiting.visitors.length;
-                if(allVisitors == 1) { //Tells the player that nobody's visited their target
+                if(allVisitors == 1) { //Tells the player that nobody's visited their target - The one visiter being the watchman themself.
                     this.room.io.to(this.player.socketId).emit('receive-message', 'Nobody visited your target.');
                 }
                 else if (allVisitors == 2) {
