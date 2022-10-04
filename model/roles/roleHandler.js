@@ -1,7 +1,6 @@
 //Imports all the roles used
 
 //Town Roles
-import Innocent from './innocent.js';
 import Doctor from './doctor.js';
 import Judge from './judge.js';
 import Watchman from './watchman.js';
@@ -120,7 +119,6 @@ class RoleHandler {
     getPower(role) {
         switch(role) {
             //Town Roles
-            case Innocent: return 3;
             case Doctor: return 5;
             case Judge: return 6;
             case Watchman: return 4;
