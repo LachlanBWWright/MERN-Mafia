@@ -11,11 +11,9 @@ import PlayPage from './components/PlayPage';
 import Stats from './components/Stats';
 import RolesPage from './components/Roles';
 
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 ReactDOM.render(
   <React.StrictMode>
-      <GoogleReCaptchaProvider reCaptchaKey='6LcNfuYgAAAAADlGlOaDcs6-3x3vNfDB3ZoRuzyO'>
         <BrowserRouter>
           <Routes>  
             <Route path="/" element={<MafSiteNavbar />}>
@@ -29,7 +27,6 @@ ReactDOM.render(
             </Route>
           </Routes>
         </BrowserRouter>
-      </GoogleReCaptchaProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
