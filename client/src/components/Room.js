@@ -20,6 +20,8 @@ class Room extends React.Component {
             scrollDownRequest: false,
             visiting: null,
             votingFor: null,
+            factionNightVote: null, //Mafia night voting
+            votingForNight: null, //Mafia night voting
             whisperingTo: null,
             canVisit: [false, false, false, false, false, false] //dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction
         };

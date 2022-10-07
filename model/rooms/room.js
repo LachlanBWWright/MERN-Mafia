@@ -33,6 +33,10 @@ class Room {
         this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
         this.sessionLength = this.size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days 
         this.gameHasEnded = false;
+        this.endDay = 4; //The day the game will end. This gets pushed back when a player dies, and thus works as a 'stalemate' mechanism
+
+        //Data for handling unique roles
+        this.framer = null; //Reference to the framer role, initialized by the roles constructor if applicable.
 
         this.gameDB = new Game({name: this.name});
     }
@@ -242,11 +246,9 @@ class Room {
 
         this.factionList.push(...roleHandler.assignFactionsFromPlayerList(this.playerList));
         //Assigns roles to each faction, then factions to each relevant role.
-        for(let i = 0; i < this.factionList.length; i++) {
-            this.factionList[i].findMembers(this.playerList);
-        }
+        for(let i = 0; i < this.factionList.length; i++) this.factionList[i].findMembers(this.playerList);
+        for(let i = 0; i < this.playerList.length; i++) this.playerList[i].role.initRole();
 
-        roleHandler = null;
         this.startFirstDaySession(this.sessionLength);
     }
 
@@ -285,10 +287,20 @@ class Room {
     startDaySession(dayNumber, sessionLength) {
         this.time='day';
 
-        let dateTimeJson = {}
-        dateTimeJson.time = 'Day';
-        dateTimeJson.dayNumber = dayNumber;
-        dateTimeJson.timeLeft = Math.floor(sessionLength/1000 + 10); //Converts ms to s, adds the 10s minimum
+        if(this.endDay <= dayNumber) {
+            this.io.to(this.name).emit('receive-message', 'Nobody has died in three consecutive days, so the game has ended.');
+            this.endGame('nobody');
+            return;
+        }
+        else if(this.endDay - 1 <= dayNumber) {
+            this.io.to(this.name).emit('receive-message', 'The game will end in a draw if nobody dies today or tonight.');
+        }
+
+        let dateTimeJson = {
+            time: 'Day',
+            dayNumber: dayNumber,
+            timeLeft: Math.floor(sessionLength/1000 + 10), //Converts ms to s, adds the 10s minimum
+        }
         this.io.to(this.name).emit('update-day-time', dateTimeJson);
 
         //Announcements to the game
@@ -296,6 +308,7 @@ class Room {
         let livingPlayerList = [];
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].isAlive) {
+                this.playerList[i].role.dayUpdate();
                 this.playerList[i].hasVoted = false;
                 this.playerList[i].votesReceived = 0;
                 livingPlayerList.push(this.playerList[i]);
@@ -309,11 +322,19 @@ class Room {
             try {
                 for(let i = 0; i < livingPlayerList.length; i++) { //Eliminates the player if they have a majority of the votes.
                     if(livingPlayerList[i].votesReceived >= votesRequired) {
+                        this.endDay = dayNumber + 3;
+
                         this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
                         this.io.to(livingPlayerList[i].socketId).emit('receive-message', 'You have been voted out of the town.');
                         this.io.to(livingPlayerList[i].socketId).emit('block-messages');
                         livingPlayerList[i].isAlive = false;
                         this.io.to(this.name).emit('update-player-role', {name: livingPlayerList[i].playerUsername}); //Marks player as dead client-side, does not reveal their role
+
+                        //TODO: Framer's Logic
+                        if(this.framer !== null && this.framer.target === livingPlayerList[i]) {
+                            this.framer.victoryCondition = true;
+                            this.io.to(this.framer.player.socketId).emit('receive-message', 'You have successfully gotten your target voted out!');
+                        }
                     }
                 }
 
@@ -382,7 +403,7 @@ class Room {
                 //Kills players who have been attacked without an adequate defence, resets visits after night logic has been completed
                 for(let i = 0; i < this.playerList.length; i++) {
                     if(this.playerList[i].isAlive) {
-                        this.playerList[i].role.handleDamage(); //Handles the player being attacked, potentially killing them.
+                        if(this.playerList[i].role.handleDamage()) this.endDay = nightNumber + 3; //Handles the player being attacked, potentially killing them.
                         this.playerList[i].role.dayVisiting = null; //Resets dayvisiting
                         this.playerList[i].role.visiting = null; //Resets visiting.
                         this.playerList[i].role.roleblocked = false; //Resets roleblocked status
@@ -407,6 +428,7 @@ class Room {
 
         let lastFaction = 'neutral'; //Compares the previous (non-neutral) faction with the next.
         for(let i = 0; i < this.playerList.length; i++) {
+            //Roles with the 'neutral' group have a victory condition. TODO: Check to allow them to win
             if(this.playerList[i].role.group != 'neutral' && this.playerList[i].isAlive) {
                 if(lastFaction == 'neutral') lastFaction = this.playerList[i].role.group;
                 else if(this.playerList[i].role.group != lastFaction) return false; //Game is NOT over if there are are members of two different factions alive (excluding neutral)

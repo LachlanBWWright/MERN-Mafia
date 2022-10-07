@@ -43,6 +43,12 @@ class Role {
         this.faction = faction;
     }
 
+    initRole() { //Initialises a role, overridden by child classes when required.
+    }
+
+    dayUpdate() { //Updates a role at the start of each day from day 2, overridden by child classes when required.
+    }
+
     //Handles sending general message
     handleMessage(message) {
         if(this.room.time == 'day') { //Free speaking only at daytime
@@ -106,16 +112,14 @@ class Role {
             tempPlayer.name = this.player.playerUsername;
             tempPlayer.role = this.name;
             this.room.io.to(this.room.name).emit('update-player-role', tempPlayer);
-
+            return true;
         }
-        else { //Resets stats
-            if(this.damage != 0) {
-                this.room.io.to(this.player.socketId).emit('receive-message', 'You were attacked, but you survived!');
-            }
-            this.defence = this.baseDefence;
-            this.damage = 0;
-            this.attackers = [];
-        }
+         //Resets stats
+        if(this.damage != 0) this.room.io.to(this.player.socketId).emit('receive-message', 'You were attacked, but you survived!');
+        this.defence = this.baseDefence;
+        this.damage = 0;
+        this.attackers = [];
+        return false;
     }
 
     //These should be overriden by child classes if applicable

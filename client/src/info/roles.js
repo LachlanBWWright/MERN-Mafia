@@ -22,6 +22,10 @@ const roles = new Map ([
         "Once per game, you can choose to fortify someone's house. They will survive most attacks, and if you're alive, you can kill the attackers. If you regret your decision, you can try to take their defences down, but a brawl will ensue, killing one of you at random. At night, visit a player to fortify their defences. Visit them again to try and remove their defences.",
     ], 
     [
+        "Framer",
+        "You are assigned a random member of the town, who you must get voted out. If they die at night, they will be replaced until day 6.",
+    ], 
+    [
         "Investigator",
         "You can visit a player each night to check make three guesses as to their role. Each guess has a 30% chance of being correct, otherwise it will be the role of a random player. At night, visit a player to inspect them.",
     ], 

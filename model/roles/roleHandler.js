@@ -22,6 +22,7 @@ import Mafia from './mafia.js';
 //Neutral Roles
 import Maniac from './maniac.js';
 import Sniper from './sniper.js';
+import Framer from './framer.js';
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js';
@@ -41,10 +42,20 @@ class RoleHandler {
         //Role Lists
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
-        let randomNeutralList = [Maniac, Sniper];
+        let randomNeutralList = [Maniac, Sniper, Framer,];
+
+
 
         for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
+            //For testing specific roles
+            /*             
+            if(i == 0) {
+                roleList.push(Framer);
+                comparativePower += this.getPower(Framer);
+                randomNeutralList.splice(2, 1);
+                continue;
+            } */
 
             if(comparativePower < 15 && comparativePower > -15) {
                 if(randomiser > comparativePower) { //The weaker the town, the higher the chance of a town member being added
@@ -55,7 +66,7 @@ class RoleHandler {
                     if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
                 }
                 else { //Add mafia/neutral role
-                    if(Math.random() > 0.3 || randomNeutralList.length == 0) {  //Add Mafia
+                    if(Math.random() > 0 || randomNeutralList.length == 0) {  //Add Mafia
                         let index = Math.floor(Math.random() * randomMafiaList.length);
                         let addedRole = randomMafiaList[index]
                         roleList.push(addedRole);
@@ -112,9 +123,13 @@ class RoleHandler {
     //Returns true if a role is unique, so it can be removed from the propsective role list for additional players
     uniqueRoleCheck(role) {
         switch(role) {
+            //Town
             case Jailor: return true;
+            //Mafia
             case Maniac: return true;
+            //Neutral
             case Sniper: return true;
+            case Framer: return true;
             default: return false;
         }
     }
@@ -142,6 +157,7 @@ class RoleHandler {
             //Neutral Roles
             case Maniac: return -12;
             case Sniper: return -10;
+            case Framer: return -5;
             default: return 0;
         }
     };
