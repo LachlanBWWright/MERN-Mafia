@@ -65,11 +65,8 @@ class Room {
 
         this.io.to(this.name).emit('receive-message', (playerUsername + ' has joined the room!'));
         playerSocket.data.position = this.playerList.push(new Player(playerSocket, playerSocketId, playerUsername)) - 1; //Adds a player to the array
-        this.playerCount = this.playerList.length; //Updates the player count
-
-        let playerObject = {};
-        playerObject.name = playerUsername            
-        this.io.to(this.name).emit('receive-new-player', playerObject);
+        this.playerCount = this.playerList.length; //Updates the player count          
+        this.io.to(this.name).emit('receive-new-player', {name: playerUsername});
         
         //Starts the game if the room has filled its maximum size
         if(this.playerCount === this.size) {
@@ -86,10 +83,8 @@ class Room {
     removePlayer(playerSocketId) {
         for(let i = 0; i < this.playerList.length; i++) {
             if(this.playerList[i].socketId === playerSocketId && !this.gameHasEnded) { //!gameHasEnded stops leaving messages when the clients are booted when the game ends
-                if(!this.started) { //Removes the player if the game has not started
-                    let playerObject = {};
-                    playerObject.name = this.playerList[i].playerUsername;            
-                    this.io.to(this.name).emit('remove-player', playerObject);
+                if(!this.started) { //Removes the player if the game has not started           
+                    this.io.to(this.name).emit('remove-player', {name: this.playerList[i].playerUsername});
                     this.io.to(this.name).emit('receive-message', (this.playerList[i].playerUsername + ' has left the room!'))
                     this.playerList.splice(i, 1);
                     for(let x = i; x < this.playerList.length; x++) this.playerList[x].socket.data.position = x; //Updates positions
@@ -111,11 +106,11 @@ class Room {
     emitPlayerList(socketId) { //Returns a player list 
         let playersReturned = [];
         for(let i = 0; i < this.playerList.length; i++) {
-            let playerReturned = {};
-            playerReturned.name = this.playerList[i].playerUsername;
-            if(this.started) playerReturned.isAlive = this.playerList[i].isAlive; //isAlive is undefined if the game has not started
-            if(this.started && !this.playerList[i].isAlive) this.playerList[i].role.name; //Reveals the role if the player is dead, and the game has started
-            playersReturned.push(playerReturned);
+            playersReturned.push({
+                name: this.playerList[i].playerUsername,
+                isAlive: this.started ? this.playerList[i].isAlive : undefined, //isAlive is undefined if the game has not started
+                role: this.started && !this.playerList[i].isAlive ? this.playerList[i].role.name : undefined //Reveals the role if the player is dead, and the game has started
+            });
         }
         this.io.to(socketId).emit('receive-player-list', playersReturned);
     }
@@ -230,17 +225,16 @@ class Room {
         for(let i = 0; i < this.playerList.length ; i++) {
             this.playerList[i].socket.data.position = i;
             this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
-
-            let playerReturned = {};
-            playerReturned.name = this.playerList[i].playerUsername;
-            playerReturned.role = this.playerList[i].role.name;
-            playerReturned.dayVisitSelf = this.playerList[i].role.dayVisitSelf;
-            playerReturned.dayVisitOthers = this.playerList[i].role.dayVisitOthers;
-            playerReturned.dayVisitFaction = this.playerList[i].role.dayVisitFaction;
-            playerReturned.nightVisitSelf = this.playerList[i].role.nightVisitSelf;
-            playerReturned.nightVisitOthers = this.playerList[i].role.nightVisitOthers;
-            playerReturned.nightVisitFaction = this.playerList[i].role.nightVisitFaction; 
-
+            let playerReturned = {
+                name: this.playerList[i].playerUsername,
+                role: this.playerList[i].role.name,
+                dayVisitSelf: this.playerList[i].role.dayVisitSelf,
+                dayVisitOthers: this.playerList[i].role.dayVisitOthers,
+                dayVisitFaction: this.playerList[i].role.dayVisitFaction,
+                nightVisitSelf: this.playerList[i].role.nightVisitSelf,
+                nightVisitOthers: this.playerList[i].role.nightVisitOthers,
+                nightVisitFaction: this.playerList[i].role.nightVisitFaction, 
+            };
             this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
 
@@ -258,28 +252,17 @@ class Room {
 
     //The first day session is shorter than normal.
     startFirstDaySession(sessionLength) {
-        this.io.to(this.name).emit('receive-message', ('Day 1 has started.'));
         this.time='day';
-
-        let dateTimeJson = {}
-        dateTimeJson.time = 'Day';
-        dateTimeJson.dayNumber = 1;
-        dateTimeJson.timeLeft = 5;
-        this.io.to(this.name).emit('update-day-time', dateTimeJson);
-
+        this.io.to(this.name).emit('receive-message', 'Day 1 has started.');
+        this.io.to(this.name).emit('update-day-time', {time: 'Day', dayNumber: 1, timeLeft: 5});
         setTimeout(() => {
             try {
+                for(let i = 0; i < this.playerList.length; i++) if(this.playerList[i].isAlive) this.playerList[i].role.dayVisit();
                 this.io.to(this.name).emit('receive-message', ('Night 1 has started.'));
-                for(let i = 0; i < this.playerList.length; i++) {
-                    if(this.playerList[i].isAlive) {
-                        this.playerList[i].role.dayVisit();
-                    }
-                }
             }
             catch (error) {
                 console.log(error)
             }
-
             this.startNightSession(1, sessionLength)
         }, 5000); //Starts the first day quicker 
     }
@@ -370,12 +353,7 @@ class Room {
 
     startNightSession(nightNumber, sessionLength) {
         this.time='night';
-        
-        let dateTimeJson = {}
-        dateTimeJson.time = 'Night';
-        dateTimeJson.dayNumber = nightNumber;
-        dateTimeJson.timeLeft = Math.floor(sessionLength/2000 + 10); //Converts ms to s (nights are half the sessionLength), and then adds the 10s minimum
-        this.io.to(this.name).emit('update-day-time', dateTimeJson);
+        this.io.to(this.name).emit('update-day-time', {time: 'Night', dayNumber: nightNumber, timeLeft: 15}); //TimeLeft is in seconds
 
         setTimeout(() => {
             try {

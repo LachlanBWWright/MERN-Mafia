@@ -66,7 +66,7 @@ class RoleHandler {
                     if(this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
                 }
                 else { //Add mafia/neutral role
-                    if(Math.random() > 0 || randomNeutralList.length == 0) {  //Add Mafia
+                    if(Math.random() > 0.3 || randomNeutralList.length == 0) {  //Add Mafia
                         let index = Math.floor(Math.random() * randomMafiaList.length);
                         let addedRole = randomMafiaList[index]
                         roleList.push(addedRole);
@@ -125,6 +125,7 @@ class RoleHandler {
         switch(role) {
             //Town
             case Jailor: return true;
+            case Lawman: return true;
             //Mafia
             case Maniac: return true;
             //Neutral
