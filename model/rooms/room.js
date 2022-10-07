@@ -37,6 +37,7 @@ class Room {
 
         //Data for handling unique roles
         this.framer = null; //Reference to the framer role, initialized by the roles constructor if applicable.
+        this.confesserVotedOut = false; //Confessor role, who wants to get voted out
 
         this.gameDB = new Game({name: this.name});
     }
@@ -142,6 +143,10 @@ class Room {
                 this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
                 return;
             }
+            if(this.confesserVotedOut) {
+                this.io.to(playerSocket.id).emit('receive-message', 'The town voted out a confessor, disabling voting.');
+            }
+
             if(foundPlayer === foundRecipient) this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote for yourself.');
             else if(foundRecipient.isAlive && !foundPlayer.hasVoted) {
                 foundPlayer.hasVoted = true;
@@ -303,11 +308,17 @@ class Room {
 
         setTimeout(() => {
             try {
-                for(let i = 0; i < livingPlayerList.length; i++) { //Eliminates the player if they have a majority of the votes.
+                if(!this.confesserVotedOut) for(let i = 0; i < livingPlayerList.length; i++) { //Eliminates the player if they have a majority of the votes.
                     if(livingPlayerList[i].votesReceived >= votesRequired) {
                         this.endDay = dayNumber + 3;
 
-                        this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
+                        if(livingPlayerList[i].role.name === 'Confesser') {
+                            this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' was a confesser! Voting has been disabled for the remainder of the game.'));
+                            this.confesserVotedOut = true;
+                            livingPlayerList.role.victoryCondition = true;
+                            this.io.to(this.name).emit('disable-voting');
+                        }
+                        else this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
                         this.io.to(livingPlayerList[i].socketId).emit('receive-message', 'You have been voted out of the town.');
                         this.io.to(livingPlayerList[i].socketId).emit('block-messages');
                         livingPlayerList[i].isAlive = false;

@@ -14,6 +14,10 @@ const roles = new Map ([
         "You can choose a person to protect every night. You will protect them, and kill everybody who visited them. Excluding yourself. At night, visit a player to protect them.",
     ], 
     [
+        "Confesser",
+        "Your goal is to make a mockery of the judicial system by being voted out for a crime you didn't commit. If successful, you will win, and votes will be disabled for the rest of the game.",
+    ], 
+    [
         "Doctor",
         "You can choose a person to heal every night, protecting them from attacks. At night, visit a player to heal them.",
     ], 

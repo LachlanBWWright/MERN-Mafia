@@ -19,6 +19,7 @@ class Room extends React.Component {
             scrollNewMessages: 0,
             scrollDownRequest: false,
             visiting: null,
+            votingDisabled: false,
             votingFor: null,
             factionNightVote: null, //Mafia night voting
             votingForNight: null, //Mafia night voting
@@ -50,7 +51,7 @@ class Room extends React.Component {
                     <ListGroup style={{flex: 1}}>
                         {this.state.playerList && this.state.playerList.map((player, index) => 
                             <PlayerItem 
-                                key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber}
+                                key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber} votingDisabled={this.state.votingDisabled}
                                 dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
                                 visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
                             /> 
@@ -282,6 +283,10 @@ class Room extends React.Component {
             }, 1000)
         })
 
+        this.socket.on('disable-voting', () => {
+            this.setState({votingDisabled: true})
+        })
+
 
         this.socket.on('block-messages', () => {
             this.setState({canTalk: false});
@@ -324,6 +329,8 @@ class Room extends React.Component {
         this.socket.off('remove-player');
         this.socket.off('update-player-role');
         this.socket.off('update-player-visit');
+        this.socket.off('update-day-time');
+        this.socket.off('block-messages');
         this.socket.disconnect();
     }
 }

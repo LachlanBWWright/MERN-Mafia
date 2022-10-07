@@ -23,6 +23,7 @@ import Mafia from './mafia.js';
 import Maniac from './maniac.js';
 import Sniper from './sniper.js';
 import Framer from './framer.js';
+import Confesser from './confesser.js';
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js';
@@ -42,20 +43,19 @@ class RoleHandler {
         //Role Lists
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
-        let randomNeutralList = [Maniac, Sniper, Framer,];
+        let randomNeutralList = [Maniac, Sniper, Framer, Confesser];
 
 
 
         for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
-            //For testing specific roles
-            /*             
-            if(i == 0) {
-                roleList.push(Framer);
-                comparativePower += this.getPower(Framer);
-                randomNeutralList.splice(2, 1);
+            //For testing specific roles             
+/*             if(i == 0) {
+                roleList.push(Confesser);
+                comparativePower += this.getPower(Confesser);
+                randomNeutralList.splice(3, 1);
                 continue;
-            } */
+            }  */
 
             if(comparativePower < 15 && comparativePower > -15) {
                 if(randomiser > comparativePower) { //The weaker the town, the higher the chance of a town member being added
@@ -131,6 +131,7 @@ class RoleHandler {
             //Neutral
             case Sniper: return true;
             case Framer: return true;
+            case Confesser: return true;
             default: return false;
         }
     }
@@ -159,6 +160,7 @@ class RoleHandler {
             case Maniac: return -12;
             case Sniper: return -10;
             case Framer: return -5;
+            case Confesser: return -5;
             default: return 0;
         }
     };
