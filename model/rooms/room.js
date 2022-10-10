@@ -136,19 +136,13 @@ class Room {
 
     handleVote(playerSocket, recipient, isDay) {
         try {
-            if(!isDay && this.time === 'day' || isDay && this.time === 'night' || this.time === '') return;
+            if(!isDay && this.time === 'day' || isDay && this.time === 'night' || this.time === '') return; //Cancels on client-server time mismatch, or if the time is invalid
             let foundPlayer = this.playerList[playerSocket.data.position];
             let foundRecipient = this.playerList[recipient];
 
-            if(this.time != 'day') {
-                this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
-                return;
-            }
-            if(this.confesserVotedOut) {
-                this.io.to(playerSocket.id).emit('receive-message', 'The town voted out a confessor, disabling voting.');
-            }
-
-            if(foundPlayer === foundRecipient) this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote for yourself.');
+            if(this.time != 'day') this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
+            else if(this.confesserVotedOut) this.io.to(playerSocket.id).emit('receive-message', 'The town voted out a confessor, disabling voting.');
+            else if(foundPlayer === foundRecipient) this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote for yourself.');
             else if(foundRecipient.isAlive && !foundPlayer.hasVoted) {
                 foundPlayer.hasVoted = true;
                 foundRecipient.votesReceived++;
