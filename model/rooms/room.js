@@ -16,13 +16,13 @@ const Game = mongoose.model('Game', gameSchema);
 const names = ["Glen", "Finn", "Alex", "Joey", "Noel", "Jade", "Nico", "Abby", "Liam", "Ivan", "Finn", "Adam", "Ella", "Erin", "Jane", "Lily", "Ruth", "Rhys", "Todd", "Reid"]
 
 class Room {
-    constructor(io, databaseServer) {
+    constructor(io, databaseServer, size) {
         this.io = io; //SocketIo
         this.databaseServer = databaseServer;
 
         //Data relating to the players in the room
         this.name = Crypto.randomBytes(8).toString('hex'); //Generates the room's name
-        this.size = 4; //Capacity of the room
+        this.size = size; //Capacity of the room
         this.playerCount = 0; //Number of players currently in the room
         this.playerList = []; //List of players in the room, containing this.player objects
             

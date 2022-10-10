@@ -12,6 +12,7 @@ import axios from 'axios'
 const __dirname = path.resolve();
 
 //Server setup
+const roomSize = parseInt(process.env.ROOM_SIZE || 13, 10);
 const port = process.env.PORT || 8000;
 const app = express();
 app.use(cors());
@@ -29,7 +30,7 @@ const io = new Server(httpServer, {
 });
 
 //Creates the first batch of rooms
-let playRoom = new Room(io, mongoose);
+let playRoom = new Room(io, mongoose, roomSize);
 
 io.on('connection', socket => {
     //Handle players joining a room
@@ -37,7 +38,7 @@ io.on('connection', socket => {
         try {
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
             if(res.data.success) {  //Blocks players from joining if ReCaptcha V3 score is too low 
-                if(playRoom.started) playRoom = new Room(io, mongoose);
+                if(playRoom.started) playRoom = new Room(io, mongoose, roomSize);
                 socket.data.roomObject = playRoom;
                 socket.join(playRoom.name); //Joins room, messages will be received accordingly
                 let result = socket.data.roomObject.addPlayer(socket);
