@@ -314,10 +314,12 @@ class Room {
                         if(livingPlayerList[i].role.name === 'Confesser') {
                             this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' was a confesser! Voting has been disabled for the remainder of the game.'));
                             this.confesserVotedOut = true;
-                            livingPlayerList.role.victoryCondition = true;
+                            livingPlayerList[i].role.victoryCondition = true;
                             this.io.to(this.name).emit('disable-voting');
                         }
                         else this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
+                        
+                        
                         this.io.to(livingPlayerList[i].socketId).emit('receive-message', 'You have been voted out of the town.');
                         this.io.to(livingPlayerList[i].socketId).emit('block-messages');
                         livingPlayerList[i].isAlive = false;
