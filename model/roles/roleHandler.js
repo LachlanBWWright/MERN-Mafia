@@ -24,6 +24,7 @@ import Maniac from './maniac.js';
 import Sniper from './sniper.js';
 import Framer from './framer.js';
 import Confesser from './confesser.js';
+import Peacemaker from './peacemaker.js';
 
 //Imports all the factions used
 import MafiaFaction from '../factions/mafiaFaction.js';
@@ -43,7 +44,7 @@ class RoleHandler {
         //Role Lists
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
         let randomMafiaList = [Mafia];
-        let randomNeutralList = [Maniac, Sniper, Framer, Confesser];
+        let randomNeutralList = [Maniac, Sniper, Framer, Confesser, Peacemaker];
 
 
 
@@ -51,9 +52,9 @@ class RoleHandler {
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
             //For testing specific roles             
 /*             if(i == 0) {
-                roleList.push(Confesser);
-                comparativePower += this.getPower(Confesser);
-                randomNeutralList.splice(3, 1);
+                roleList.push(Peacemaker);
+                comparativePower += this.getPower(Peacemaker);
+                randomNeutralList.splice(4, 1);
                 continue;
             }  */
 
@@ -132,6 +133,7 @@ class RoleHandler {
             case Sniper: return true;
             case Framer: return true;
             case Confesser: return true;
+            case Peacemaker: return true;
             default: return false;
         }
     }
@@ -161,6 +163,7 @@ class RoleHandler {
             case Sniper: return -10;
             case Framer: return -5;
             case Confesser: return -5;
+            case Peacemaker: return -2;
             default: return 0;
         }
     };

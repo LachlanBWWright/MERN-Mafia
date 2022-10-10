@@ -38,6 +38,7 @@ class Room {
         //Data for handling unique roles
         this.framer = null; //Reference to the framer role, initialized by the roles constructor if applicable.
         this.confesserVotedOut = false; //Confessor role, who wants to get voted out
+        this.peacemaker = null; //Pleacemaker role, who wants to cause a tie by nobody dying for three days
 
         this.gameDB = new Game({name: this.name});
     }
@@ -277,6 +278,10 @@ class Room {
 
         if(this.endDay <= dayNumber) {
             this.io.to(this.name).emit('receive-message', 'Nobody has died in three consecutive days, so the game has ended.');
+            if(this.peacemaker !== null) {
+                this.peacemaker.victoryCondition = true;
+                this.io.to(this.peacemaker.player.socketId).emit('receive-message', 'You have won the game by causing a tie!')
+            } 
             this.endGame('nobody');
             return;
         }

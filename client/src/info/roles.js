@@ -58,8 +58,12 @@ const roles = new Map ([
         "Development in your neighbour's backyard was bad enough, but now your own property is under threat! Three times per game, you can go on alert and murder any visitors, defending yourself! At night, visit yourself to go on alert.",
     ], 
     [
+        "Peacemaker",
+        "Your goal is to create peace by causing a tie, as a result of nobody dying for three consecutive days. Every night, you are able to select a person, and stop them from performing their action.",
+    ], 
+    [
         "Roleblocker",
-        "Every night, are are able to select a person, and stop them from performing their action. If they're not a member of the town, you have a 50% chance of success. At night, visit who you want to roleblock.",
+        "Every night, you are able to select a person, and stop them from performing their action. If they're not a member of the town, you have a 50% chance of success. At night, visit who you want to roleblock.",
     ], 
     [
         "Sacrificer",
