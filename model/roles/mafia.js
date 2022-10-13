@@ -6,8 +6,7 @@ class Mafia extends Role {
         this.attackVote;
     }
 
-    handleNightAction(recipient) { //Vote on who should be attacked
-        //TODO: Make sure attackVote if for a proper class
+    handleNightVote(recipient) {
         this.attackVote = recipient
         if(this.attackVote.playerUsername != undefined && this.attackVote.role.faction != this.faction && this.attackVote.isAlive) {
             this.faction.sendMessage(this.player.playerUsername + ' has voted to attack ' + this.attackVote.playerUsername + '.');
@@ -16,6 +15,10 @@ class Mafia extends Role {
         else {
             this.room.io.to(this.player.socketId).emit('receive-message', 'Invalid Vote.');
         }
+    }
+
+    handleNightAction(recipient) { //Vote on who should be attacked
+        this.handleNightVote(recipient);
     }
 
     cancelNightAction() { //Faction-based classes should override this function

@@ -45,6 +45,15 @@ class MafiaFaction extends Faction {
         }
     }
 
+    //For overriding a class' visiting behaviour
+    visit(role) {
+        if(role.visiting != null) {
+            role.visiting.receiveVisit(role);
+            if(role.visiting.damage == 0) role.visiting.damage = 1; //Attacks the victim
+            role.visiting.attackers.push(role);
+        }
+    }
+
     removeMembers() {
         for(let i = 0; i < this.memberList.length; i++) {
             if(!this.memberList[i].isAlive || this.memberList[i].role.group != 'mafia') {
