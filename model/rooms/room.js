@@ -325,7 +325,6 @@ class Room {
                         livingPlayerList[i].isAlive = false;
                         this.io.to(this.name).emit('update-player-role', {name: livingPlayerList[i].playerUsername}); //Marks player as dead client-side, does not reveal their role
 
-                        //TODO: Framer's Logic
                         if(this.framer !== null && this.framer.target === livingPlayerList[i]) {
                             this.framer.victoryCondition = true;
                             this.io.to(this.framer.player.socketId).emit('receive-message', 'You have successfully gotten your target voted out!');
