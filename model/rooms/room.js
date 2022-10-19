@@ -234,6 +234,7 @@ class Room {
                 nightVisitSelf: this.playerList[i].role.nightVisitSelf,
                 nightVisitOthers: this.playerList[i].role.nightVisitOthers,
                 nightVisitFaction: this.playerList[i].role.nightVisitFaction, 
+                nightVote: this.playerList[i].role.nightVote,
             };
             this.io.to(this.playerList[i].socketId).emit('assign-player-role', playerReturned);
         }
@@ -318,7 +319,6 @@ class Room {
                             this.io.to(this.name).emit('disable-voting');
                         }
                         else this.io.to(this.name).emit('receive-message', (livingPlayerList[i].playerUsername + ' has been voted out by the town.'));
-                        
                         
                         this.io.to(livingPlayerList[i].socketId).emit('receive-message', 'You have been voted out of the town.');
                         this.io.to(livingPlayerList[i].socketId).emit('block-messages');

@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Framer extends Role {
     constructor(room, player) {
-        super('Framer', 'neutral', room, player, 1, false, false, false, false, false, false, false);
+        super('Framer', 'neutral', room, player, 1, false, false, false, false, false, false, false, false);
         this.victoryCondition = false;
         this.target = null; //Target to kill (player object)
         this.room.framer = this;

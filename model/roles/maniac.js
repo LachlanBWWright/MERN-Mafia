@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Maniac extends Role {
     constructor(room, player) {
-        super('Maniac','maniac', room, player, 1, false, false, false, false, false, true, false);
+        super('Maniac','maniac', room, player, 1, false, false, false, false, false, true, false, false);
     }
 
     handleNightAction(recipient) { //Vote on who should be attacked

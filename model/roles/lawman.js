@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Lawman extends Role {
     constructor(room, player) {
-        super('Lawman', 'town', room, player, 0, false, false, false, false, false, true, false);
+        super('Lawman', 'town', room, player, 0, false, false, false, false, false, true, false, false);
         this.isInsane = false;
     }
 

@@ -2,7 +2,7 @@
 
 class Role {
     // Role name, Group Name, SocketIo Room, Player Class, Base Defence, Is Roleblocker, Day visits, night visits
-    constructor(name, group, room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction) {
+    constructor(name, group, room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction, nightVote) {
         //Text info
         this.name = name; //Name of the role
         this.group = group; //group for determining group-actions / group night chats / Ending the game
@@ -23,6 +23,7 @@ class Role {
         this.nightVisitSelf = nightVisitSelf;
         this.nightVisitOthers = nightVisitOthers;
         this.nightVisitFaction = nightVisitFaction; //Also false if the role does not have a faction
+        this.nightVote = nightVote;
 
         //Role Action
         this.dayVisiting = null; //The role that the player is visiting (from a rarer day command).

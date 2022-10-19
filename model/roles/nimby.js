@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Nimby extends Role {
     constructor(room, player) {
-        super('Nimby','town', room, player, 0, false, false, false, false, true, false, false);
+        super('Nimby','town', room, player, 0, false, false, false, false, true, false, false, false);
         this.alertSlots = 3;
     }
 

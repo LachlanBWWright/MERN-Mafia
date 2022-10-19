@@ -3,7 +3,7 @@ import Role from './role.js'
 //This class judges the alignment of the selected target (usually!)
 class Judge extends Role {
     constructor(room, player) {
-        super('Judge', 'town', room, player, 0, false, false, false, false, false, true, false);
+        super('Judge', 'town', room, player, 0, false, false, false, false, false, true, false, false);
     }
     
     handleNightAction(recipient) { //Vote on who should be attacked

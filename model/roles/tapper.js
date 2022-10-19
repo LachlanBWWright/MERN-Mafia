@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Tapper extends Role {
     constructor(room, player) {
-        super('Tapper', 'town', room, player, 0, false, false, true, false, false, true, false);
+        super('Tapper', 'town', room, player, 0, false, false, true, false, false, true, false, false);
     }
 
     handleDayAction(recipient) { //Handles the class' daytime action

@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Peacemaker extends Role {
     constructor(room, player) {
-        super('Peacemaker', 'neutral', room, player, 0, true, false, false, false, false, true, false);
+        super('Peacemaker', 'neutral', room, player, 0, true, false, false, false, false, true, false, false);
         this.victoryCondition = false;
         this.room.peacemaker = this;
     }

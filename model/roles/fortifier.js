@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Fortifier extends Role {
     constructor(room, player) {
-        super('Fortifier', 'town', room, player, 0, false, false, false, false, false, true, false);
+        super('Fortifier', 'town', room, player, 0, false, false, false, false, false, true, false, false);
 
         this.playerFortified = null;
         this.canFortify = true;

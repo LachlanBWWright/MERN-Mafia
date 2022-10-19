@@ -3,7 +3,7 @@ import Role from './role.js'
 //This class judges the alignment of the selected target (usually!)
 class Vetter extends Role {
     constructor(room, player) {
-        super('Vetter', 'town', room, player, 0, false, false, false, false, true, false, false);
+        super('Vetter', 'town', room, player, 0, false, false, false, false, true, false, false, false);
         this.researchSlots = 3;
     }
     

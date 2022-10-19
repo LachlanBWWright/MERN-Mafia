@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Sniper extends Role {
     constructor(room, player) {
-        super('Sniper','sniper', room, player, 1, false, false, false, false, false, true, false);
+        super('Sniper','sniper', room, player, 1, false, false, false, false, false, true, false, false);
 
         this.lastVisited = null;
     }

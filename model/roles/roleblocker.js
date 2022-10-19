@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Roleblocker extends Role {
     constructor(room, player) {
-        super('Roleblocker', 'town', room, player, 0, true, false, false, false, false, true, false);
+        super('Roleblocker', 'town', room, player, 0, true, false, false, false, false, true, false, false);
     }
 
     handleNightAction(recipient) { //Choose who should be roleblocked

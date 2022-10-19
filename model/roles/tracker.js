@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Tracker extends Role {
     constructor(room, player) {
-        super('Tracker','town', room, player, 0, false, false, false, false, false, true, false);
+        super('Tracker','town', room, player, 0, false, false, false, false, false, true, false, false);
     }
 
     handleNightAction(recipient) { //Vote on who should be attacked

@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Jailor extends Role {
     constructor(room, player) {
-        super('Jailor', 'town', room, player, 0, false, false, true, false, true, false, false);
+        super('Jailor', 'town', room, player, 0, false, false, true, false, true, false, false, false);
     }
 
     handleDayAction(recipient) { //Choose to jail a player
