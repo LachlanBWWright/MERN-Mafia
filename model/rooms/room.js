@@ -140,16 +140,22 @@ class Room {
             let foundPlayer = this.playerList[playerSocket.data.position];
             let foundRecipient = this.playerList[recipient];
 
-            if(this.time != 'day') this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
-            else if(this.confesserVotedOut) this.io.to(playerSocket.id).emit('receive-message', 'The town voted out a confessor, disabling voting.');
+            if(foundPlayer.hasVoted) this.io.to(playerSocket.id).emit('receive-message', 'You cannot change your vote.');
             else if(foundPlayer === foundRecipient) this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote for yourself.');
+            else if(this.time != 'day') {
+                if(foundPlayer.role.nightVote) {
+                    foundPlayer.hasVoted = true;
+                    foundPlayer.role.handleNightVote(foundRecipient);
+                }
+                else this.io.to(playerSocket.id).emit('receive-message', 'You cannot vote at night.');
+            } 
+            else if(this.confesserVotedOut) this.io.to(playerSocket.id).emit('receive-message', 'The town voted out a confessor, disabling voting.');
             else if(foundRecipient.isAlive && !foundPlayer.hasVoted) {
                 foundPlayer.hasVoted = true;
                 foundRecipient.votesReceived++;
                 if(foundRecipient.votesReceived > 1) this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ' has voted for ' + foundRecipient.playerUsername + ' to be executed! There are ' + foundRecipient.votesReceived + ' votes for ' + foundRecipient.playerUsername + ' to be killed.'));
                 else this.io.to(this.name).emit('receive-message', (foundPlayer.playerUsername + ' has voted for ' + foundRecipient.playerUsername + ' to be executed! There is 1 vote for ' + foundRecipient.playerUsername + ' to be killed.'));
             }
-            else if(foundPlayer.hasVoted) this.io.to(playerSocket.id).emit('receive-message', 'You cannot change your vote.');
             else this.io.to(playerSocket.id).emit('receive-message', 'Your vote was invalid.');
         }
         catch (error) {
@@ -339,6 +345,7 @@ class Room {
                     if(this.playerList[i].isAlive) {
                         this.playerList[i].role.dayVisit();
                         this.playerList[i].role.dayTapped = false; //Undoes any daytapping by the tapper class
+                        this.playerList[i].hasVoted = false;
                     }
                 }
             }

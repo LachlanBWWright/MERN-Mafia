@@ -49,6 +49,7 @@ class PlayerItem extends React.Component {
 
     canVote() {
         if(!this.props.votingDisabled && this.props.votingFor === null && this.props.canTalk && this.props.time === 'Day' && this.props.dayNumber !== 1 && this.props.isAlive && !this.props.isUser) return true;
+        if(this.props.time === 'Night' && this.props.votingFor === null && this.props.canNightVote && this.props.isAlive && this.props.role === undefined && !this.props.isUser) return true;
         return false;
     }
 

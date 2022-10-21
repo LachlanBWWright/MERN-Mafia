@@ -19,12 +19,13 @@ class Room extends React.Component {
             scrollNewMessages: 0,
             scrollDownRequest: false,
             visiting: null,
-            votingDisabled: false,
-            votingFor: null,
+            votingDisabled: false, //Voting is blocked when the town votes out a confesser
+            votingFor: null, //Who the player is voting for
             factionNightVote: null, //Mafia night voting
             votingForNight: null, //Mafia night voting
             whisperingTo: null,
-            canVisit: [false, false, false, false, false, false] //dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction
+            canVisit: [false, false, false, false, false, false], //dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction
+            canNightVote: false, //If the player is in a faction that can vote at night
         };
 
         this.changeText = this.changeText.bind(this);
@@ -53,7 +54,7 @@ class Room extends React.Component {
                             <PlayerItem 
                                 key={player.name} index={index} handleVisit={this.handleVisit} handleVote={this.handleVote} whisperingTo={this.state.whisperingTo} openWhisperMenu={this.openWhisperMenu} dayNumber={this.state.dayNumber} votingDisabled={this.state.votingDisabled}
                                 dayVisitLiving={this.state.dayVisitLiving} dayVisitDead={this.state.dayVisitDead} nightVisitLiving={this.state.nightVisitLiving} nightVisitDead={this.state.nightVisitDead}  
-                                visiting={this.state.visiting} votingFor={this.state.votingFor} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
+                                visiting={this.state.visiting} votingFor={this.state.votingFor} canNightVote={this.state.canNightVote} isUser={player.isUser} username={player.name} role={player.role} isAlive={player.isAlive} time={this.state.time} canTalk={this.state.canTalk} canVisit={this.state.canVisit}
                             /> 
                         )}
                     </ListGroup>
@@ -238,7 +239,8 @@ class Room extends React.Component {
             this.props.setRole(playerJson.role);
             this.setState({
                 playerList: tempPlayerList,
-                canVisit: [playerJson.dayVisitSelf, playerJson.dayVisitOthers, playerJson.dayVisitFaction, playerJson.nightVisitSelf, playerJson.nightVisitOthers, playerJson.nightVisitFaction]
+                canVisit: [playerJson.dayVisitSelf, playerJson.dayVisitOthers, playerJson.dayVisitFaction, playerJson.nightVisitSelf, playerJson.nightVisitOthers, playerJson.nightVisitFaction],
+                canNightVote: playerJson.nightVote,
             });
         })
 

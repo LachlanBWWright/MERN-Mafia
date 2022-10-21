@@ -2,7 +2,7 @@ import Role from './role.js'
 
 class Mafia extends Role {
     constructor(room, player) {
-        super('Mafia', 'mafia', room, player, 0, false, false, false, false, false, true, false, true);
+        super('Mafia', 'mafia', room, player, 0, false, false, false, false, false, false, false, true);
         this.attackVote;
     }
 
