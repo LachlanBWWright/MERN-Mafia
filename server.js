@@ -14,6 +14,7 @@ const __dirname = path.resolve();
 //Server setup
 const roomSize = parseInt(process.env.ROOM_SIZE || 13, 10);
 const port = process.env.PORT || 8000;
+const debug = process.env.debug == "true"
 const app = express();
 app.use(cors());
 
@@ -37,7 +38,7 @@ io.on('connection', socket => {
     socket.on('playerJoinRoom', async (captchaToken, cb) => {  
         try {
             let res =  await axios.post(`https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`)
-            if(res.data.success) {  //Blocks players from joining if ReCaptcha V3 score is too low 
+            if(res.data.success || debug) {  //Blocks players from joining if ReCaptcha V3 score is too low, allows anyway if debug mode is on
                 if(playRoom.started) playRoom = new Room(io, mongoose, roomSize);
                 socket.data.roomObject = playRoom;
                 socket.join(playRoom.name); //Joins room, messages will be received accordingly

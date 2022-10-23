@@ -5,7 +5,7 @@ import Room from './Room';
 import roles from '../info/roles';
 import ReCAPTCHA from "react-google-recaptcha"
 
-function PlayPage() {
+function PlayPage(props) {
     const [playerName, setPlayerName] = useState('');
     const [playerRoom, setPlayerRoom] = useState(false);
     const [playerRole, setPlayerRole] = useState('');
@@ -48,7 +48,7 @@ function PlayPage() {
                             <ReCAPTCHA sitekey={"6Ld_zH4fAAAAAG24myzdi4un9qbSOtg9J08-xquF"} onChange={(token) => {setCaptchaToken(token); setCaptchaEntered(true);}}/>
                             <div style={{flex: 1}}></div>
                         </div>
-                        <Button variant="danger" size='lg' style={{width: '100%'}} onClick={() => {setPlayerRoom(true); setCaptchaEntered(false);}} disabled={!captchaEntered}>Join A Match!</Button>                             
+                        <Button variant="danger" size='lg' style={{width: '100%'}} onClick={() => {setPlayerRoom(true); setCaptchaEntered(false);}} disabled={!captchaEntered && !props.debug}>Join A Match!</Button>                             
                 </Card.Body>  
             </Card>   
         )

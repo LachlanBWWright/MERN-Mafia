@@ -18,7 +18,8 @@ ReactDOM.render(
           <Routes>  
             <Route path="/" element={<MafSiteNavbar />}>
               <Route index element={<PlayPage/>} />
-              <Route path="play" element={<PlayPage />} />
+              <Route path="play" element={<PlayPage debug={false}/>} />
+              <Route path="debugPlay" element={<PlayPage debug={true}/>} />
               <Route path="stats" element={<Stats/>} />
               <Route path="faq" element={<FAQPage />} />
               <Route path="roles" element={<RolesPage />} />
