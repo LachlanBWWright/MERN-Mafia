@@ -1,8 +1,9 @@
 import Role from './role.js'
 
-class Mafia extends Role {
-    constructor(room, player) {
-        super('Mafia', 'mafia', room, player, 0, false, false, false, false, false, false, false, true);
+class RoleMafia extends Role {
+    constructor(name, group, room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction, nightVote) {
+        //Group is kept as a constructor parameter for consistency, but mafia classes will always be in the 'mafia' group.
+        super(name, 'mafia', room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction, nightVote);
         this.attackVote;
     }
 
@@ -26,6 +27,7 @@ class Mafia extends Role {
         this.attackVote = null;
     }
 
+    //For when a member of the mafia attacks someone instead of 
     visit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
@@ -35,4 +37,4 @@ class Mafia extends Role {
     }
 }
 
-export default Mafia;
+export default RoleMafia;

@@ -1,12 +1,12 @@
-import Role from './role.js'
+import RoleMafia from './roleMafia.js'
 
-class Mafia extends Role {
+class Mafia extends RoleMafia {
     constructor(room, player) {
         super('Mafia', 'mafia', room, player, 0, false, false, false, false, false, false, false, true);
         this.attackVote;
     }
 
-    handleNightVote(recipient) {
+/*     handleNightVote(recipient) {
         this.attackVote = recipient
         if(this.attackVote.playerUsername != undefined && this.attackVote.role.faction != this.faction && this.attackVote.isAlive) {
             this.faction.sendMessage(this.player.playerUsername + ' has voted to attack ' + this.attackVote.playerUsername + '.');
@@ -32,7 +32,7 @@ class Mafia extends Role {
             if(this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
             this.visiting.attackers.push(this);
         }
-    }
+    } */
 }
 
 export default Mafia;
