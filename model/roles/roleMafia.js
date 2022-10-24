@@ -4,7 +4,7 @@ class RoleMafia extends Role {
     constructor(name, group, room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction, nightVote) {
         //Group is kept as a constructor parameter for consistency, but mafia classes will always be in the 'mafia' group.
         super(name, 'mafia', room, player, baseDefence, roleblocker, dayVisitSelf, dayVisitOthers, dayVisitFaction, nightVisitSelf, nightVisitOthers, nightVisitFaction, nightVote);
-        this.attackVote;
+        this.attackVote = null;
     }
 
     handleNightVote(recipient) {
