@@ -1,6 +1,6 @@
-import Role from './role.js'
+import RoleMafia from './roleMafia.js'
 
-class MafiaRoleblocker extends Role {
+class MafiaRoleblocker extends RoleMafia {
     constructor(room, player) {
         super('MafiaRoleblocker', 'mafia', room, player, 0, false, false, false, false, false, false, false, true);
         this.attackVote;
