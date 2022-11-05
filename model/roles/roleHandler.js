@@ -18,6 +18,7 @@ import Jailor from './jailor.js';
 
 //Mafia Roles
 import Mafia from './mafia.js';
+import MafiaRoleblocker from './mafiaRoleblocker.js';
 
 //Neutral Roles
 import Maniac from './maniac.js';
@@ -43,7 +44,7 @@ class RoleHandler {
 
         //Role Lists
         let randomTownList = [Doctor, Judge, Watchman, Investigator, Lawman, Vetter, Tapper, Tracker, Bodyguard, Nimby, Sacrificer, Fortifier, Roleblocker, Jailor];
-        let randomMafiaList = [Mafia];
+        let randomMafiaList = [Mafia, MafiaRoleblocker];
         let randomNeutralList = [Maniac, Sniper, Framer, Confesser, Peacemaker];
 
 
@@ -51,12 +52,12 @@ class RoleHandler {
         for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
             //For testing specific roles             
-/*             if(i == 0) {
-                roleList.push(Peacemaker);
-                comparativePower += this.getPower(Peacemaker);
+            if(i == 0) {
+                roleList.push(MafiaRoleblocker);
+                comparativePower += this.getPower(MafiaRoleblocker);
                 randomNeutralList.splice(4, 1);
                 continue;
-            }  */
+            } 
 
             if(comparativePower < 15 && comparativePower > -15) {
                 if(randomiser > comparativePower) { //The weaker the town, the higher the chance of a town member being added
@@ -128,8 +129,9 @@ class RoleHandler {
             case Jailor: return true;
             case Lawman: return true;
             //Mafia
-            case Maniac: return true;
+
             //Neutral
+            case Maniac: return true;
             case Sniper: return true;
             case Framer: return true;
             case Confesser: return true;
@@ -157,7 +159,8 @@ class RoleHandler {
             case Roleblocker: return 5;
             case Jailor: return 12;
             //Mafia Roles
-            case Mafia: return -20;
+            case Mafia: return -17;
+            case MafiaRoleblocker: return -20
             //Neutral Roles
             case Maniac: return -12;
             case Sniper: return -10;
