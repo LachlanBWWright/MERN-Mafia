@@ -2,7 +2,7 @@ import RoleMafia from './roleMafia.js'
 
 class MafiaRoleblocker extends RoleMafia {
     constructor(room, player) {
-        super('MafiaRoleblocker', 'mafia', room, player, 0, false, false, false, false, false, false, false, true);
+        super('Mafia Roleblocker', 'mafia', room, player, 0, false, false, false, false, false, true, false, true);
         this.attackVote;
     }
 
@@ -36,6 +36,7 @@ class MafiaRoleblocker extends RoleMafia {
     }
 
     visit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
+        //super.visit();
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
             if(this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
