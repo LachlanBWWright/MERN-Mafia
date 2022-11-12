@@ -24,8 +24,9 @@ class MafiaFaction extends Faction {
             this.memberList[i].role.attackVote = null;
         }
         if(this.attackList.length != 0) {
-            let victim = this.attackList[Math.floor(Math.random() * this.attackList.length)]; //Selects a random item in the list, and uses that TODO: Consider switching to using the mode
+            let victim = this.attackList[Math.floor(Math.random() * this.attackList.length)]; //Selects a random item in the list, and uses that.
             this.memberList[Math.floor(Math.random() * this.memberList.length)].role.visiting = victim; //Selects a random mafia member to make the attack
+            //TODO: Replace above line
         }
         this.attackList = [];
     }
