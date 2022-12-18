@@ -2,7 +2,7 @@ import RoleMafia from './roleMafia.js'
 
 class MafiaRoleblocker extends RoleMafia {
     constructor(room, player) {
-        super('Mafia Roleblocker', 'mafia', room, player, 0, false, false, false, false, false, true, false, true);
+        super('Mafia Roleblocker', 'mafia', room, player, 0, true, false, false, false, false, true, false, true);
         this.attackVote;
     }
 
@@ -32,7 +32,6 @@ class MafiaRoleblocker extends RoleMafia {
 
     cancelNightAction() { //Faction-based classes should override this function
         this.room.io.to(this.player.socketId).emit('receive-message', 'You have cancelled your class\' nighttime action.');
-        this.attackVote = null;
     }
 
     defaultVisit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
