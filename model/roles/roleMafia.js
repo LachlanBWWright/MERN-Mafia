@@ -28,8 +28,28 @@ class RoleMafia extends Role {
         this.attackVote = null;
     }
 
+
+    visit() {
+        if(this.isAttacking) {
+            this.visitOverride();
+        }
+        else {
+            this.defaultVisit();
+        }
+    }
+
     //For when a member of the mafia attacks someone instead of 
-    visit() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
+    visitOverride() { //This visits a role and attacks them. this.visiting is dictated by the faction Class.
+        if(this.visiting != null) {
+            this.visiting.receiveVisit(this);
+            if(this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
+            this.visiting.attackers.push(this);
+        }
+        this.isAttacking = false;
+    }
+
+    //This should be overriden by child classes, unless they can only attack
+    defaultVisit() {
         if(this.visiting != null) {
             this.visiting.receiveVisit(this);
             if(this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
