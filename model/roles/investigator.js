@@ -19,24 +19,19 @@ class Investigator extends Role {
         }
     }
 
-    visit() { //Visits a role, and tries to determine their alignment.
-        try {
-            if(this.visiting != null) {
-                this.visiting.receiveVisit(this);
-                let possibleRoles = [];
-                for(let i = 0; i < 3; i++) {
-                    if(Math.random() < 0.3) { //Give the targets role
-                        possibleRoles.push(this.visiting.name);
-                    }
-                    else { //Give a random player's role
-                        possibleRoles.push(this.room.playerList[Math.floor(Math.random() * this.room.playerList.length)].role.name);
-                    }
-                }                
-                this.room.io.to(this.player.socketId).emit('receive-message', (this.visiting.player.playerUsername + '\'s role might be ' + possibleRoles[0] + ', ' + possibleRoles[1] + ', or ' + possibleRoles[2] + '.'));
-            }
-        }
-        catch (error) {
-            console.log(error);
+    visit() { //Visits a role, and tries to determine their alignment. 
+        if(this.visiting != null) {
+            this.visiting.receiveVisit(this);
+            let possibleRoles = [];
+            for(let i = 0; i < 3; i++) {
+                if(Math.random() < 0.3) { //Give the targets role
+                    possibleRoles.push(this.visiting.name);
+                }
+                else { //Give a random player's role
+                    possibleRoles.push(this.room.playerList[Math.floor(Math.random() * this.room.playerList.length)].role.name);
+                }
+            }                
+            this.room.io.to(this.player.socketId).emit('receive-message', (this.visiting.player.playerUsername + '\'s role might be ' + possibleRoles[0] + ', ' + possibleRoles[1] + ', or ' + possibleRoles[2] + '.'));
         }
     }
 }

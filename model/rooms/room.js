@@ -392,7 +392,7 @@ class Room {
                         this.io.to(this.playerList[i].socketId).emit('receive-message', 'You were roleblocked!');
                         this.playerList[i].role.roleblocked = false;
                     }
-                    else if(this.playerList[i].role.visiting != null) this.playerList[i].role.visit();
+                    else if(this.playerList[i].role.visiting != null && !this.playerList[i].role.roleBlocker) this.playerList[i].role.visit();
                 }
                 //Executes the effects that each visit has
                 for(let i = 0; i < this.playerList.length; i++) if(this.playerList[i].isAlive) this.playerList[i].role.handleVisits(); //Handles actions for certain roles whose behaviour depends on who has visited who.

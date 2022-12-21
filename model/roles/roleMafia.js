@@ -25,9 +25,8 @@ class RoleMafia extends Role {
 
     cancelNightAction() { //Faction-based classes should override this function
         this.room.io.to(this.player.socketId).emit('receive-message', 'You have cancelled your class\' nighttime action.');
-        this.attackVote = null;
+        this.visiting = null;
     }
-
 
     visit() {
         if(this.isAttacking) {
