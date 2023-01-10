@@ -52,13 +52,13 @@ class RoleHandler {
 
         for(let i = 0; i < this.roomSize; i++) { //
             let randomiser = Math.random()*30-15 //Random Integer betweek -15 and 15
-            //For testing specific roles             
-            if(i == 0) {
+            //For testing specific roles, comment out otherwise            
+/*             if(i == 0) {
                 roleList.push(MafiaInvestigator);
                 comparativePower += this.getPower(MafiaInvestigator);
                 randomNeutralList.splice(4, 1);
                 continue;
-            } 
+            }  */
 
             if(comparativePower < 15 && comparativePower > -15) {
                 if(randomiser > comparativePower) { //The weaker the town, the higher the chance of a town member being added
