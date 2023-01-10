@@ -35,6 +35,7 @@ class Role {
         //Role Statuses
         this.roleblocker = roleblocker; //If the class is a roleblocker class, who executes actions before the rest
         this.roleblocked = false; //If the player is being roleblocked at night
+        this.silenced = false; //If silenced by mafia silencer (blocks voting and talking)
         this.dayTapped = false; //If the player is being daytapped (whispers to and fro are sent to tappers)
         this.nightTapped = false; //If the player is being nighttapped (They are warned, and any chat messages are sent to tappers)
         this.jailed = null; //Null if not jailed, reference to the jailor's class if jailed.
@@ -53,7 +54,8 @@ class Role {
     //Handles sending general message
     handleMessage(message) {
         if(this.room.time == 'day') { //Free speaking only at daytime
-            this.room.io.to(this.room.name).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
+            if(this.silenced) this.room.io.to(this.player.socketId).emit('receive-chat-message', 'You have been silenced and cannot talk');
+            else this.room.io.to(this.room.name).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
         }
         else if(this.jailed != null) { //Special logic for jailee-jailor messaging conversation
             this.room.io.to(this.player.socketId).emit('receive-chat-message', (this.player.playerUsername + ': ' + message));
