@@ -8,10 +8,10 @@ class MafiaSilencer extends RoleMafia {
 
     handleNightAction(recipient) { //Vote on who should be attacked
         if(recipient == this.player) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot block yourself.');
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You cannot silence yourself.');
         }
         else if(recipient.playerUsername != undefined && recipient.isAlive) {
-            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to block ' + recipient.playerUsername + '.');
+            this.room.io.to(this.player.socketId).emit('receive-message', 'You have chosen to silence ' + recipient.playerUsername + '.');
             this.visiting = recipient.role;
         }
         else {
