@@ -125,17 +125,17 @@ class Room extends React.Component {
                     <p key={index} style={{ fontWeight: "bold" }}>
                       {msg.text}
                     </p>
-                  ); //0 - Bold message - Announcement
-                else if (msg.type === 1)
-                  return (
-                    <p key={index}>{msg.text}</p>
-                  ); // 1 - Normal Message (No effects)
+                  );
+                //0 - Bold message - Announcement
+                else if (msg.type === 1) return <p key={index}>{msg.text}</p>;
+                // 1 - Normal Message (No effects)
                 else if (msg.type === 2)
                   return (
                     <p key={index} style={{ fontStyle: "italic" }}>
                       {msg.text}
                     </p>
-                  ); // 2 - Whisper Message (Italics)
+                  );
+                // 2 - Whisper Message (Italics)
                 else return <p key={index}>{msg.text}</p>; // Fallback Message (No effects)
               })}
             {this.state.showScrollDown &&

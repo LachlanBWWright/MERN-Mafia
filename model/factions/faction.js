@@ -8,12 +8,10 @@ class Faction {
     for (let i = 0; i < this.memberList.length; i++) {
       this.memberList[i].role.assignFaction(this);
       for (let x = 0; x < this.memberList.length; x++) {
-        this.io
-          .to(this.memberList[x].socketId)
-          .emit("update-faction-role", {
-            name: this.memberList[i].playerUsername,
-            role: this.memberList[i].role.name,
-          });
+        this.io.to(this.memberList[x].socketId).emit("update-faction-role", {
+          name: this.memberList[i].playerUsername,
+          role: this.memberList[i].role.name,
+        });
       }
     }
   }

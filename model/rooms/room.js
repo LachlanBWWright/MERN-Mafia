@@ -180,10 +180,8 @@ class Room {
       let foundPlayer = this.playerList[playerSocket.data.position];
       if (this.started) {
         //If the game has started, handle the message with the role object
-        if (foundPlayer.isAlive)
-          foundPlayer.role.handleMessage(
-            message,
-          ); //Doesn't start with either - send as a regular message
+        if (foundPlayer.isAlive) foundPlayer.role.handleMessage(message);
+        //Doesn't start with either - send as a regular message
         else
           this.io
             .to(playerSocket.id)
@@ -561,11 +559,9 @@ class Room {
                 );
               this.io.to(livingPlayerList[i].socketId).emit("block-messages");
               livingPlayerList[i].isAlive = false;
-              this.io
-                .to(this.name)
-                .emit("update-player-role", {
-                  name: livingPlayerList[i].playerUsername,
-                }); //Marks player as dead client-side, does not reveal their role
+              this.io.to(this.name).emit("update-player-role", {
+                name: livingPlayerList[i].playerUsername,
+              }); //Marks player as dead client-side, does not reveal their role
 
               if (
                 this.framer !== null &&
@@ -615,13 +611,11 @@ class Room {
 
   startNightSession(nightNumber, sessionLength) {
     this.time = "night";
-    this.io
-      .to(this.name)
-      .emit("update-day-time", {
-        time: "Night",
-        dayNumber: nightNumber,
-        timeLeft: 15,
-      }); //TimeLeft is in seconds
+    this.io.to(this.name).emit("update-day-time", {
+      time: "Night",
+      dayNumber: nightNumber,
+      timeLeft: 15,
+    }); //TimeLeft is in seconds
 
     setTimeout(() => {
       try {
