@@ -1,7 +1,9 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import RoleMafia from "./roleMafia.js";
 
 class Mafia extends RoleMafia {
-  constructor(room, player) {
+  constructor(room: Room, player: Player) {
     super(
       "Mafia",
       "mafia",

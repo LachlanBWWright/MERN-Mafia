@@ -1,7 +1,12 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Framer extends Role {
-  constructor(room, player) {
+  victoryCondition = false;
+  target: Player | null = null; //Target to kill (player object)
+  constructor(room: Room, player: Player) {
     super(
       "Framer",
       "neutral",
@@ -17,8 +22,7 @@ class Framer extends Role {
       false,
       false,
     );
-    this.victoryCondition = false;
-    this.target = null; //Target to kill (player object)
+
     this.room.framer = this;
   }
 
@@ -34,14 +38,12 @@ class Framer extends Role {
         this.room.playerList[(index + i) % length].isAlive
       ) {
         this.target = this.room.playerList[(index + i) % length];
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "Your target is " +
-              this.target.playerUsername +
-              ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "Your target is " +
+            this.target.playerUsername +
+            ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
+        );
         break;
       }
     }
@@ -49,7 +51,7 @@ class Framer extends Role {
 
   dayUpdate() {
     //Updates the target
-    if (this.target.isAlive || this.victoryCondition) return; //Nothing happens if the target isn't dead, or the player's already won.
+    if (this.target?.isAlive || this.victoryCondition) return; //Nothing happens if the target isn't dead, or the player's already won.
     let length = this.room.playerList.length;
     let index = Math.floor(Math.random() * length);
     for (let i = 0; i < length; i++) {
@@ -58,14 +60,12 @@ class Framer extends Role {
         this.room.playerList[(index + i) % length].isAlive
       ) {
         this.target = this.room.playerList[(index + i) % length];
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "Your new target is " +
-              this.target.playerUsername +
-              ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "Your new target is " +
+            this.target.playerUsername +
+            ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
+        );
         break;
       }
     }

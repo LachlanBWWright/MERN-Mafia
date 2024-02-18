@@ -1,8 +1,12 @@
 import Role from "./role.js";
+import Room from "../rooms/room.js";
+import Player from "../rooms/player.js";
+import { io } from "../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
 class Vetter extends Role {
-  constructor(room, player) {
+  researchSlots = 3;
+  constructor(room: Room, player: Player) {
     super(
       "Vetter",
       "town",
@@ -18,31 +22,27 @@ class Vetter extends Role {
       false,
       false,
     );
-    this.researchSlots = 3;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (this.researchSlots == 0)
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You have no research sessions left!");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have no research sessions left!",
+      );
     else if (this.visiting == null) {
       this.visiting = this;
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have decided to stay home and research into people's history.",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have decided to stay home and research into people's history.",
+      );
     } else {
       this.visiting = null;
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have decided not to research into people's history.",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have decided not to research into people's history.",
+      );
     }
   }
 
@@ -50,6 +50,7 @@ class Vetter extends Role {
     //Selects two random people to visit
     try {
       //Gets two different players at random
+      if (this.visiting === null) return;
       this.visiting.receiveVisit(this);
       this.researchSlots--;
       let randomPlayerOne = Math.floor(
@@ -65,38 +66,32 @@ class Vetter extends Role {
         );
 
       if (Math.random() > 0.5) {
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You researched into " +
-              this.room.playerList[randomPlayerOne].playerUsername +
-              " and " +
-              this.room.playerList[randomPlayerTwo].playerUsername +
-              ", finding that at least one of them is a " +
-              this.room.playerList[randomPlayerOne].role.name +
-              ".",
-          );
-      } else {
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You researched into " +
-              this.room.playerList[randomPlayerOne].playerUsername +
-              " and " +
-              this.room.playerList[randomPlayerTwo].playerUsername +
-              ", finding that at least one of them is a " +
-              this.room.playerList[randomPlayerTwo].role.name +
-              ".",
-          );
-      }
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
+        io.to(this.player.socketId).emit(
           "receiveMessage",
-          `You have ${this.researchSlots} research sessions left.`,
+          "You researched into " +
+            this.room.playerList[randomPlayerOne].playerUsername +
+            " and " +
+            this.room.playerList[randomPlayerTwo].playerUsername +
+            ", finding that at least one of them is a " +
+            this.room.playerList[randomPlayerOne].role.name +
+            ".",
         );
+      } else {
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You researched into " +
+            this.room.playerList[randomPlayerOne].playerUsername +
+            " and " +
+            this.room.playerList[randomPlayerTwo].playerUsername +
+            ", finding that at least one of them is a " +
+            this.room.playerList[randomPlayerTwo].role.name +
+            ".",
+        );
+      }
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        `You have ${this.researchSlots} research sessions left.`,
+      );
     } catch (error) {
       console.log(error);
     }

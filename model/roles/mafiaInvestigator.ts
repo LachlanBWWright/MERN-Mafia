@@ -1,7 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import RoleMafia from "./roleMafia.js";
+import { io } from "../../servers/socket.js";
 
 class MafiaInvestigator extends RoleMafia {
-  constructor(room, player) {
+  attackVote: Player | null = null;
+  constructor(room: Room, player: Player) {
     super(
       "Mafia Investigator",
       "mafia",
@@ -17,27 +21,23 @@ class MafiaInvestigator extends RoleMafia {
       false,
       true,
     );
-    this.attackVote;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot inspect yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot inspect yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to inspect " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to inspect " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -45,15 +45,13 @@ class MafiaInvestigator extends RoleMafia {
     //This visits a role and attacks them. this.visiting is dictated by the faction Class.
     if (this.visiting != null) {
       this.visiting.receiveVisit(this);
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          this.visiting.player.playerUsername +
-            "'s role is " +
-            this.visiting.name +
-            ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        this.visiting.player.playerUsername +
+          "'s role is " +
+          this.visiting.name +
+          ".",
+      );
     }
   }
 }

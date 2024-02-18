@@ -1,7 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
 
 class Confesser extends Role {
-  constructor(room, player) {
+  victoryCondition: boolean = false;
+
+  constructor(room: Room, player: Player) {
     super(
       "Confesser",
       "neutral",

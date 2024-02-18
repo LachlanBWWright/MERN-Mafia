@@ -3,6 +3,7 @@ import RoleHandler from "../roles/roleHandler.js";
 import Player from "./player.js";
 import mongoose from "mongoose";
 import { PlayerSocket, io } from "../../servers/socket.js";
+import Confesser from "../roles/confesser.js";
 
 const gameSchema = new mongoose.Schema({
   roomName: String,
@@ -55,6 +56,8 @@ class Room {
   peacemaker: any;
 
   gameDB: any;
+
+  confesser?: Confesser;
 
   constructor(size: number) {
     //Data relating to the players in the room

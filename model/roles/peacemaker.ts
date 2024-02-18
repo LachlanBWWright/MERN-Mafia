@@ -1,7 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Peacemaker extends Role {
-  constructor(room, player) {
+  victoryCondition: boolean = false;
+  constructor(room: Room, player: Player) {
     super(
       "Peacemaker",
       "neutral",
@@ -21,24 +25,21 @@ class Peacemaker extends Role {
     this.room.peacemaker = this;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Choose who should be roleblocked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot block yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot block yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to block " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to block " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 

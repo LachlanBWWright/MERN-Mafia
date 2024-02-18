@@ -32,11 +32,14 @@ import Peacemaker from "./peacemaker.js";
 import MafiaFaction from "../factions/mafiaFaction.js";
 import LawmanFaction from "../factions/lawmanFaction.js";
 
+import { io } from "../../servers/socket.js";
+import Player from "../rooms/player.js";
+
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
-  constructor(roomSize, io) {
+  roomSize: number;
+  constructor(roomSize: number) {
     this.roomSize = roomSize;
-    this.io = io;
   }
 
   assignGame() {
@@ -121,19 +124,19 @@ class RoleHandler {
     return roleList;
   }
 
-  assignFactionsFromPlayerList(playerList) {
+  assignFactionsFromPlayerList(playerList: Player[]) {
     let factionList = [];
 
     for (let i = 0; i < playerList.length; i++) {
       if (playerList[i].role.name === "Lawman") {
-        factionList.push(new LawmanFaction(this.io));
+        factionList.push(new LawmanFaction());
         break;
       }
     }
 
     for (let i = 0; i < playerList.length; i++) {
       if (playerList[i].role.group === "mafia") {
-        factionList.push(new MafiaFaction(this.io));
+        factionList.push(new MafiaFaction());
         break;
       }
     }
@@ -142,7 +145,7 @@ class RoleHandler {
   }
 
   //Returns true if a role is unique, so it can be removed from the propsective role list for additional players
-  uniqueRoleCheck(role) {
+  uniqueRoleCheck(role: any) {
     switch (role) {
       //Town
       case Jailor:
@@ -170,7 +173,7 @@ class RoleHandler {
   }
 
   //Returns the extent to which a role helps the town
-  getPower(role) {
+  getPower(role: any) {
     switch (role) {
       //Town Roles
       case Doctor:

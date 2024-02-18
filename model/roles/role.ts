@@ -3,6 +3,7 @@
 import Room from "../rooms/room";
 import { io } from "../../servers/socket";
 import Faction from "../factions/faction";
+import Player from "../rooms/player";
 
 class Role {
   name: string;
@@ -24,17 +25,17 @@ class Role {
   nightVisitFaction: boolean;
   nightVote: boolean;
 
-  dayVisiting: any;
-  roleblocking: any;
-  visiting: any;
-  visitors: any[];
-  attackers: any[];
+  dayVisiting: Role | null;
+  roleblocking: Role | null;
+  visiting: Role | null;
+  visitors: Role[];
+  attackers: Role[];
 
   roleblocker: boolean;
   roleblocked: boolean;
   silenced: boolean;
-  dayTapped: boolean;
-  nightTapped: boolean;
+  dayTapped: Role | boolean;
+  nightTapped: Role | boolean;
   jailed: any;
 
   // Role name, Group Name, SocketIo Room, Player Class, Base Defence, Is Roleblocker, Day visits, night visits
@@ -159,7 +160,7 @@ class Role {
     }
   }
 
-  handleDayAction(recipient) {
+  handleDayAction(recipient: Player) {
     //Handles the class' daytime action
     io.to(this.player.socketId).emit(
       "receiveMessage",
@@ -176,7 +177,7 @@ class Role {
     this.dayVisiting = null;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Handles the class' nighttime action
     io.to(this.player.socketId).emit(
       "receiveMessage",
@@ -184,7 +185,7 @@ class Role {
     );
   }
 
-  handleNightVote(recipient) {
+  handleNightVote(recipient: Player) {
     io.to(this.player.socketId).emit(
       "receiveMessage",
       "Your class has no nighttime factional voting.",

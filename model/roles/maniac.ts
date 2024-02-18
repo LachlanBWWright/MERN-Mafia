@@ -1,7 +1,10 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Maniac extends Role {
-  constructor(room, player) {
+  constructor(room: Room, player: Player) {
     super(
       "Maniac",
       "maniac",
@@ -19,24 +22,21 @@ class Maniac extends Role {
     );
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot attack yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot attack yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to attack " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to attack " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 

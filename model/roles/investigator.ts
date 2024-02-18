@@ -1,8 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
 class Investigator extends Role {
-  constructor(room, player) {
+  constructor(room: Room, player: Player) {
     super(
       "Investigator",
       "town",
@@ -20,24 +23,21 @@ class Investigator extends Role {
     );
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot inspect yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot inspect yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to inspect " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to inspect " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -59,19 +59,17 @@ class Investigator extends Role {
           );
         }
       }
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          this.visiting.player.playerUsername +
-            "'s role might be " +
-            possibleRoles[0] +
-            ", " +
-            possibleRoles[1] +
-            ", or " +
-            possibleRoles[2] +
-            ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        this.visiting.player.playerUsername +
+          "'s role might be " +
+          possibleRoles[0] +
+          ", " +
+          possibleRoles[1] +
+          ", or " +
+          possibleRoles[2] +
+          ".",
+      );
     }
   }
 }

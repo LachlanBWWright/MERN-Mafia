@@ -1,7 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Lawman extends Role {
-  constructor(room, player) {
+  isInsane = false;
+  constructor(room: Room, player: Player) {
     super(
       "Lawman",
       "town",
@@ -17,35 +21,29 @@ class Lawman extends Role {
       false,
       false,
     );
-    this.isInsane = false;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (this.isInsane) {
       //Shoot at random
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have gone insane, and have no control over who you shoot.",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have gone insane, and have no control over who you shoot.",
+      );
     } else if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot shoot yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot shoot yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to attack " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to attack " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -54,12 +52,10 @@ class Lawman extends Role {
       //Visits the person of the player choice
 
       if (this.isInsane)
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You have gone insane, and are shooting someone randomly!",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You have gone insane, and are shooting someone randomly!",
+        );
       if (this.visiting.damage == 0) this.visiting.damage = 1;
       this.visiting.attackers.push(this);
 
@@ -67,12 +63,10 @@ class Lawman extends Role {
       if (this.visiting.group == "town") {
         //Go insane if a member of the town got shot
         this.isInsane = true;
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You just shot a member of the town, and have been driven insane by the guilt!",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You just shot a member of the town, and have been driven insane by the guilt!",
+        );
       }
     }
   }

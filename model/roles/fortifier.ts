@@ -1,7 +1,13 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Fortifier extends Role {
-  constructor(room, player) {
+  playerFortified: Role | null = null;
+  canFortify = true;
+
+  constructor(room: Room, player: Player) {
     super(
       "Fortifier",
       "town",
@@ -17,30 +23,24 @@ class Fortifier extends Role {
       false,
       false,
     );
-
-    this.playerFortified = null;
-    this.canFortify = true;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot fortify your own house.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot fortify your own house.",
+      );
     } else if (
       recipient.playerUsername != undefined &&
       recipient.isAlive &&
       this.canFortify
     ) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to fortify " +
-            recipient.playerUsername +
-            "'s house.",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to fortify " + recipient.playerUsername + "'s house.",
+      );
       this.visiting = recipient.role;
     } else if (this.playerFortified != null) {
       if (
@@ -48,27 +48,21 @@ class Fortifier extends Role {
         this.playerFortified.player.isAlive &&
         !this.canFortify
       ) {
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You have chosen to try and remove " +
-              this.playerFortified.player.playerUsername +
-              "'s fortifications.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You have chosen to try and remove " +
+            this.playerFortified.player.playerUsername +
+            "'s fortifications.",
+        );
         this.visiting = recipient.role;
       } else {
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You cannot remove the fortifications from a dead player's house.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You cannot remove the fortifications from a dead player's house.",
+        );
       }
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -81,39 +75,32 @@ class Fortifier extends Role {
         this.canFortify = false;
         this.visiting.baseDefence += 2;
         this.playerFortified = this.visiting;
-        this.room.io
-          .to(this.playerFortified.player.socketId)
-          .emit("receiveMessage", "Your house has been fortified!");
+        io.to(this.playerFortified.player.socketId).emit(
+          "receiveMessage",
+          "Your house has been fortified!",
+        );
       } else {
         //Attempts to remove fortifications
         this.visiting.baseDefence -= 2;
         if (Math.random() > 0.5) {
-          this.room.io
-            .to(this.player.socketId)
-            .emit(
-              "receiveMessage",
-              "You died stripping the house of your fortifications.",
-            );
-          this.room.io
-            .to(this.playerFortified.player.socketId)
-            .emit(
-              "receiveMessage",
-              `${this.playerFortified.player.playerUsername} died stripping your house of its fortifications.`,
-            );
+          io.to(this.player.socketId).emit(
+            "receiveMessage",
+            "You died stripping the house of your fortifications.",
+          );
+          io.to(this.playerFortified.player.socketId).emit(
+            "receiveMessage",
+            `${this.playerFortified.player.playerUsername} died stripping your house of its fortifications.`,
+          );
           this.damage = 999;
         } else {
-          this.room.io
-            .to(this.player.socketId)
-            .emit(
-              "receiveMessage",
-              "You stripped the house of its fortifications, and killed the owner.",
-            );
-          this.room.io
-            .to(this.playerFortified.player.socketId)
-            .emit(
-              "receiveMessage",
-              "You died trying to stop your house from being stripped of its fortifications.",
-            );
+          io.to(this.player.socketId).emit(
+            "receiveMessage",
+            "You stripped the house of its fortifications, and killed the owner.",
+          );
+          io.to(this.playerFortified.player.socketId).emit(
+            "receiveMessage",
+            "You died trying to stop your house from being stripped of its fortifications.",
+          );
           this.playerFortified.damage = 999;
         }
       }

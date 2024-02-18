@@ -1,7 +1,10 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 class Jailor extends Role {
-  constructor(room, player) {
+  constructor(room: Room, player: Player) {
     super(
       "Jailor",
       "town",
@@ -19,59 +22,55 @@ class Jailor extends Role {
     );
   }
 
-  handleDayAction(recipient) {
+  handleDayAction(recipient: Player) {
     //Choose to jail a player
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot jail yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot jail yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to jail " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to jail " + recipient.playerUsername + ".",
+      );
       this.dayVisiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Choose if the player who is jailed should be executed, or let go
     if (this.dayVisiting == null) {
       //this.visiting = this;
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You haven't jailed anyone, so you cannot do anything.",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You haven't jailed anyone, so you cannot do anything.",
+      );
     } else {
       if (this.visiting == null) {
         //To be exectued
         this.visiting = this.dayVisiting;
-        this.room.io
-          .to(this.player.socketId)
-          .emit("receiveMessage", "You have decided to execute the prisoner.");
-        this.room.io
-          .to(this.dayVisiting.player.socketId)
-          .emit("receiveMessage", "The jailor has decided to execute you");
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You have decided to execute the prisoner.",
+        );
+        io.to(this.dayVisiting.player.socketId).emit(
+          "receiveMessage",
+          "The jailor has decided to execute you",
+        );
       } else {
         //Cancels the execution
         this.visiting = null;
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            "You have decided not to execute the prisoner.",
-          );
-        this.room.io
-          .to(this.dayVisiting.player.socketId)
-          .emit("receiveMessage", "The jailor has decided not to execute you");
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          "You have decided not to execute the prisoner.",
+        );
+        io.to(this.dayVisiting.player.socketId).emit(
+          "receiveMessage",
+          "The jailor has decided not to execute you",
+        );
       }
     }
   }
@@ -79,12 +78,14 @@ class Jailor extends Role {
   dayVisit() {
     //Tells the player that they've been jailed, and roleblocks them. dayVisiting is called at the end of a day session.
     if (this.dayVisiting != null) {
-      this.room.io
-        .to(this.dayVisiting.player.socketId)
-        .emit("receiveMessage", "You have been jailed!");
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You have jailed your target.");
+      io.to(this.dayVisiting.player.socketId).emit(
+        "receiveMessage",
+        "You have been jailed!",
+      );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have jailed your target.",
+      );
       this.dayVisiting.jailed = this;
       this.dayVisiting.roleblocked = true;
     }

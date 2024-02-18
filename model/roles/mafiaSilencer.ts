@@ -1,7 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import RoleMafia from "./roleMafia.js";
+import { io } from "../../servers/socket.js";
 
 class MafiaSilencer extends RoleMafia {
-  constructor(room, player) {
+  attackVote: Player | null = null;
+  constructor(room: Room, player: Player) {
     super(
       "Mafia Silencer",
       "mafia",
@@ -17,27 +21,23 @@ class MafiaSilencer extends RoleMafia {
       false,
       true,
     );
-    this.attackVote;
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot silence yourself.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot silence yourself.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to silence " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to silence " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 

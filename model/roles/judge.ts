@@ -1,8 +1,11 @@
+import Player from "../rooms/player.js";
+import Room from "../rooms/room.js";
 import Role from "./role.js";
+import { io } from "../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
 class Judge extends Role {
-  constructor(room, player) {
+  constructor(room: Room, player: Player) {
     super(
       "Judge",
       "town",
@@ -20,24 +23,21 @@ class Judge extends Role {
     );
   }
 
-  handleNightAction(recipient) {
+  handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "You cannot inspect your own alignment.");
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You cannot inspect your own alignment.",
+      );
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      this.room.io
-        .to(this.player.socketId)
-        .emit(
-          "receiveMessage",
-          "You have chosen to inspect " + recipient.playerUsername + ".",
-        );
+      io.to(this.player.socketId).emit(
+        "receiveMessage",
+        "You have chosen to inspect " + recipient.playerUsername + ".",
+      );
       this.visiting = recipient.role;
     } else {
-      this.room.io
-        .to(this.player.socketId)
-        .emit("receiveMessage", "Invalid choice.");
+      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -54,28 +54,24 @@ class Judge extends Role {
           }
         }
 
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            this.visiting.player.playerUsername +
-              "'s alignment is for the " +
-              livingPlayerList[
-                Math.floor(Math.random() * livingPlayerList.length)
-              ].role.group +
-              " faction.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          this.visiting.player.playerUsername +
+            "'s alignment is for the " +
+            livingPlayerList[
+              Math.floor(Math.random() * livingPlayerList.length)
+            ].role.group +
+            " faction.",
+        );
       } else {
         //Visits the right player, and returns their group (factional alignment)
-        this.room.io
-          .to(this.player.socketId)
-          .emit(
-            "receiveMessage",
-            this.visiting.player.playerUsername +
-              "'s alignment is for the " +
-              this.visiting.group +
-              " faction.",
-          );
+        io.to(this.player.socketId).emit(
+          "receiveMessage",
+          this.visiting.player.playerUsername +
+            "'s alignment is for the " +
+            this.visiting.group +
+            " faction.",
+        );
       }
     }
   }
