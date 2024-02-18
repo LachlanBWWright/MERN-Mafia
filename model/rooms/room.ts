@@ -1,8 +1,8 @@
 import Crypto from "crypto";
-import { MongoKerberosError } from "mongodb";
 import RoleHandler from "../roles/roleHandler.js";
 import Player from "./player.js";
 import mongoose from "mongoose";
+import { io } from "../../servers/socket.js";
 
 const gameSchema = new mongoose.Schema({
   roomName: String,
@@ -37,10 +37,26 @@ const names = [
 ];
 
 class Room {
-  constructor(io, databaseServer, size) {
-    this.io = io; //SocketIo
-    this.databaseServer = databaseServer;
+  name: string;
+  size: number;
+  playerCount: number;
+  playerList: Player[];
 
+  started: boolean;
+  time: "day" | "night" | "";
+  roleList: any[];
+  factionList: any[];
+  sessionLength: number;
+  gameHasEnded: boolean;
+  endDay: number;
+
+  framer: any;
+  confesserVotedOut: boolean;
+  peacemaker: any;
+
+  gameDB: any;
+
+  constructor(size: number) {
     //Data relating to the players in the room
     this.name = Crypto.randomBytes(8).toString("hex"); //Generates the room's name
     this.size = size; //Capacity of the room
@@ -87,22 +103,24 @@ class Room {
 
     this.emitPlayerList(playerSocketId);
 
-    this.io
-      .to(this.name)
-      .emit("receive-message", playerUsername + " has joined the room!");
+    io.to(this.name).emit(
+      "receive-message",
+      playerUsername + " has joined the room!",
+    );
     playerSocket.data.position =
       this.playerList.push(
         new Player(playerSocket, playerSocketId, playerUsername),
       ) - 1; //Adds a player to the array
     this.playerCount = this.playerList.length; //Updates the player count
-    this.io.to(this.name).emit("receive-new-player", { name: playerUsername });
+    io.to(this.name).emit("receive-new-player", { name: playerUsername });
 
     //Starts the game if the room has filled its maximum size
     if (this.playerCount === this.size) {
       this.started = true;
-      this.io
-        .to(this.name)
-        .emit("receive-message", "The room is full! Starting the game!");
+      io.to(this.name).emit(
+        "receive-message",
+        "The room is full! Starting the game!",
+      );
       this.emitPlayerList(this.name);
       this.playerList.forEach((player) =>
         this.gameDB.players.push({ playerName: player.playerUsername }),
@@ -122,27 +140,23 @@ class Room {
         //!gameHasEnded stops leaving messages when the clients are booted when the game ends
         if (!this.started) {
           //Removes the player if the game has not started
-          this.io
-            .to(this.name)
-            .emit("remove-player", { name: this.playerList[i].playerUsername });
-          this.io
-            .to(this.name)
-            .emit(
-              "receive-message",
-              this.playerList[i].playerUsername + " has left the room!",
-            );
+          io.to(this.name).emit("remove-player", {
+            name: this.playerList[i].playerUsername,
+          });
+          io.to(this.name).emit(
+            "receive-message",
+            this.playerList[i].playerUsername + " has left the room!",
+          );
           this.playerList.splice(i, 1);
           for (let x = i; x < this.playerList.length; x++)
             this.playerList[x].socket.data.position = x; //Updates positions
           this.playerCount = this.playerList.length;
         } else {
           //Kills the player if the game has started
-          this.io
-            .to(this.name)
-            .emit(
-              "receive-message",
-              this.playerList[i].playerUsername + " has abandoned the game!",
-            );
+          io.to(this.name).emit(
+            "receive-message",
+            this.playerList[i].playerUsername + " has abandoned the game!",
+          );
           this.playerList[i].role.damage = 999;
         }
       }
@@ -168,7 +182,7 @@ class Room {
             : undefined, //Reveals the role if the player is dead, and the game has started
       });
     }
-    this.io.to(socketId).emit("receive-player-list", playersReturned);
+    io.to(socketId).emit("receive-player-list", playersReturned);
   }
 
   //Handles users sending messages to the chat
@@ -183,23 +197,20 @@ class Room {
         if (foundPlayer.isAlive) foundPlayer.role.handleMessage(message);
         //Doesn't start with either - send as a regular message
         else
-          this.io
-            .to(playerSocket.id)
-            .emit("receive-message", "You cannot speak, as you are dead.");
+          io.to(playerSocket.id).emit(
+            "receive-message",
+            "You cannot speak, as you are dead.",
+          );
       } else
-        this.io
-          .to(this.name)
-          .emit(
-            "receive-chat-message",
-            foundPlayer.playerUsername + ": " + message,
-          ); //If the game hasn't started, no roles have been assigned, just send the message directly
+        io.to(this.name).emit(
+          "receive-chat-message",
+          foundPlayer.playerUsername + ": " + message,
+        ); //If the game hasn't started, no roles have been assigned, just send the message directly
     } catch (error) {
-      this.io
-        .to(playerSocket.id)
-        .emit(
-          "receive-message",
-          "You cannot speak, as you are dead. Or an error occured.",
-        );
+      io.to(playerSocket.id).emit(
+        "receive-message",
+        "You cannot speak, as you are dead. Or an error occured.",
+      );
       console.log(error); //Error is thrown if a player cannot be found
     }
   }
@@ -216,61 +227,59 @@ class Room {
       let foundRecipient = this.playerList[recipient];
 
       if (foundPlayer.hasVoted)
-        this.io
-          .to(playerSocket.id)
-          .emit("receive-message", "You cannot change your vote.");
+        io.to(playerSocket.id).emit(
+          "receive-message",
+          "You cannot change your vote.",
+        );
       else if (foundPlayer === foundRecipient)
-        this.io
-          .to(playerSocket.id)
-          .emit("receive-message", "You cannot vote for yourself.");
+        io.to(playerSocket.id).emit(
+          "receive-message",
+          "You cannot vote for yourself.",
+        );
       else if (this.time != "day") {
         if (foundPlayer.role.nightVote) {
           foundPlayer.hasVoted = true;
           foundPlayer.role.handleNightVote(foundRecipient);
         } else
-          this.io
-            .to(playerSocket.id)
-            .emit("receive-message", "You cannot vote at night.");
-      } else if (this.confesserVotedOut)
-        this.io
-          .to(playerSocket.id)
-          .emit(
+          io.to(playerSocket.id).emit(
             "receive-message",
-            "The town voted out a confessor, disabling voting.",
+            "You cannot vote at night.",
           );
+      } else if (this.confesserVotedOut)
+        io.to(playerSocket.id).emit(
+          "receive-message",
+          "The town voted out a confessor, disabling voting.",
+        );
       else if (foundRecipient.isAlive && !foundPlayer.hasVoted) {
         foundPlayer.hasVoted = true;
         foundRecipient.votesReceived++;
         if (foundRecipient.votesReceived > 1)
-          this.io
-            .to(this.name)
-            .emit(
-              "receive-message",
-              foundPlayer.playerUsername +
-                " has voted for " +
-                foundRecipient.playerUsername +
-                " to be executed! There are " +
-                foundRecipient.votesReceived +
-                " votes for " +
-                foundRecipient.playerUsername +
-                " to be killed.",
-            );
+          io.to(this.name).emit(
+            "receive-message",
+            foundPlayer.playerUsername +
+              " has voted for " +
+              foundRecipient.playerUsername +
+              " to be executed! There are " +
+              foundRecipient.votesReceived +
+              " votes for " +
+              foundRecipient.playerUsername +
+              " to be killed.",
+          );
         else
-          this.io
-            .to(this.name)
-            .emit(
-              "receive-message",
-              foundPlayer.playerUsername +
-                " has voted for " +
-                foundRecipient.playerUsername +
-                " to be executed! There is 1 vote for " +
-                foundRecipient.playerUsername +
-                " to be killed.",
-            );
+          io.to(this.name).emit(
+            "receive-message",
+            foundPlayer.playerUsername +
+              " has voted for " +
+              foundRecipient.playerUsername +
+              " to be executed! There is 1 vote for " +
+              foundRecipient.playerUsername +
+              " to be killed.",
+          );
       } else
-        this.io
-          .to(playerSocket.id)
-          .emit("receive-message", "Your vote was invalid.");
+        io.to(playerSocket.id).emit(
+          "receive-message",
+          "Your vote was invalid.",
+        );
     } catch (error) {
       console.log(error);
     }
@@ -288,74 +297,61 @@ class Room {
       let foundRecipient = this.playerList[recipient];
 
       if (this.time === "night")
-        this.io
-          .to(foundPlayer.socketId)
-          .emit("receive-message", "You cannot whisper at night.");
+        io.to(foundPlayer.socketId).emit(
+          "receive-message",
+          "You cannot whisper at night.",
+        );
       else if (this.time === "day" && foundRecipient.isAlive) {
         if (0.1 > Math.random()) {
           //10% chance of the whisper being overheard by the town.
-          this.io
-            .to(foundPlayer.socketId)
-            .emit(
-              "receive-message",
-              "Your whispers were overheard by the town!",
-            );
-          this.io
-            .to(this.name)
-            .emit(
-              "receive-message",
+          io.to(foundPlayer.socketId).emit(
+            "receive-message",
+            "Your whispers were overheard by the town!",
+          );
+          io.to(this.name).emit(
+            "receive-message",
+            foundPlayer.playerUsername +
+              ' tried to whisper "' +
+              message +
+              '" to ' +
+              foundRecipient.playerUsername +
+              ", but was overheard by the town!",
+          );
+        } else {
+          io.to(foundRecipient.socketId).emit(
+            "receive-whisper-message",
+            "Whisper from " + foundPlayer.playerUsername + ": " + message,
+          );
+          io.to(foundPlayer.socketId).emit(
+            "receive-whisper-message",
+            "Whisper to " + foundRecipient.playerUsername + ": " + message,
+          );
+          if (foundPlayer.role.dayTapped != false)
+            io.to(foundPlayer.role.dayTapped.player.socketId).emit(
+              "receive-whisper-message",
               foundPlayer.playerUsername +
-                ' tried to whisper "' +
+                ' whispered "' +
                 message +
                 '" to ' +
                 foundRecipient.playerUsername +
-                ", but was overheard by the town!",
+                ".",
             );
-        } else {
-          this.io
-            .to(foundRecipient.socketId)
-            .emit(
-              "receive-whisper-message",
-              "Whisper from " + foundPlayer.playerUsername + ": " + message,
-            );
-          this.io
-            .to(foundPlayer.socketId)
-            .emit(
-              "receive-whisper-message",
-              "Whisper to " + foundRecipient.playerUsername + ": " + message,
-            );
-          if (foundPlayer.role.dayTapped != false)
-            this.io
-              .to(foundPlayer.role.dayTapped.player.socketId)
-              .emit(
-                "receive-whisper-message",
-                foundPlayer.playerUsername +
-                  ' whispered "' +
-                  message +
-                  '" to ' +
-                  foundRecipient.playerUsername +
-                  ".",
-              );
           else if (foundRecipient.role.dayTapped != false)
-            this.io
-              .to(foundPlayer.role.dayTapped.player.socketId)
-              .emit(
-                "receive-whisper-message",
-                foundPlayer.playerUsername +
-                  ' whispered "' +
-                  message +
-                  '" to ' +
-                  foundRecipient.playerUsername +
-                  ".",
-              );
+            io.to(foundPlayer.role.dayTapped.player.socketId).emit(
+              "receive-whisper-message",
+              foundPlayer.playerUsername +
+                ' whispered "' +
+                message +
+                '" to ' +
+                foundRecipient.playerUsername +
+                ".",
+            );
         }
       } else
-        this.io
-          .to(foundPlayer.socketId)
-          .emit(
-            "receive-message",
-            "You didn't whisper to a valid recipient, or they are dead.",
-          );
+        io.to(foundPlayer.socketId).emit(
+          "receive-message",
+          "You didn't whisper to a valid recipient, or they are dead.",
+        );
     } catch (error) {
       console.log(error);
     }
@@ -379,12 +375,10 @@ class Room {
         else foundPlayer.role.cancelDayAction();
       } else if (this.time === "night") {
         if (foundPlayer.role.roleblocked)
-          this.io
-            .to(playerSocket.id)
-            .emit(
-              "receive-message",
-              "You are roleblocked, and cannot call commands.",
-            );
+          io.to(playerSocket.id).emit(
+            "receive-message",
+            "You are roleblocked, and cannot call commands.",
+          );
         else {
           if (foundRecipient !== null)
             foundPlayer.role.handleNightAction(foundRecipient);
@@ -397,7 +391,7 @@ class Room {
   }
 
   async startGame() {
-    let roleHandler = new RoleHandler(this.playerCount, this.io);
+    let roleHandler = new RoleHandler(this.playerCount, io);
     this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
 
     //Shuffles the list of roles so that they can be randomly allocated to users
@@ -427,9 +421,10 @@ class Room {
         nightVisitFaction: this.playerList[i].role.nightVisitFaction,
         nightVote: this.playerList[i].role.nightVote,
       };
-      this.io
-        .to(this.playerList[i].socketId)
-        .emit("assign-player-role", playerReturned);
+      io.to(this.playerList[i].socketId).emit(
+        "assign-player-role",
+        playerReturned,
+      );
     }
 
     this.factionList.push(
@@ -451,15 +446,17 @@ class Room {
   //The first day session is shorter than normal.
   startFirstDaySession(sessionLength) {
     this.time = "day";
-    this.io.to(this.name).emit("receive-message", "Day 1 has started.");
-    this.io
-      .to(this.name)
-      .emit("update-day-time", { time: "Day", dayNumber: 1, timeLeft: 5 });
+    io.to(this.name).emit("receive-message", "Day 1 has started.");
+    io.to(this.name).emit("update-day-time", {
+      time: "Day",
+      dayNumber: 1,
+      timeLeft: 5,
+    });
     setTimeout(() => {
       try {
         for (let i = 0; i < this.playerList.length; i++)
           if (this.playerList[i].isAlive) this.playerList[i].role.dayVisit();
-        this.io.to(this.name).emit("receive-message", "Night 1 has started.");
+        io.to(this.name).emit("receive-message", "Night 1 has started.");
       } catch (error) {
         console.log(error);
       }
@@ -471,27 +468,24 @@ class Room {
     this.time = "day";
 
     if (this.endDay <= dayNumber) {
-      this.io
-        .to(this.name)
-        .emit(
-          "receive-message",
-          "Nobody has died in three consecutive days, so the game has ended.",
-        );
+      io.to(this.name).emit(
+        "receive-message",
+        "Nobody has died in three consecutive days, so the game has ended.",
+      );
       if (this.peacemaker !== null) {
         this.peacemaker.victoryCondition = true;
-        this.io
-          .to(this.peacemaker.player.socketId)
-          .emit("receive-message", "You have won the game by causing a tie!");
+        io.to(this.peacemaker.player.socketId).emit(
+          "receive-message",
+          "You have won the game by causing a tie!",
+        );
       }
       this.endGame("nobody");
       return;
     } else if (this.endDay - 1 <= dayNumber) {
-      this.io
-        .to(this.name)
-        .emit(
-          "receive-message",
-          "The game will end in a draw if nobody dies today or tonight.",
-        );
+      io.to(this.name).emit(
+        "receive-message",
+        "The game will end in a draw if nobody dies today or tonight.",
+      );
     }
 
     let dateTimeJson = {
@@ -499,12 +493,13 @@ class Room {
       dayNumber: dayNumber,
       timeLeft: Math.floor(sessionLength / 1000 + 10), //Converts ms to s, adds the 10s minimum
     };
-    this.io.to(this.name).emit("update-day-time", dateTimeJson);
+    io.to(this.name).emit("update-day-time", dateTimeJson);
 
     //Announcements to the game
-    this.io
-      .to(this.name)
-      .emit("receive-message", "Day " + dayNumber + " has started.");
+    io.to(this.name).emit(
+      "receive-message",
+      "Day " + dayNumber + " has started.",
+    );
     let livingPlayerList = [];
     for (let i = 0; i < this.playerList.length; i++) {
       if (this.playerList[i].isAlive) {
@@ -516,12 +511,10 @@ class Room {
     }
 
     let votesRequired = Math.floor(livingPlayerList.length / 2) + 1; //A majority of the players, for an execution to be carried out.
-    this.io
-      .to(this.name)
-      .emit(
-        "receive-message",
-        "It takes " + votesRequired + " votes for the town to kill a player.",
-      );
+    io.to(this.name).emit(
+      "receive-message",
+      "It takes " + votesRequired + " votes for the town to kill a player.",
+    );
 
     setTimeout(() => {
       try {
@@ -532,34 +525,28 @@ class Room {
               this.endDay = dayNumber + 3;
 
               if (livingPlayerList[i].role.name === "Confesser") {
-                this.io
-                  .to(this.name)
-                  .emit(
-                    "receive-message",
-                    livingPlayerList[i].playerUsername +
-                      " was a confesser! Voting has been disabled for the remainder of the game.",
-                  );
+                io.to(this.name).emit(
+                  "receive-message",
+                  livingPlayerList[i].playerUsername +
+                    " was a confesser! Voting has been disabled for the remainder of the game.",
+                );
                 this.confesserVotedOut = true;
                 livingPlayerList[i].role.victoryCondition = true;
-                this.io.to(this.name).emit("disable-voting");
+                io.to(this.name).emit("disable-voting");
               } else
-                this.io
-                  .to(this.name)
-                  .emit(
-                    "receive-message",
-                    livingPlayerList[i].playerUsername +
-                      " has been voted out by the town.",
-                  );
-
-              this.io
-                .to(livingPlayerList[i].socketId)
-                .emit(
+                io.to(this.name).emit(
                   "receive-message",
-                  "You have been voted out of the town.",
+                  livingPlayerList[i].playerUsername +
+                    " has been voted out by the town.",
                 );
-              this.io.to(livingPlayerList[i].socketId).emit("block-messages");
+
+              io.to(livingPlayerList[i].socketId).emit(
+                "receive-message",
+                "You have been voted out of the town.",
+              );
+              io.to(livingPlayerList[i].socketId).emit("block-messages");
               livingPlayerList[i].isAlive = false;
-              this.io.to(this.name).emit("update-player-role", {
+              io.to(this.name).emit("update-player-role", {
                 name: livingPlayerList[i].playerUsername,
               }); //Marks player as dead client-side, does not reveal their role
 
@@ -568,19 +555,18 @@ class Room {
                 this.framer.target === livingPlayerList[i]
               ) {
                 this.framer.victoryCondition = true;
-                this.io
-                  .to(this.framer.player.socketId)
-                  .emit(
-                    "receive-message",
-                    "You have successfully gotten your target voted out!",
-                  );
+                io.to(this.framer.player.socketId).emit(
+                  "receive-message",
+                  "You have successfully gotten your target voted out!",
+                );
               }
             }
           }
 
-        this.io
-          .to(this.name)
-          .emit("receive-message", "Night " + dayNumber + " has started.");
+        io.to(this.name).emit(
+          "receive-message",
+          "Night " + dayNumber + " has started.",
+        );
 
         //Handles day visits
         for (let i = 0; i < this.playerList.length; i++) {
@@ -611,7 +597,7 @@ class Room {
 
   startNightSession(nightNumber, sessionLength) {
     this.time = "night";
-    this.io.to(this.name).emit("update-day-time", {
+    io.to(this.name).emit("update-day-time", {
       time: "Night",
       dayNumber: nightNumber,
       timeLeft: 15,
@@ -639,9 +625,10 @@ class Room {
           ) {
             //Cancels vists for players that were roleblocked, and informs them.
             this.playerList[i].role.visiting = null;
-            this.io
-              .to(this.playerList[i].socketId)
-              .emit("receive-message", "You were roleblocked!");
+            io.to(this.playerList[i].socketId).emit(
+              "receive-message",
+              "You were roleblocked!",
+            );
             this.playerList[i].role.roleblocked = false;
           } else if (
             this.playerList[i].role.visiting != null &&
@@ -698,26 +685,27 @@ class Room {
   endGame(winningFactionName) {
     this.gameHasEnded = true;
     if (winningFactionName == "nobody")
-      this.io
-        .to(this.name)
-        .emit("receive-message", "The game has ended with a draw!");
+      io.to(this.name).emit(
+        "receive-message",
+        "The game has ended with a draw!",
+      );
     else if (winningFactionName == "neutral")
-      this.io
-        .to(this.name)
-        .emit("receive-message", "The neutral players have won!");
+      io.to(this.name).emit("receive-message", "The neutral players have won!");
     else {
       if (winningFactionName.endsWith("s"))
-        this.io
-          .to(this.name)
-          .emit("receive-message", "The " + winningFactionName + " have won!");
+        io.to(this.name).emit(
+          "receive-message",
+          "The " + winningFactionName + " have won!",
+        );
       else
-        this.io
-          .to(this.name)
-          .emit("receive-message", "The " + winningFactionName + " has won!");
+        io.to(this.name).emit(
+          "receive-message",
+          "The " + winningFactionName + " has won!",
+        );
     }
-    this.io.to(this.name).emit("receive-message", "Closing the room!");
-    this.io.to(this.name).emit("block-messages");
-    this.io.in(this.name).disconnectSockets();
+    io.to(this.name).emit("receive-message", "Closing the room!");
+    io.to(this.name).emit("block-messages");
+    io.in(this.name).disconnectSockets();
     this.gameDB.winningFaction = winningFactionName;
     this.gameDB.save();
   }
