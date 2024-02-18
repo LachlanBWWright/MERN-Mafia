@@ -5,7 +5,7 @@ import Room from "./Room";
 import roles from "../info/roles";
 import ReCAPTCHA from "react-google-recaptcha";
 
-function PlayPage(props) {
+export function PlayPage({ debug }: { debug: boolean }) {
   const [playerName, setPlayerName] = useState("");
   const [playerRoom, setPlayerRoom] = useState(false);
   const [playerRole, setPlayerRole] = useState("");
@@ -13,7 +13,8 @@ function PlayPage(props) {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaEntered, setCaptchaEntered] = useState(false);
 
-  const setInGame = useOutletContext();
+  const setInGame: React.Dispatch<React.SetStateAction<boolean>> =
+    useOutletContext();
 
   useEffect(() => {
     setInGame(playerRole !== "");
@@ -90,6 +91,7 @@ function PlayPage(props) {
             <ReCAPTCHA
               sitekey={"6Ld_zH4fAAAAAG24myzdi4un9qbSOtg9J08-xquF"}
               onChange={(token) => {
+                if (token === null) return;
                 setCaptchaToken(token);
                 setCaptchaEntered(true);
               }}
@@ -104,7 +106,7 @@ function PlayPage(props) {
               setPlayerRoom(true);
               setCaptchaEntered(false);
             }}
-            disabled={!captchaEntered && !props.debug}
+            disabled={!captchaEntered && !debug}
           >
             Join A Match!
           </Button>
@@ -113,5 +115,3 @@ function PlayPage(props) {
     );
   }
 }
-
-export default PlayPage;

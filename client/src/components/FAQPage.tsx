@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 
-function FAQPage() {
+export function FAQPage() {
   return (
     <Card style={{ margin: "2vh", flex: 1, overflow: "auto" }}>
       <Card.Body>
@@ -216,5 +216,3 @@ function FAQPage() {
     </Card>
   );
 }
-
-export default FAQPage;

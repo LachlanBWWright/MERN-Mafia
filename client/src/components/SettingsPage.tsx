@@ -1,12 +1,12 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 
-export function FourOFour() {
+export function SettingsPage() {
   return (
     <Card style={{ margin: "2vh", flex: 1 }}>
       <Card.Body>
-        <Card.Title className="text-center">404</Card.Title>
-        <Card.Text>This is the 404 screen. Cool!</Card.Text>
+        <Card.Title className="text-center">Settings</Card.Title>
+        <Card.Text>Settings page.</Card.Text>
       </Card.Body>
     </Card>
   );

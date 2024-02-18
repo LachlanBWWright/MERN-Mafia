@@ -1,87 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { Navbar, Nav } from "react-bootstrap";
 import { Outlet, Link } from "react-router-dom";
 
-class MafSiteNavbar extends React.Component {
-  constructor(props) {
-    super(props);
+export function MafSiteNavbar() {
+  const [inGame, setInGame] = useState(false);
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
+        <Nav>
+          <Navbar.Brand as={Link} to="/" /* disabled={inGame} */>
+            MERN Mafia
+          </Navbar.Brand>
+        </Nav>
 
-    this.state = {
-      isLoggedIn: false,
-      userID: "",
-      name: "",
-      email: "",
-      picture: "",
-      inGame: false,
-    };
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/" disabled={inGame}>
+              Play
+            </Nav.Link>
+            <Nav.Link as={Link} to="/faq" disabled={inGame}>
+              FAQ
+            </Nav.Link>
+            <Nav.Link as={Link} to="/roles" disabled={inGame}>
+              Roles
+            </Nav.Link>
+            <Nav.Link as={Link} to="/stats" disabled={inGame}>
+              Stats
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
 
-    this.setInGame = this.setInGame.bind(this);
-  }
-
-  setInGame(inGame) {
-    this.setState({
-      inGame: inGame,
-    });
-  }
-
-  render() {
-    return (
+        <Nav>
+          <Nav.Link as={Link} to="/settings" disabled={inGame}>
+            Settings
+          </Nav.Link>
+          {/* <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={inGame}>Login Placeholder</Nav.Link> */}
+        </Nav>
+      </Navbar>
       <div
         style={{
-          width: "100%",
-          height: "100vh",
           flex: 1,
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
         }}
       >
-        <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
-          <Nav>
-            <Navbar.Brand as={Link} to="/" disabled={this.state.inGame}>
-              MERN Mafia
-            </Navbar.Brand>
-          </Nav>
-
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/" disabled={this.state.inGame}>
-                Play
-              </Nav.Link>
-              <Nav.Link as={Link} to="/faq" disabled={this.state.inGame}>
-                FAQ
-              </Nav.Link>
-              <Nav.Link as={Link} to="/roles" disabled={this.state.inGame}>
-                Roles
-              </Nav.Link>
-              <Nav.Link as={Link} to="/stats" disabled={this.state.inGame}>
-                Stats
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-          {!this.state.isLoggedIn && (
-            <Nav>
-              <Nav.Link as={Link} to="/settings" disabled={this.state.inGame}>
-                Settings
-              </Nav.Link>
-              {/* <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={this.state.inGame}>Login Placeholder</Nav.Link> */}
-            </Nav>
-          )}
-        </Navbar>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
-          <Outlet context={this.setInGame} />
-        </div>
+        <Outlet context={setInGame} />
       </div>
-    );
-  }
+    </div>
+  );
 }
-
-export default MafSiteNavbar;

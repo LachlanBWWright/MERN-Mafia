@@ -79,7 +79,7 @@ class Fortifier extends Role {
           "receiveMessage",
           "Your house has been fortified!",
         );
-      } else {
+      } else if (this.playerFortified !== null) {
         //Attempts to remove fortifications
         this.visiting.baseDefence -= 2;
         if (Math.random() > 0.5) {
@@ -109,7 +109,7 @@ class Fortifier extends Role {
 
   handleVisits() {
     //Attacks the attackers of the fortified person's house
-    if (this.playerFortified != null) {
+    if (this.playerFortified != null && this.visiting !== null) {
       for (let i = 0; i < this.playerFortified.attackers.length; i++) {
         if (
           this.visiting.attackers[i] != this &&

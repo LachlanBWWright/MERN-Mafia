@@ -149,7 +149,7 @@ class Role {
       //Calls the function for handling the night chat.
       try {
         this.faction.handleNightMessage(message, this.player.playerUsername);
-        if (this.nightTapped != false)
+        if (this.nightTapped != false && this.nightTapped !== true)
           io.to(this.nightTapped.player.socketId).emit(
             "receive-chat-message",
             this.player.playerUsername + ": " + message,
@@ -201,7 +201,7 @@ class Role {
     this.visiting = null;
   }
 
-  receiveVisit(role) {
+  receiveVisit(role: Role) {
     //Called by another player visiting at day
     this.visitors.push(role);
   }
@@ -224,10 +224,10 @@ class Role {
       this.damage = 0; //Stops the player from being spammed with death messages after they die.
       this.attackers = [];
 
-      let tempPlayer = {};
-      tempPlayer.name = this.player.playerUsername;
-      tempPlayer.role = this.name;
-      io.to(this.room.name).emit("update-player-role", tempPlayer);
+      io.to(this.room.name).emit("update-player-role", {
+        name: this.player.playerUsername,
+        role: this.name,
+      });
       return true;
     }
     //Resets stats
@@ -245,7 +245,7 @@ class Role {
   //These should be overriden by child classes if applicable
   dayVisit() {} //Visit another player (Day)
   visit() {} //Visit another player (Night)
-  receiveDayVisit(role) {} //Called by another player visiting at night
+  receiveDayVisit(role: Role) {} //Called by another player visiting at night
   handleDayVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
   handleVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
 }

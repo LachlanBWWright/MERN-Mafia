@@ -407,7 +407,7 @@ class Room {
   }
 
   async startGame() {
-    let roleHandler = new RoleHandler(this.playerCount, io);
+    let roleHandler = new RoleHandler(this.playerCount);
     this.roleList.push(...roleHandler.assignGame()); //The function returns an array of 'roles' classes, and appends them to the empty rolelist array
 
     //Shuffles the list of roles so that they can be randomly allocated to users
