@@ -12,7 +12,7 @@ import axios from "axios";
 const __dirname = path.resolve();
 
 //Server setup
-const roomSize = parseInt(process.env.ROOM_SIZE || 13, 10);
+const roomSize = parseInt(process.env.ROOM_SIZE || "13", 10);
 const port = process.env.PORT || 8000;
 const debug = process.env.debug == "true";
 const app = express();
@@ -21,6 +21,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname + "/client/build"))); //Serves the web app
 
 //const databaseServer = new MongoClient(process.env.ATLAS_URI) //TODO: ADD proper url
+if (process.env.ATLAS_URI == undefined)
+  throw new Error("ATLAS_URI not defined in .env file");
 mongoose.connect(process.env.ATLAS_URI);
 
 const httpServer = createServer(app);
@@ -115,7 +117,7 @@ io.on("connection", (socket) => {
 });
 
 //For serving up the react app
-app.get("*", (req, res) => {
+app.get("*", (_, res) => {
   res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
 
