@@ -24,19 +24,19 @@ class Jailor extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot jail yourself.");
+        .emit("receiveMessage", "You cannot jail yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to jail " + recipient.playerUsername + ".",
         );
       this.dayVisiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -47,7 +47,7 @@ class Jailor extends Role {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You haven't jailed anyone, so you cannot do anything.",
         );
     } else {
@@ -56,22 +56,22 @@ class Jailor extends Role {
         this.visiting = this.dayVisiting;
         this.room.io
           .to(this.player.socketId)
-          .emit("receive-message", "You have decided to execute the prisoner.");
+          .emit("receiveMessage", "You have decided to execute the prisoner.");
         this.room.io
           .to(this.dayVisiting.player.socketId)
-          .emit("receive-message", "The jailor has decided to execute you");
+          .emit("receiveMessage", "The jailor has decided to execute you");
       } else {
         //Cancels the execution
         this.visiting = null;
         this.room.io
           .to(this.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "You have decided not to execute the prisoner.",
           );
         this.room.io
           .to(this.dayVisiting.player.socketId)
-          .emit("receive-message", "The jailor has decided not to execute you");
+          .emit("receiveMessage", "The jailor has decided not to execute you");
       }
     }
   }
@@ -81,10 +81,10 @@ class Jailor extends Role {
     if (this.dayVisiting != null) {
       this.room.io
         .to(this.dayVisiting.player.socketId)
-        .emit("receive-message", "You have been jailed!");
+        .emit("receiveMessage", "You have been jailed!");
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have jailed your target.");
+        .emit("receiveMessage", "You have jailed your target.");
       this.dayVisiting.jailed = this;
       this.dayVisiting.roleblocked = true;
     }

@@ -1,9 +1,9 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import axios from "axios";
 import { httpServer } from "./httpServer";
 import Room from "../model/rooms/room";
 
-export interface ClientToServerEvents {
+export type ClientToServerEvents = {
   playerJoinRoom: (
     captchaToken: string,
     cb: (result: number) => void,
@@ -13,19 +13,56 @@ export interface ClientToServerEvents {
   handleVote: (recipient: number, isDay: boolean) => void;
   handleVisit: (recipient: number | null, isDay: boolean) => void;
   handleWhisper: (recipient: number, message: string, isDay: boolean) => void;
-}
+};
 
-export interface ServerToClientEvents {}
+type PlayerList = {
+  name: string;
+  isAlive: boolean | undefined;
+  role: any;
+};
 
-export interface InterServerEvents {}
+type PlayerReturned = {
+  name: string;
+  role: string;
+  dayVisitSelf: boolean;
+  dayVisitOthers: boolean;
+  dayVisitFaction: boolean;
+  nightVisitSelf: boolean;
+  nightVisitOthers: boolean;
+  nightVisitFaction: boolean;
+  nightVote: boolean;
+};
 
-export interface SocketData {
+export type ServerToClientEvents = {
+  //receive-message
+  receiveMessage: (message: string) => void;
+  blockMessages: () => void;
+  "receive-new-player": (player: { name: string }) => void;
+  "remove-player": (player: { name: string }) => void;
+  "receive-player-list": (playerList: PlayerList[]) => void;
+  "receive-chat-message": (message: string) => void;
+  "receive-whisper-message": (message: string) => void;
+  "update-day-time": (data: {
+    time: string;
+    dayNumber: number;
+    timeLeft: number;
+  }) => void;
+  "disable-voting": () => void;
+  "update-player-role": (data: { name: string; role?: string }) => void;
+  "assign-player-role": (data: PlayerReturned) => void;
+  "update-faction-role": (data: { name: string; role: string }) => void;
+};
+
+export type InterServerEvents = {};
+
+export type SocketData = {
   roomObject: Room;
-}
+  position: number;
+};
 
 export const io = new Server<
-  ServerToClientEvents,
   ClientToServerEvents,
+  ServerToClientEvents,
   InterServerEvents,
   SocketData
 >(httpServer, {
@@ -38,6 +75,13 @@ const playRoom: { current: Room | undefined } = {
   current: undefined,
 };
 
+export type PlayerSocket = Socket<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>;
+
 export function addSocketListeners(
   io: Server<
     ClientToServerEvents,
@@ -47,7 +91,7 @@ export function addSocketListeners(
   >,
   roomSize: number,
 ) {
-  io.on("connection", (socket) => {
+  io.on("connection", (socket: PlayerSocket) => {
     //Handle players joining a room
     socket.on("playerJoinRoom", async (captchaToken: string, cb: any) => {
       try {

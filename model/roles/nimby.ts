@@ -25,17 +25,17 @@ class Nimby extends Role {
     if (this.alertSlots == 0)
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have no alerts left!");
+        .emit("receiveMessage", "You have no alerts left!");
     else if (this.visiting == null) {
       this.visiting = this;
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have decided to go on alert.");
+        .emit("receiveMessage", "You have decided to go on alert.");
     } else {
       this.visiting = null;
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have decided not to go on alert.");
+        .emit("receiveMessage", "You have decided not to go on alert.");
     }
   }
 

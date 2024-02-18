@@ -25,19 +25,19 @@ class Sniper extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot snipe yourself.");
+        .emit("receiveMessage", "You cannot snipe yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to snipe " + recipient.playerUsername + ".",
         );
       this.visiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 

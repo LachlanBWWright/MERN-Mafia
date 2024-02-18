@@ -25,19 +25,19 @@ class Investigator extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot inspect yourself.");
+        .emit("receiveMessage", "You cannot inspect yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to inspect " + recipient.playerUsername + ".",
         );
       this.visiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -62,7 +62,7 @@ class Investigator extends Role {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           this.visiting.player.playerUsername +
             "'s role might be " +
             possibleRoles[0] +

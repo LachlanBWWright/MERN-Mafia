@@ -311,7 +311,7 @@ class Room extends React.Component {
       console.log("You connected to the socket with ID " + this.socket.id);
     });
 
-    this.socket.on("receive-message", (inMsg) => {
+    this.socket.on("receiveMessage", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
       let msg = {
         type: 0,
@@ -488,7 +488,7 @@ class Room extends React.Component {
       this.setState({ votingDisabled: true });
     });
 
-    this.socket.on("block-messages", () => {
+    this.socket.on("blockMessages", () => {
       this.setState({ canTalk: false });
     });
 
@@ -523,10 +523,10 @@ class Room extends React.Component {
   componentWillUnmount() {
     this.scrollRef.current.removeEventListener("scroll", this.scrollEvent);
 
-    this.socket.off("receive-message");
+    this.socket.off("receiveMessage");
     this.socket.off("receive-chat-message");
     this.socket.off("receive-whisper-message");
-    this.socket.off("block-messages");
+    this.socket.off("blockMessages");
     this.socket.off("receive-role");
     this.socket.off("receive-player-list");
     this.socket.off("receive-new-player");
@@ -534,7 +534,6 @@ class Room extends React.Component {
     this.socket.off("update-player-role");
     this.socket.off("update-player-visit");
     this.socket.off("update-day-time");
-    this.socket.off("block-messages");
     this.socket.disconnect();
   }
 }

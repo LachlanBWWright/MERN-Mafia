@@ -1,13 +1,12 @@
 import Faction from "./faction.js";
+import { io } from "../../servers/socket.js";
+import Player from "../rooms/player.js";
+import Role from "../roles/role.js";
 
 class MafiaFaction extends Faction {
-  constructor(io) {
-    super(io);
+  attackList: Player[] = [];
 
-    this.attackList = []; //The list of who should be attacked
-  }
-
-  findMembers(playerList) {
+  findMembers(playerList: Player[]) {
     //Go through a list of members, add them to the this.memberList
     for (let i = 0; i < playerList.length; i++) {
       if (playerList[i].role.group == "mafia") {
@@ -39,26 +38,27 @@ class MafiaFaction extends Faction {
     this.attackList = [];
   }
 
-  handleNightMessage(message, playerUsername) {
+  handleNightMessage(message: string, playerUsername: string) {
     //Mafia only chat
     let nightMessage = playerUsername + ": " + message;
 
     //Sends the message to every member of the faction.
     for (let i = 0; i < this.memberList.length; i++) {
-      this.io
-        .to(this.memberList[i].socketId)
-        .emit("receive-chat-message", nightMessage);
+      io.to(this.memberList[i].socketId).emit(
+        "receive-chat-message",
+        nightMessage,
+      );
     }
   }
 
-  sendMessage(message) {
+  sendMessage(message: string) {
     for (let i = 0; i < this.memberList.length; i++) {
-      this.io.to(this.memberList[i].socketId).emit("receive-message", message);
+      io.to(this.memberList[i].socketId).emit("receiveMessage", message);
     }
   }
 
   //For overriding a class' visiting behaviour
-  visit(role) {
+  visit(role: Role) {
     if (role.visiting != null) {
       role.visiting.receiveVisit(role);
       if (role.visiting.damage == 0) role.visiting.damage = 1; //Attacks the victim

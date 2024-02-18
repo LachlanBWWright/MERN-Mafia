@@ -24,19 +24,19 @@ class Sacrificer extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot protect yourself.");
+        .emit("receiveMessage", "You cannot protect yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to protect " + recipient.playerUsername + ".",
         );
       this.visiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -51,11 +51,11 @@ class Sacrificer extends Role {
       this.visiting.defence = 3;
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have died protecting your target.");
+        .emit("receiveMessage", "You have died protecting your target.");
       this.room.io
         .to(this.visiting.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You were attacked, but were saved by a sacrificer!",
         );
       this.damage = 99; //Makes the sacrificer die
@@ -63,7 +63,7 @@ class Sacrificer extends Role {
         this.room.io
           .to(this.visiting.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "You were attacked by " +
               this.visiting.attackers[i].player.playerUsername +
               ", whose role is: " +

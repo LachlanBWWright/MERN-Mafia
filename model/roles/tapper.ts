@@ -24,19 +24,19 @@ class Tapper extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot tap yourself.");
+        .emit("receiveMessage", "You cannot tap yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to tap " + recipient.playerUsername + ".",
         );
       this.dayVisiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -45,19 +45,19 @@ class Tapper extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot tap yourself.");
+        .emit("receiveMessage", "You cannot tap yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to tap " + recipient.playerUsername + ".",
         );
       this.visiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -67,7 +67,7 @@ class Tapper extends Role {
       this.room.io
         .to(this.dayVisiting.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have been wiretapped! Any message you send can be heard by a tapper.",
         );
       this.dayVisiting.receiveDayVisit(this);

@@ -26,13 +26,13 @@ class Vetter extends Role {
     if (this.researchSlots == 0)
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You have no research sessions left!");
+        .emit("receiveMessage", "You have no research sessions left!");
     else if (this.visiting == null) {
       this.visiting = this;
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have decided to stay home and research into people's history.",
         );
     } else {
@@ -40,7 +40,7 @@ class Vetter extends Role {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have decided not to research into people's history.",
         );
     }
@@ -68,7 +68,7 @@ class Vetter extends Role {
         this.room.io
           .to(this.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "You researched into " +
               this.room.playerList[randomPlayerOne].playerUsername +
               " and " +
@@ -81,7 +81,7 @@ class Vetter extends Role {
         this.room.io
           .to(this.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "You researched into " +
               this.room.playerList[randomPlayerOne].playerUsername +
               " and " +
@@ -94,7 +94,7 @@ class Vetter extends Role {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           `You have ${this.researchSlots} research sessions left.`,
         );
     } catch (error) {

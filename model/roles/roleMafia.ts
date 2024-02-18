@@ -53,7 +53,7 @@ class RoleMafia extends Role {
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid Vote.");
+        .emit("receiveMessage", "Invalid Vote.");
     }
   }
 
@@ -67,7 +67,7 @@ class RoleMafia extends Role {
     this.room.io
       .to(this.player.socketId)
       .emit(
-        "receive-message",
+        "receiveMessage",
         "You have cancelled your class' nighttime action.",
       );
     this.visiting = null;
@@ -89,7 +89,7 @@ class RoleMafia extends Role {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have been chosen to do the mafia's dirty work.",
         );
       this.visiting.receiveVisit(this);

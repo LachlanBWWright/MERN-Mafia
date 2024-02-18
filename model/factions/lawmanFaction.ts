@@ -1,13 +1,12 @@
+import Player from "../rooms/player.js";
 import Faction from "./faction.js";
+import Room from "../rooms/room.js";
+import { io } from "../../servers/socket.js";
 
 class LawmanFaction extends Faction {
-  constructor(io) {
-    super(io);
+  room?: Room;
 
-    this.room;
-  }
-
-  findMembers(playerList) {
+  findMembers(playerList: Player[]) {
     //Go through a list of members, add them to the this.memberList
     for (let i = 0; i < playerList.length; i++) {
       if (playerList[i].role.name == "Lawman") {
@@ -22,6 +21,7 @@ class LawmanFaction extends Faction {
 
   handleNightVote() {
     //Called at the end of the night. Forces a random visit for insane members.
+    if (this.room === undefined) return;
     for (let i = 0; i < this.memberList.length; i++) {
       if (this.memberList[i].role.isInsane) {
         //Selects a random person to visit
@@ -45,20 +45,21 @@ class LawmanFaction extends Faction {
     }
   }
 
-  handleNightMessage(message, playerUsername) {
+  handleNightMessage(message: string, playerUsername: string) {
     //Tells the player that they cannot speak at night.
     for (let i = 0; i < this.memberList.length; i++) {
       if (this.memberList[i].playerUsername == playerUsername) {
-        this.io
-          .to(this.memberList[i].socketId)
-          .emit("receive-message", "You cannot speak at night.");
+        io.to(this.memberList[i].socketId).emit(
+          "receiveMessage",
+          "You cannot speak at night.",
+        );
       }
     }
   }
 
-  sendMessage(message) {
+  sendMessage(message: string) {
     for (let i = 0; i < this.memberList.length; i++) {
-      this.io.to(this.memberList[i].socketId).emit("receive-message", message);
+      io.to(this.memberList[i].socketId).emit("receiveMessage", message);
     }
   }
 

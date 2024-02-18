@@ -24,19 +24,19 @@ class Watchman extends Role {
     if (recipient == this.player) {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "You cannot watch yourself.");
+        .emit("receiveMessage", "You cannot watch yourself.");
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
       this.room.io
         .to(this.player.socketId)
         .emit(
-          "receive-message",
+          "receiveMessage",
           "You have chosen to watch " + recipient.playerUsername + ".",
         );
       this.visiting = recipient.role;
     } else {
       this.room.io
         .to(this.player.socketId)
-        .emit("receive-message", "Invalid choice.");
+        .emit("receiveMessage", "Invalid choice.");
     }
   }
 
@@ -55,7 +55,7 @@ class Watchman extends Role {
           //Tells the player that nobody's visited their target - The one visiter being the watchman themself.
           this.room.io
             .to(this.player.socketId)
-            .emit("receive-message", "Nobody visited your target.");
+            .emit("receiveMessage", "Nobody visited your target.");
         } else if (allVisitors == 2) {
           let alibi =
             this.room.playerList[
@@ -72,7 +72,7 @@ class Watchman extends Role {
               this.room.io
                 .to(this.player.socketId)
                 .emit(
-                  "receive-message",
+                  "receiveMessage",
                   "Your target was visited by " +
                     this.visiting.visitors[1].player.playerUsername +
                     ".",
@@ -81,7 +81,7 @@ class Watchman extends Role {
               this.room.io
                 .to(this.player.socketId)
                 .emit(
-                  "receive-message",
+                  "receiveMessage",
                   "Your target was visited by " +
                     this.visiting.visitors[0].player.playerUsername +
                     ".",
@@ -100,7 +100,7 @@ class Watchman extends Role {
               this.room.io
                 .to(this.player.socketId)
                 .emit(
-                  "receive-message",
+                  "receiveMessage",
                   "Your target was visited by " +
                     realVisitor.player.playerUsername +
                     " or " +
@@ -111,7 +111,7 @@ class Watchman extends Role {
               this.room.io
                 .to(this.player.socketId)
                 .emit(
-                  "receive-message",
+                  "receiveMessage",
                   "Your target was visited by " +
                     alibi.player.playerUsername +
                     " or " +
@@ -145,7 +145,7 @@ class Watchman extends Role {
           );
           this.room.io
             .to(this.player.socketId)
-            .emit("receive-message", visitorAnnouncement);
+            .emit("receiveMessage", visitorAnnouncement);
         }
       }
     } catch (error) {

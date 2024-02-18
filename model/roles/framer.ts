@@ -37,7 +37,7 @@ class Framer extends Role {
         this.room.io
           .to(this.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "Your target is " +
               this.target.playerUsername +
               ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
@@ -61,7 +61,7 @@ class Framer extends Role {
         this.room.io
           .to(this.player.socketId)
           .emit(
-            "receive-message",
+            "receiveMessage",
             "Your new target is " +
               this.target.playerUsername +
               ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
