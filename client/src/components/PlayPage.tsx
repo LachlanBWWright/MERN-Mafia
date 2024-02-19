@@ -58,7 +58,6 @@ export function PlayPage({ debug }: { debug: boolean }) {
             setName={setPlayerName}
             setRoom={setPlayerRoom}
             setRole={setPlayerRole}
-            style={{ flex: 1, display: "flex" }}
           />
         </Card.Body>
       </Card>

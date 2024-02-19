@@ -1,7 +1,140 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ListGroup, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 
-class PlayerItem extends React.Component {
+export default function PlayerItem(props: any) {
+  const [variant, setVariant] = useState("");
+  const [canWhisper, setCanWhisper] = useState(false);
+  const [canVisit, setCanVisit] = useState(false);
+
+  function canVisitFn() {
+    //For now, if the player's role is known, they are interpreted as a member of the same faction
+    if (!props.canTalk || !canVisit) return false;
+    if (props.time === "Day") {
+      if (props.canVisit[0] && props.isAlive && props.isUser) return true;
+      else if (
+        props.canVisit[1] &&
+        props.isAlive &&
+        props.role === undefined &&
+        !props.isUser
+      )
+        return true;
+      else if (
+        props.canVisit[2] &&
+        props.isAlive &&
+        props.role !== undefined &&
+        !props.isUser
+      )
+        return true;
+    } else if (props.time === "Night") {
+      if (props.canVisit[3] && props.isAlive && props.isUser) return true;
+      else if (
+        props.canVisit[4] &&
+        props.isAlive &&
+        props.role === undefined &&
+        !props.isUser
+      )
+        return true;
+      else if (
+        props.canVisit[5] &&
+        props.isAlive &&
+        props.role !== undefined &&
+        !props.isUser
+      )
+        return true;
+    }
+    return false;
+  }
+
+  function canVoteFn() {
+    if (
+      !props.votingDisabled &&
+      props.votingFor === null &&
+      props.canTalk &&
+      props.time === "Day" &&
+      props.dayNumber !== 1 &&
+      props.isAlive &&
+      !props.isUser
+    )
+      return true;
+    if (
+      props.time === "Night" &&
+      props.votingFor === null &&
+      props.canNightVote &&
+      props.isAlive &&
+      props.role === undefined &&
+      !props.isUser
+    )
+      return true;
+    return false;
+  }
+
+  function canWhisperFn() {
+    return (
+      props.canTalk &&
+      canWhisper &&
+      props.time === "Day" &&
+      props.dayNumber !== 1 &&
+      (props.whisperingTo === null || props.whisperingTo === props.index)
+    );
+  }
+
+  useEffect(() => {
+    if (props.isAlive) {
+      setVariant("primary");
+      setCanVisit(true);
+      if (props.isUser) setCanWhisper(false);
+      else setCanWhisper(true);
+    } else {
+      setVariant("danger");
+      setCanVisit(false);
+      setCanWhisper(false);
+    }
+  }, [props.isAlive, props.isUser]);
+
+  return (
+    <ListGroup.Item variant={variant}>
+      <Row>
+        <Col>
+          {props.username} {props.role !== undefined ? `(${props.role})` : ""}
+        </Col>
+        <Col md="auto">
+          <ButtonGroup size="sm">
+            {canWhisperFn() && (
+              <Button
+                variant={
+                  props.whisperingTo === props.index ? "success" : "primary"
+                }
+                onClick={() => props.openWhisperMenu(props.index)}
+              >
+                🗩
+              </Button>
+            )}
+            {canVoteFn() && (
+              <Button
+                variant={
+                  props.votingFor === props.index ? "success" : "primary"
+                }
+                onClick={() => props.handleVote(props.index)}
+              >
+                ☑
+              </Button>
+            )}
+            {canVisitFn() && (
+              <Button
+                variant={props.visiting === props.index ? "success" : "primary"}
+                onClick={() => props.handleVisit(props.index)}
+              >
+                ◎
+              </Button>
+            )}
+          </ButtonGroup>
+        </Col>
+      </Row>
+    </ListGroup.Item>
+  );
+}
+
+/* class PlayerItem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -165,3 +298,4 @@ class PlayerItem extends React.Component {
 }
 
 export default PlayerItem;
+ */
