@@ -10,7 +10,7 @@ export type ClientToServerEvents = {
   ) => Promise<void>;
   disconnect: () => void;
   messageSentByUser: (message: string, isDay: boolean) => void;
-  handleVote: (recipient: number, isDay: boolean) => void;
+  handleVote: (recipient: number | null, isDay: boolean) => void;
   handleVisit: (recipient: number | null, isDay: boolean) => void;
   handleWhisper: (recipient: number, message: string, isDay: boolean) => void;
 };
@@ -51,6 +51,8 @@ export type ServerToClientEvents = {
   "update-player-role": (data: { name: string; role?: string }) => void;
   "assign-player-role": (data: PlayerReturned) => void;
   "update-faction-role": (data: { name: string; role: string }) => void;
+  "receive-role": (role: string) => void;
+  "update-player-visit": () => void;
 };
 
 export type InterServerEvents = {};
