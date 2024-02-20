@@ -1,5 +1,5 @@
-import { io } from "../../servers/socket";
-import Player from "../rooms/player";
+import { io } from "../../servers/socket.js";
+import Player from "../rooms/player.js";
 
 abstract class Faction {
   memberList: Player[] = [];

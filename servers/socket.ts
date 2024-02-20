@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import axios from "axios";
-import { httpServer } from "./httpServer";
-import Room from "../model/rooms/room";
+import { httpServer } from "./httpServer.js";
+import Room from "../model/rooms/room.js";
 
 export type ClientToServerEvents = {
   playerJoinRoom: (
@@ -164,7 +164,7 @@ export function addSocketListeners(
     });
 
     //Handles a player whispering to another player - Recipient is the player's position in the array
-    socket.on("handleWhisper", (recipient, message: string, isDay: boolean) => {
+    socket.on("handleWhisper", (recipient, message, isDay) => {
       try {
         if (
           typeof recipient === "number" &&

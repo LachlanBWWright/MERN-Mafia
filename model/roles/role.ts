@@ -1,9 +1,9 @@
 //This is the base class for a role
 
-import Room from "../rooms/room";
-import { io } from "../../servers/socket";
-import Faction from "../factions/faction";
-import Player from "../rooms/player";
+import Room from "../rooms/room.js";
+import { io } from "../../servers/socket.js";
+import Faction from "../factions/faction.js";
+import Player from "../rooms/player.js";
 
 class Role {
   name: string;

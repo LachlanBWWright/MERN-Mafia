@@ -1,4 +1,4 @@
-import { PlayerSocket } from "../../servers/socket";
+import { PlayerSocket } from "../../servers/socket.js";
 
 class Player {
   socket: PlayerSocket;
