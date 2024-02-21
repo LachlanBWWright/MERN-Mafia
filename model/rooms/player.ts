@@ -1,10 +1,12 @@
 import { PlayerSocket } from "../../servers/socket.js";
+import Role from "../roles/role.js";
+import RoleChild from "../roles/roleChild.js";
 
 class Player {
   socket: PlayerSocket;
   socketId: string;
   playerUsername: string;
-  role: any; //The player's role class
+  role: any;
   isAlive: boolean;
   hasVoted: boolean;
   votesReceived: number;

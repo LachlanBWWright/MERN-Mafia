@@ -9,9 +9,9 @@ class RoleMafia extends Role {
 
   constructor(
     name: string,
-    group: any,
+    group: "mafia",
     room: Room,
-    player: any,
+    player: Player,
     baseDefence: number,
     roleblocker: boolean,
     dayVisitSelf: boolean,
@@ -25,7 +25,7 @@ class RoleMafia extends Role {
     //Group is kept as a constructor parameter for consistency, but mafia classes will always be in the 'mafia' group.
     super(
       name,
-      "mafia",
+      group,
       room,
       player,
       baseDefence,

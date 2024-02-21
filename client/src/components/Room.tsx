@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import io from "socket.io-client"; /* '../socket' */
 import { Form, Button, ListGroup } from "react-bootstrap";
 import PlayerItem from "./PlayerItem";
 import { socket } from "../socket/socket";
@@ -149,13 +148,13 @@ export default function Room({
           scrollRef.current.clientHeight <=
         scrollRef.current.clientHeight / 5
       ) {
-        setMessages([...messages, msg]);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
 
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
-        setMessages([...messages, msg]);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
         setScrollNewMessages(scrollNewMessages + 1);
       }
@@ -176,13 +175,17 @@ export default function Room({
           scrollRef.current.clientHeight <=
         scrollRef.current.clientHeight / 5
       ) {
-        setMessages([...messages, msg]);
+        console.log(messages);
+        console.log(msg);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
         //Adds message to message list.
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
-        setMessages([...messages, msg]);
+        console.log(messages);
+        console.log(msg);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
         setScrollNewMessages(scrollNewMessages + 1);
         //Adds message to message list.
@@ -204,13 +207,13 @@ export default function Room({
           scrollRef.current.clientHeight <=
         scrollRef.current.clientHeight / 5
       ) {
-        setMessages([...messages, msg]);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
         //Adds message to message list.
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
-        setMessages([...messages, msg]);
+        setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
         setScrollNewMessages(scrollNewMessages + 1);
         //Adds message to message list.
@@ -314,6 +317,7 @@ export default function Room({
     });
 
     socket.emit("playerJoinRoom", captchaToken, (callback) => {
+      console.log("CALLBACK:" + callback);
       if (typeof callback == "number") {
         if (callback === 1)
           setFailReason("Your socket ID was equal to existing player in room.");
@@ -393,17 +397,13 @@ export default function Room({
                 openWhisperMenu={openWhisperMenu}
                 dayNumber={dayNumber}
                 votingDisabled={votingDisabled}
-                /*                 dayVisitLiving={dayVisitLiving}
-                dayVisitDead={dayVisitDead}
-                nightVisitLiving={nightVisitLiving}
-                nightVisitDead={nightVisitDead} */
                 visiting={visiting}
                 votingFor={votingFor}
                 canNightVote={canNightVote}
-                isUser={player.isUser}
+                isUser={player.isUser ?? false}
                 username={player.name}
                 role={player.role}
-                isAlive={player.isAlive}
+                isAlive={player.isAlive ?? true}
                 time={time}
                 canTalk={canTalk}
                 canVisit={canVisit}

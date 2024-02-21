@@ -6,7 +6,7 @@ import Room from "../model/rooms/room.js";
 export type ClientToServerEvents = {
   playerJoinRoom: (
     captchaToken: string,
-    cb: (result: number) => void,
+    cb: (result: string | number) => void,
   ) => Promise<void>;
   disconnect: () => void;
   messageSentByUser: (message: string, isDay: boolean) => void;
@@ -18,7 +18,7 @@ export type ClientToServerEvents = {
 type PlayerList = {
   name: string;
   isAlive: boolean | undefined;
-  role: any;
+  role: string;
 };
 
 type PlayerReturned = {
@@ -94,27 +94,36 @@ export function addSocketListeners(
   roomSize: number,
 ) {
   io.on("connection", (socket: PlayerSocket) => {
+    console.log("New Connection");
     //Handle players joining a room
-    socket.on("playerJoinRoom", async (captchaToken: string, cb: any) => {
-      try {
-        let res = await axios.post(
-          `https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`,
-        );
-        if (res.data.success || process.env.debug === "true") {
-          //Blocks players from joining if ReCaptcha V3 score is too low, allows anyway if debug mode is on
-          if (playRoom.current?.started) playRoom.current = new Room(roomSize);
-          if (playRoom.current !== undefined) {
-            socket.data.roomObject = playRoom.current;
-            socket.join(playRoom.current.name); //Joins room, messages will be received accordingly
-            let result = socket.data.roomObject.addPlayer(socket);
-            cb(result);
-          }
-        } else cb(2);
-      } catch (error) {
-        console.log("CatchTest: " + error);
-        //cb(2); //If a room isn't found, socketio tries to callback null.
-      }
-    });
+    socket.on(
+      "playerJoinRoom",
+      async (captchaToken: string, cb: (code: string | number) => void) => {
+        try {
+          let res = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`,
+          );
+          if (res.data.success || process.env.debug === "true") {
+            console.log("Captcha Success");
+            //Blocks players from joining if ReCaptcha V3 score is too low, allows regardless if debug mode is on
+            if (playRoom.current?.started || playRoom.current === undefined)
+              playRoom.current = new Room(roomSize);
+            console.log("playroomCurrent", playRoom.current);
+            if (playRoom.current !== undefined) {
+              socket.data.roomObject = playRoom.current;
+              socket.join(playRoom.current.name); //Joins room, messages will be received accordingly
+              let result = socket.data.roomObject.addPlayer(socket);
+              console.log("Result: " + result);
+              cb(result);
+            }
+          } else cb(2);
+          console.log("END");
+        } catch (error) {
+          console.log("CatchTest: " + error);
+          //cb(2); //If a room isn't found, socketio tries to callback null.
+        }
+      },
+    );
 
     //Handles users disconnecting from a room
     socket.on("disconnect", () => {

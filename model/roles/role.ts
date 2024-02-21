@@ -4,13 +4,14 @@ import Room from "../rooms/room.js";
 import { io } from "../../servers/socket.js";
 import Faction from "../factions/faction.js";
 import Player from "../rooms/player.js";
+import Jailor from "./jailor.js";
 
 class Role {
   name: string;
-  group: any;
+  group: string;
 
   room: Room;
-  player: any;
+  player: Player;
   faction?: Faction;
 
   baseDefence: number;
@@ -36,14 +37,15 @@ class Role {
   silenced: boolean;
   dayTapped: Role | boolean;
   nightTapped: Role | boolean;
-  jailed: any;
+  jailed: Jailor | null;
 
   // Role name, Group Name, SocketIo Room, Player Class, Base Defence, Is Roleblocker, Day visits, night visits
   constructor(
     name: string,
-    group: any,
+    group: string,
+
     room: Room,
-    player: any,
+    player: Player,
     baseDefence: number,
     roleblocker: boolean,
     dayVisitSelf: boolean,

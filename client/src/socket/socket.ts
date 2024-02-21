@@ -6,3 +6,6 @@ import type {
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
   io("/");
+
+console.log(socket);
+socket.connect();

@@ -10,10 +10,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 
-app.use(express.static(path.join(__dirname + "/client/build"))); //Serves the web app
+app.use(express.static(path.join(__dirname + "/../client/build"))); //Serves the web app
 
 export const httpServer = createServer(app);
 
 app.get("*", (_, res) => {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"));
+  res.sendFile(path.join(__dirname + "/../client/build/index.html"));
 });

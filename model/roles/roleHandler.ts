@@ -34,6 +34,8 @@ import LawmanFaction from "../factions/lawmanFaction.js";
 
 import { io } from "../../servers/socket.js";
 import Player from "../rooms/player.js";
+import Role from "./role.js";
+import RoleChild from "./roleChild.js";
 
 //This generates the an array of role classes to be used, and then returns it to the room.
 class RoleHandler {
@@ -42,12 +44,12 @@ class RoleHandler {
     this.roomSize = roomSize;
   }
 
-  assignGame() {
-    let roleList = []; //The array of roles to be returned to the room object roleList.push;
+  assignGame(): (typeof RoleChild)[] {
+    let roleList: (typeof RoleChild)[] = []; //The array of roles to be returned to the room object roleList.push;
     let comparativePower = 0; //The comparative power, positive is in favour of town, negative in favour of the mafia
 
     //Role Lists
-    let randomTownList = [
+    let randomTownList: (typeof RoleChild)[] = [
       Doctor,
       Judge,
       Watchman,
@@ -145,7 +147,7 @@ class RoleHandler {
   }
 
   //Returns true if a role is unique, so it can be removed from the propsective role list for additional players
-  uniqueRoleCheck(role: any) {
+  uniqueRoleCheck(role: typeof RoleChild) {
     switch (role) {
       //Town
       case Jailor:
@@ -173,7 +175,7 @@ class RoleHandler {
   }
 
   //Returns the extent to which a role helps the town
-  getPower(role: any) {
+  getPower(role: typeof RoleChild) {
     switch (role) {
       //Town Roles
       case Doctor:

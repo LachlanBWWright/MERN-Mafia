@@ -16,6 +16,7 @@ abstract class Faction {
     }
   }
 
+  abstract findMembers(playerList: Player[]): void; //Finds members of the faction
   abstract sendMessage(message: string): void; //Sends a message to all members of the faction
   abstract handleNightVote(): void; //Handles factional decisions
   abstract handleNightMessage(message: string, playerUsername: string): void; //Handles night chat

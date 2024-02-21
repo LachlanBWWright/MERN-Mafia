@@ -4,6 +4,10 @@ import Player from "./player.js";
 import mongoose from "mongoose";
 import { PlayerSocket, io } from "../../servers/socket.js";
 import Confesser from "../roles/confesser.js";
+import Faction from "../factions/faction.js";
+import RoleChild from "../roles/roleChild.js";
+import Framer from "../roles/framer.js";
+import Peacemaker from "../roles/peacemaker.js";
 
 const gameSchema = new mongoose.Schema({
   roomName: String,
@@ -45,17 +49,17 @@ class Room {
 
   started: boolean;
   time: "day" | "night" | "" | "undefined";
-  roleList: any[];
-  factionList: any[];
+  roleList: (typeof RoleChild)[];
+  factionList: Faction[];
   sessionLength: number;
   gameHasEnded: boolean;
   endDay: number;
 
-  framer: any;
+  framer: Framer | null;
   confesserVotedOut: boolean;
-  peacemaker: any;
+  peacemaker: Peacemaker | null;
 
-  gameDB: any;
+  gameDB;
 
   confesser?: Confesser;
 
@@ -372,7 +376,11 @@ class Room {
     }
   }
 
-  handleVisit(playerSocket: PlayerSocket, recipient: any, isDay: boolean) {
+  handleVisit(
+    playerSocket: PlayerSocket,
+    recipient: number | null,
+    isDay: boolean,
+  ) {
     try {
       if (
         (!isDay && this.time === "day") ||
@@ -426,6 +434,7 @@ class Room {
     for (let i = 0; i < this.playerList.length; i++) {
       this.playerList[i].socket.data.position = i;
       this.playerList[i].role = new this.roleList[i](this, this.playerList[i]); //Assigns the role to the player (this.roleList[i] is an ES6 class)
+
       let playerReturned = {
         name: this.playerList[i].playerUsername,
         role: this.playerList[i].role.name,
@@ -516,7 +525,7 @@ class Room {
       "receiveMessage",
       "Day " + dayNumber + " has started.",
     );
-    let livingPlayerList = [];
+    let livingPlayerList: Player[] = [];
     for (let i = 0; i < this.playerList.length; i++) {
       if (this.playerList[i].isAlive) {
         this.playerList[i].role.dayUpdate();
@@ -588,7 +597,7 @@ class Room {
         for (let i = 0; i < this.playerList.length; i++) {
           if (this.playerList[i].isAlive) {
             this.playerList[i].role.dayVisit();
-            this.playerList[i].role.dayTapped = false; //Undoes any daytapping by the tapper class
+            this.playerList[i].role.dayTapped = false; //Undoes daytapping by the tapper class
             this.playerList[i].hasVoted = false;
           }
         }
