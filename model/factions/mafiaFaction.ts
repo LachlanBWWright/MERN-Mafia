@@ -1,9 +1,9 @@
-import Faction from "./faction.js";
 import { io } from "../../servers/socket.js";
-import Player from "../rooms/player.js";
-import Role from "../roles/role.js";
+import { Faction } from "./faction.js";
+import { Player } from "../rooms/player.js";
+import { Role } from "../roles/role.js";
 
-class MafiaFaction extends Faction {
+export class MafiaFaction extends Faction {
   attackList: Player[] = [];
 
   findMembers(playerList: Player[]) {
@@ -78,5 +78,3 @@ class MafiaFaction extends Faction {
     }
   }
 }
-
-export default MafiaFaction;

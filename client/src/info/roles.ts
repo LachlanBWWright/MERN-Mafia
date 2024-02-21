@@ -7,7 +7,7 @@
 
 //Keep in alphabetical order
 */
-const roles = new Map([
+export const roles = new Map([
   [
     "Bodyguard",
     "You can choose a person to protect every night. You will protect them, and kill everybody who visited them. Excluding yourself. At night, visit a player to protect them.",
@@ -89,5 +89,3 @@ const roles = new Map([
     "Choose a player to watch, and see who visits them. If only one person visits, your guess has a 50% chance of being a random player. At night, visit who you want to watch.",
   ],
 ]);
-
-export default roles;

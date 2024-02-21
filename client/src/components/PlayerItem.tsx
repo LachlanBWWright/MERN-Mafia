@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ListGroup, Row, Col, Button, ButtonGroup } from "react-bootstrap";
 
-export default function PlayerItem({
+export function PlayerItem({
   index,
   handleVisit,
   handleVote,

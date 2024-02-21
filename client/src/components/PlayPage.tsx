@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, Tooltip, OverlayTrigger, Button } from "react-bootstrap";
 import { useOutletContext } from "react-router-dom";
-import Room from "./Room";
-import roles from "../info/roles";
+import { Room } from "./Room";
+import { roles } from "../info/roles";
 import ReCAPTCHA from "react-google-recaptcha";
 
 export function PlayPage({ debug }: { debug: boolean }) {

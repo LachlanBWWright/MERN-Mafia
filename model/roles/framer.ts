@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Framer extends Role {
+export class Framer extends Role {
   victoryCondition = false;
   target: Player | null = null; //Target to kill (player object)
   constructor(room: Room, player: Player) {
@@ -71,5 +71,3 @@ class Framer extends Role {
     }
   }
 }
-
-export default Framer;

@@ -1,8 +1,8 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 
-class Confesser extends Role {
+export class Confesser extends Role {
   victoryCondition: boolean = false;
 
   constructor(room: Room, player: Player) {
@@ -25,5 +25,3 @@ class Confesser extends Role {
     this.room.confesser = this;
   }
 }
-
-export default Confesser;

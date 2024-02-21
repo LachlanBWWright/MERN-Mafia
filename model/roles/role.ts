@@ -1,12 +1,12 @@
 //This is the base class for a role
 
-import Room from "../rooms/room.js";
+import { Room } from "../rooms/room.js";
 import { io } from "../../servers/socket.js";
-import Faction from "../factions/faction.js";
-import Player from "../rooms/player.js";
-import Jailor from "./jailor.js";
+import { Faction } from "../factions/faction.js";
+import { Player } from "../rooms/player.js";
+import { Jailor } from "./jailor.js";
 
-class Role {
+export class Role {
   name: string;
   group: string;
 
@@ -251,5 +251,3 @@ class Role {
   handleDayVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
   handleVisits() {} //Called after visit. For roles such as the watchman, who can see who has visited who
 }
-
-export default Role;

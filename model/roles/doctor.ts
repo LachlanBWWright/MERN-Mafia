@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Doctor extends Role {
+export class Doctor extends Role {
   constructor(room: Room, player: Player) {
     super(
       "Doctor",
@@ -50,5 +50,3 @@ class Doctor extends Role {
     }
   }
 }
-
-export default Doctor;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "react-bootstrap";
-import roles from "../info/roles";
+import { roles } from "../info/roles";
 
 export function RolesPage() {
   return (

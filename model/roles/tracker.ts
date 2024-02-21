@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Tracker extends Role {
+export class Tracker extends Role {
   constructor(room: Room, player: Player) {
     super(
       "Tracker",
@@ -68,5 +68,3 @@ class Tracker extends Role {
     }
   }
 }
-
-export default Tracker;

@@ -1,10 +1,10 @@
-import Role from "./role.js";
-import Room from "../rooms/room.js";
-import Player from "../rooms/player.js";
+import { Role } from "./role.js";
+import { Room } from "../rooms/room.js";
+import { Player } from "../rooms/player.js";
 import { io } from "../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
-class Vetter extends Role {
+export class Vetter extends Role {
   researchSlots = 3;
   constructor(room: Room, player: Player) {
     super(
@@ -97,5 +97,3 @@ class Vetter extends Role {
     }
   }
 }
-
-export default Vetter;

@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Faction from "./faction.js";
-import Room from "../rooms/room.js";
+import { Player } from "../rooms/player.js";
+import { Faction } from "./faction.js";
+import { Room } from "../rooms/room.js";
 import { io } from "../../servers/socket.js";
 
-class LawmanFaction extends Faction {
+export class LawmanFaction extends Faction {
   room?: Room;
 
   findMembers(playerList: Player[]) {
@@ -75,5 +75,3 @@ class LawmanFaction extends Faction {
     }
   }
 }
-
-export default LawmanFaction;

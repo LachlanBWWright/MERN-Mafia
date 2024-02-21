@@ -1,44 +1,44 @@
 //Imports all the roles used
 
 //Town Roles
-import Doctor from "./doctor.js";
-import Judge from "./judge.js";
-import Watchman from "./watchman.js";
-import Investigator from "./investigator.js";
-import Lawman from "./lawman.js";
-import Vetter from "./vetter.js";
-import Tapper from "./tapper.js";
-import Tracker from "./tracker.js";
-import Bodyguard from "./bodyguard.js";
-import Nimby from "./nimby.js";
-import Sacrificer from "./sacrificer.js";
-import Fortifier from "./fortifier.js";
-import Roleblocker from "./roleblocker.js";
-import Jailor from "./jailor.js";
+import { Doctor } from "./doctor.js";
+import { Judge } from "./judge.js";
+import { Watchman } from "./watchman.js";
+import { Investigator } from "./investigator.js";
+import { Lawman } from "./lawman.js";
+import { Vetter } from "./vetter.js";
+import { Tapper } from "./tapper.js";
+import { Tracker } from "./tracker.js";
+import { Bodyguard } from "./bodyguard.js";
+import { Nimby } from "./nimby.js";
+import { Sacrificer } from "./sacrificer.js";
+import { Fortifier } from "./fortifier.js";
+import { Roleblocker } from "./roleblocker.js";
+import { Jailor } from "./jailor.js";
 
 //Mafia Roles
-import Mafia from "./mafia.js";
-import MafiaRoleblocker from "./mafiaRoleblocker.js";
-import MafiaInvestigator from "./mafiaInvestigator.js";
+import { Mafia } from "./mafia.js";
+import { MafiaRoleblocker } from "./mafiaRoleblocker.js";
+import { MafiaInvestigator } from "./mafiaInvestigator.js";
 
 //Neutral Roles
-import Maniac from "./maniac.js";
-import Sniper from "./sniper.js";
-import Framer from "./framer.js";
-import Confesser from "./confesser.js";
-import Peacemaker from "./peacemaker.js";
+import { Maniac } from "./maniac.js";
+import { Sniper } from "./sniper.js";
+import { Framer } from "./framer.js";
+import { Confesser } from "./confesser.js";
+import { Peacemaker } from "./peacemaker.js";
 
 //Imports all the factions used
-import MafiaFaction from "../factions/mafiaFaction.js";
-import LawmanFaction from "../factions/lawmanFaction.js";
+import { MafiaFaction } from "../factions/mafiaFaction.js";
+import { LawmanFaction } from "../factions/lawmanFaction.js";
 
 import { io } from "../../servers/socket.js";
-import Player from "../rooms/player.js";
-import Role from "./role.js";
-import RoleChild from "./roleChild.js";
+import { Player } from "../rooms/player.js";
+import { Role } from "./role.js";
+import { RoleChild } from "./roleChild.js";
 
 //This generates the an array of role classes to be used, and then returns it to the room.
-class RoleHandler {
+export class RoleHandler {
   roomSize: number;
   constructor(roomSize: number) {
     this.roomSize = roomSize;
@@ -229,5 +229,3 @@ class RoleHandler {
     }
   }
 }
-
-export default RoleHandler;

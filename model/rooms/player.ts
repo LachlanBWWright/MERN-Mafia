@@ -1,8 +1,8 @@
 import { PlayerSocket } from "../../servers/socket.js";
-import Role from "../roles/role.js";
-import RoleChild from "../roles/roleChild.js";
+import { Role } from "../roles/role.js";
+import { RoleChild } from "../roles/roleChild.js";
 
-class Player {
+export class Player {
   socket: PlayerSocket;
   socketId: string;
   playerUsername: string;
@@ -21,5 +21,3 @@ class Player {
     this.votesReceived = 0;
   }
 }
-
-export default Player;

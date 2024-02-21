@@ -1,10 +1,10 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
-class Investigator extends Role {
+export class Investigator extends Role {
   constructor(room: Room, player: Player) {
     super(
       "Investigator",
@@ -73,5 +73,3 @@ class Investigator extends Role {
     }
   }
 }
-
-export default Investigator;

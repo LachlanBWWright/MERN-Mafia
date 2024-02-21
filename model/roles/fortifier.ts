@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Fortifier extends Role {
+export class Fortifier extends Role {
   playerFortified: Role | null = null;
   canFortify = true;
 
@@ -123,5 +123,3 @@ class Fortifier extends Role {
     }
   }
 }
-
-export default Fortifier;

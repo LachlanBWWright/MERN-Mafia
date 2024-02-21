@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Peacemaker extends Role {
+export class Peacemaker extends Role {
   victoryCondition: boolean = false;
   constructor(room: Room, player: Player) {
     super(
@@ -51,5 +51,3 @@ class Peacemaker extends Role {
     }
   }
 }
-
-export default Peacemaker;

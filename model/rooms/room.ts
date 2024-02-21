@@ -1,13 +1,13 @@
 import Crypto from "crypto";
-import RoleHandler from "../roles/roleHandler.js";
-import Player from "./player.js";
 import mongoose from "mongoose";
+import { RoleHandler } from "../roles/roleHandler.js";
+import { Player } from "./player.js";
 import { PlayerSocket, io } from "../../servers/socket.js";
-import Confesser from "../roles/confesser.js";
-import Faction from "../factions/faction.js";
-import RoleChild from "../roles/roleChild.js";
-import Framer from "../roles/framer.js";
-import Peacemaker from "../roles/peacemaker.js";
+import { Confesser } from "../roles/confesser.js";
+import { Faction } from "../factions/faction.js";
+import { RoleChild } from "../roles/roleChild.js";
+import { Framer } from "../roles/framer.js";
+import { Peacemaker } from "../roles/peacemaker.js";
 
 const gameSchema = new mongoose.Schema({
   roomName: String,
@@ -41,7 +41,7 @@ const names = [
   "Reid",
 ];
 
-class Room {
+export class Room {
   name: string;
   size: number;
   playerCount: number;
@@ -737,5 +737,3 @@ class Room {
     this.gameDB.save();
   }
 }
-
-export default Room;

@@ -1,7 +1,7 @@
 import { io } from "../../servers/socket.js";
-import Player from "../rooms/player.js";
+import { Player } from "../rooms/player.js";
 
-abstract class Faction {
+export abstract class Faction {
   memberList: Player[] = [];
 
   initializeMembers() {
@@ -22,5 +22,3 @@ abstract class Faction {
   abstract handleNightMessage(message: string, playerUsername: string): void; //Handles night chat
   abstract removeMembers(): void; //Removes members if they have died, or been converted to another faction
 }
-
-export default Faction;

@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import axios from "axios";
 import { httpServer } from "./httpServer.js";
-import Room from "../model/rooms/room.js";
+import { Room } from "../model/rooms/room.js";
 
 export type ClientToServerEvents = {
   playerJoinRoom: (

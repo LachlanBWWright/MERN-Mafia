@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, Button, ListGroup } from "react-bootstrap";
-import PlayerItem from "./PlayerItem";
+import { PlayerItem } from "./PlayerItem";
 import { socket } from "../socket/socket";
 
 type MsgType = {
@@ -15,7 +15,7 @@ type PlayerType = {
   isAlive?: boolean;
 };
 
-export default function Room({
+export function Room({
   captchaToken,
   setFailReason,
   setName,
@@ -240,15 +240,19 @@ export default function Room({
 
     socket.on("assign-player-role", (playerJson) => {
       //Shows the player their own role, lets the client know that this is who they are playing as
-      let tempPlayerList = [...playerList];
-      let index = tempPlayerList.findIndex(
-        (player) => player.name === playerJson.name,
-      );
-      tempPlayerList[index].role = playerJson.role;
-      tempPlayerList[index].isUser = true;
-      setRole(playerJson.role);
 
-      setPlayerList(tempPlayerList);
+      setPlayerList((playerList) => {
+        let tempPlayerList = [...playerList];
+        let index = tempPlayerList.findIndex(
+          (player) => player.name === playerJson.name,
+        );
+        tempPlayerList[index].role = playerJson.role;
+        tempPlayerList[index].isUser = true;
+        setRole(playerJson.role);
+
+        return tempPlayerList;
+      });
+
       setCanVisit([
         playerJson.dayVisitSelf,
         playerJson.dayVisitOthers,
@@ -262,25 +266,29 @@ export default function Room({
 
     socket.on("update-faction-role", (playerJson) => {
       //Reveals the role of factional allies
-      let tempPlayerList = [...playerList];
-      let index = tempPlayerList.findIndex(
-        (player) => player.name === playerJson.name,
-      );
-      if (playerJson.role !== undefined)
-        tempPlayerList[index].role = playerJson.role;
-      setPlayerList(tempPlayerList);
+      setPlayerList((playerList) => {
+        let tempPlayerList = [...playerList];
+        let index = tempPlayerList.findIndex(
+          (player) => player.name === playerJson.name,
+        );
+        if (playerJson.role !== undefined)
+          tempPlayerList[index].role = playerJson.role;
+        return tempPlayerList;
+      });
     });
 
     socket.on("update-player-role", (playerJson) => {
       //Updates player role upon their death
-      let tempPlayerList = [...playerList];
-      let index = tempPlayerList.findIndex(
-        (player) => player.name === playerJson.name,
-      );
-      if (playerJson.role !== undefined)
-        tempPlayerList[index].role = playerJson.role;
-      tempPlayerList[index].isAlive = false;
-      setPlayerList(tempPlayerList);
+      setPlayerList((playerList) => {
+        let tempPlayerList = [...playerList];
+        let index = tempPlayerList.findIndex(
+          (player) => player.name === playerJson.name,
+        );
+        if (playerJson.role !== undefined)
+          tempPlayerList[index].role = playerJson.role;
+        tempPlayerList[index].isAlive = false;
+        return tempPlayerList;
+      });
     });
 
     socket.on("update-player-visit", () => {

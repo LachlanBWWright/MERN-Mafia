@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import RoleMafia from "./roleMafia.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { RoleMafia } from "./roleMafia.js";
 import { io } from "../../servers/socket.js";
 
-class MafiaSilencer extends RoleMafia {
+export class MafiaSilencer extends RoleMafia {
   attackVote: Player | null = null;
   constructor(room: Room, player: Player) {
     super(
@@ -51,5 +51,3 @@ class MafiaSilencer extends RoleMafia {
     }
   }
 }
-
-export default MafiaSilencer;

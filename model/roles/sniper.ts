@@ -1,9 +1,9 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import Role from "./role.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { Role } from "./role.js";
 import { io } from "../../servers/socket.js";
 
-class Sniper extends Role {
+export class Sniper extends Role {
   lastVisited: Role | null = null;
   constructor(room: Room, player: Player) {
     super(
@@ -61,5 +61,3 @@ class Sniper extends Role {
     }
   }
 }
-
-export default Sniper;

@@ -1,8 +1,8 @@
-import Player from "../rooms/player.js";
-import Room from "../rooms/room.js";
-import RoleMafia from "./roleMafia.js";
+import { Player } from "../rooms/player.js";
+import { Room } from "../rooms/room.js";
+import { RoleMafia } from "./roleMafia.js";
 
-class Mafia extends RoleMafia {
+export class Mafia extends RoleMafia {
   constructor(room: Room, player: Player) {
     super(
       "Mafia",
@@ -21,5 +21,3 @@ class Mafia extends RoleMafia {
     );
   }
 }
-
-export default Mafia;
