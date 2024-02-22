@@ -1,13 +1,14 @@
 import Crypto from "crypto";
 import mongoose from "mongoose";
-import { RoleHandler } from "../roles/roleHandler.js";
-import { Player } from "./player.js";
+import { RoleHandler } from "./initRoles/roleHandler.js";
+import { Player } from "../player/player.js";
 import { PlayerSocket, io } from "../../servers/socket.js";
-import { Confesser } from "../roles/confesser.js";
-import { Faction } from "../factions/faction.js";
-import { RoleChild } from "../roles/roleChild.js";
-import { Framer } from "../roles/framer.js";
-import { Peacemaker } from "../roles/peacemaker.js";
+import { Confesser } from "../roles/neutral/confesser.js";
+import { Faction } from "../factions/abstractFaction.js";
+import { BlankRole } from "../roles/blankRole.js";
+import { Framer } from "../roles/neutral/framer.js";
+import { Peacemaker } from "../roles/neutral/peacemaker.js";
+import { names } from "../player/names/namesList.js";
 
 const gameSchema = new mongoose.Schema({
   roomName: String,
@@ -18,46 +19,24 @@ const gameSchema = new mongoose.Schema({
 });
 const Game = mongoose.model("Game", gameSchema);
 
-const names = [
-  "Glen",
-  "Finn",
-  "Alex",
-  "Joey",
-  "Noel",
-  "Jade",
-  "Nico",
-  "Abby",
-  "Liam",
-  "Ivan",
-  "Finn",
-  "Adam",
-  "Ella",
-  "Erin",
-  "Jane",
-  "Lily",
-  "Ruth",
-  "Rhys",
-  "Todd",
-  "Reid",
-];
-
 export class Room {
   name: string;
   size: number;
-  playerCount: number;
-  playerList: Player[];
+  playerCount = 0;
+  playerList: Player[] = [];
 
-  started: boolean;
-  time: "day" | "night" | "" | "undefined";
-  roleList: (typeof RoleChild)[];
-  factionList: Faction[];
+  started = false;
+  time: "day" | "night" | "" | "undefined" = "";
+  roleList: (typeof BlankRole)[] = [];
+  factionList: Faction[] = [];
   sessionLength: number;
-  gameHasEnded: boolean;
-  endDay: number;
+  gameHasEnded = false;
+  endDay = 3;
 
-  framer: Framer | null;
-  confesserVotedOut: boolean;
-  peacemaker: Peacemaker | null;
+  //Data for handling unique roles
+  framer: Framer | null = null; //Reference to the framer role, initialized by the roles constructor if applicable.
+  confesserVotedOut = false; //Confessor role, who wants to get voted out
+  peacemaker: Peacemaker | null = null; //Pleacemaker role, who wants to cause a tie by nobody dying for three days
 
   gameDB;
 
@@ -65,24 +44,11 @@ export class Room {
 
   constructor(size: number) {
     //Data relating to the players in the room
-    this.name = Crypto.randomBytes(8).toString("hex"); //Generates the room's name
+    this.name = Crypto.randomBytes(8).toString("hex"); //Generates the room's "name"
     this.size = size; //Capacity of the room
-    this.playerCount = 0; //Number of players currently in the room
-    this.playerList = []; //List of players in the room, containing this.player objects
 
     //Data relating to the state of the game.
-    this.started = false; //Records if the game has started (So it can't be joined)
-    this.time = ""; //The time of day (Night, day)
-    this.roleList = []; //List of role ES6 classes
-    this.factionList = []; //List of factions for the some of the role classes (Handles stuff like mafia talking at night to each other.)
     this.sessionLength = this.size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days
-    this.gameHasEnded = false;
-    this.endDay = 4; //The day the game will end. This gets pushed back when a player dies, and thus works as a 'stalemate' mechanism
-
-    //Data for handling unique roles
-    this.framer = null; //Reference to the framer role, initialized by the roles constructor if applicable.
-    this.confesserVotedOut = false; //Confessor role, who wants to get voted out
-    this.peacemaker = null; //Pleacemaker role, who wants to cause a tie by nobody dying for three days
 
     this.gameDB = new Game({ name: this.name });
   }
@@ -116,7 +82,7 @@ export class Room {
     );
     playerSocket.data.position =
       this.playerList.push(
-        new Player(playerSocket, playerSocketId, playerUsername),
+        new Player(playerSocket, playerSocketId, playerUsername, this),
       ) - 1; //Adds a player to the array
     this.playerCount = this.playerList.length; //Updates the player count
     io.to(this.name).emit("receive-new-player", { name: playerUsername });

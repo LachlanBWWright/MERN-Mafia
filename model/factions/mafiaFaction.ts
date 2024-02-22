@@ -1,7 +1,7 @@
 import { io } from "../../servers/socket.js";
-import { Faction } from "./faction.js";
-import { Player } from "../rooms/player.js";
-import { Role } from "../roles/role.js";
+import { Faction } from "./abstractFaction.js";
+import { Player } from "../player/player.js";
+import { Role } from "../roles/abstractRole.js";
 
 export class MafiaFaction extends Faction {
   attackList: Player[] = [];
