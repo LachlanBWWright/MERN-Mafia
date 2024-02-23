@@ -1,6 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
-import { RoleMafia } from "./roleMafia.js";
+import { RoleMafia } from "./abstractMafiaRole.js";
 
 export class Mafia extends RoleMafia {
   name = "Mafia";
