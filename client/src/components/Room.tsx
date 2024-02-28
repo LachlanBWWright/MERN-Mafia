@@ -41,8 +41,6 @@ export function Room({
   const [visiting, setVisiting] = useState<number | null>(null);
   const [votingDisabled, setVotingDisabled] = useState(false);
   const [votingFor, setVotingFor] = useState<number | null>(null);
-  const [factionNightVote, setFactionNightVote] = useState<number | null>(null);
-  const [votingForNight, setVotingForNight] = useState<number | null>(null);
   const [whisperingTo, setWhisperingTo] = useState<number | null>(null);
   const [canVisit, setCanVisit] = useState([
     false,
