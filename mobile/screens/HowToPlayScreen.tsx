@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Button,
-  TouchableNativeFeedback,
-} from "react-native";
+import { View, Text, FlatList, TouchableNativeFeedback } from "react-native";
 
 export default function HowToPlayScreen() {
   interface htpItem {
