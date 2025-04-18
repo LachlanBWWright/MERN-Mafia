@@ -1,23 +1,14 @@
-import { StatusBar } from "expo-status-bar";
-import {
-  Button,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Settings,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./screens/HomeScreen";
-import HowToPlayScreen from "./screens/HowToPlayScreen";
-import PrivateGameLobbyScreen from "./screens/PrivateGameLobbyScreen";
-import PublicGameLobbyScreen from "./screens/PublicGameLobbyScreen";
+import { HomeScreen } from "./screens/HomeScreen";
+import { HowToPlayScreen } from "./screens/HowToPlayScreen";
+import { PrivateGameLobbyScreen } from "./screens/PrivateGameLobbyScreen";
+import { PublicGameLobbyScreen } from "./screens/PublicGameLobbyScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
+import { GameScreen } from "./screens/GameScreen";
 import React from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import SettingsScreen from "./screens/SettingsScreen";
-import GameScreen from "./screens/GameScreen";
 
 export type StackParamList = {
   HomeScreen: undefined;
@@ -97,12 +88,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

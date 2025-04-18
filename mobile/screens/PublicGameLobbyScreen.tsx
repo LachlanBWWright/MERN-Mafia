@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  ListRenderItemInfo,
-  Pressable,
-  Button,
-} from "react-native";
+import { View, Text, FlatList, Button } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackParamList } from "../App";
-import {
-  NavigatorScreenParams,
-  RouteProp,
-  useRoute,
-} from "@react-navigation/native";
 
 interface Lobby {
   name: string;
@@ -27,7 +15,7 @@ type PublicGameLobbyScreenProps = NativeStackScreenProps<
   "PublicGameLobbyScreen"
 >;
 
-export default function PublicGameLobbyScreen({
+export function PublicGameLobbyScreen({
   route,
   navigation,
 }: PublicGameLobbyScreenProps) {

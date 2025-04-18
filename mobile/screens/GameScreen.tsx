@@ -21,7 +21,7 @@ type Player = {
 };
 
 type GameScreenProps = NativeStackScreenProps<StackParamList, "GameScreen">;
-export default function Game({ route, navigation }: GameScreenProps) {
+export function GameScreen({ route, navigation }: GameScreenProps) {
   const [socket, setSocket] = useState(io("http://mern-mafia.herokuapp.com/"));
   const [message, setMessage] = useState("");
   const [playerRole, setPlayerRole] = useState("");

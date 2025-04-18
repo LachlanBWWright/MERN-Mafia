@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, TouchableNativeFeedback } from "react-native";
 
-export default function HowToPlayScreen() {
+export function HowToPlayScreen() {
   interface htpItem {
     question: string;
     answer: string;

@@ -1,18 +1,13 @@
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
-} from "@react-navigation/native-stack";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { View, Text, Button, TextInput } from "react-native";
 import { StackParamList } from "../App";
 
 type HomeScreenProps = NativeStackScreenProps<StackParamList, "HomeScreen">;
 
-export default function HomeScreen({ route, navigation }: HomeScreenProps) {
+export function HomeScreen({ route, navigation }: HomeScreenProps) {
   const [name, setName] = useState("");
   const [disabled, setDisabled] = useState(true);
-
-  const navigator = createNativeStackNavigator();
 
   return (
     <View
