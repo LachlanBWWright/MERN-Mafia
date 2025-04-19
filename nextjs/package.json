@@ -27,7 +27,10 @@
     "next": "^15.2.3",
     "next-auth": "5.0.0-beta.25",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
+    "react-google-recaptcha": "^3.1.0",
+    "socket.io-client": "^4.8.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -36,6 +39,7 @@
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/react-google-recaptcha": "^2.1.9",
     "drizzle-kit": "^0.30.5",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.3",

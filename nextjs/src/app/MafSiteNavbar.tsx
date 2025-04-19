@@ -1,8 +1,10 @@
+"use client";
+
+import Link from "next/link";
 import React, { useState } from "react";
 import { Navbar, Nav } from "react-bootstrap";
-import { Outlet, Link } from "react-router-dom";
 
-export function MafSiteNavbar() {
+export function MafSiteNavbar({ children }: { children: React.ReactNode }) {
   const [inGame, setInGame] = useState(false);
   return (
     <div
@@ -17,33 +19,33 @@ export function MafSiteNavbar() {
     >
       <Navbar className="navbar-dark" bg="danger" expand="lg" sticky="top">
         <Nav>
-          <Navbar.Brand as={Link} to="/" /* disabled={inGame} */>
-            MERN Mafia
-          </Navbar.Brand>
+          <Link href="/">
+            <Navbar.Brand /* disabled={inGame} */>MERN Mafia</Navbar.Brand>
+          </Link>
         </Nav>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/" disabled={inGame}>
-              Play
-            </Nav.Link>
-            <Nav.Link as={Link} to="/faq" disabled={inGame}>
-              FAQ
-            </Nav.Link>
-            <Nav.Link as={Link} to="/roles" disabled={inGame}>
-              Roles
-            </Nav.Link>
-            <Nav.Link as={Link} to="/stats" disabled={inGame}>
-              Stats
-            </Nav.Link>
+            <Link href="/">
+              <Nav.Link disabled={inGame}>Play</Nav.Link>
+            </Link>
+            <Link href="/faq">
+              <Nav.Link disabled={inGame}>FAQ</Nav.Link>
+            </Link>
+            <Link href="/roles">
+              <Nav.Link disabled={inGame}>Roles</Nav.Link>
+            </Link>
+            <Link href="/stats">
+              <Nav.Link disabled={inGame}>Stats</Nav.Link>
+            </Link>
           </Nav>
         </Navbar.Collapse>
 
         <Nav>
-          <Nav.Link as={Link} to="/settings" disabled={inGame}>
-            Settings
-          </Nav.Link>
+          <Link href="/settings">
+            <Nav.Link disabled={inGame}>Settings</Nav.Link>
+          </Link>
           {/* <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={inGame}>Login Placeholder</Nav.Link> */}
         </Nav>
       </Navbar>
@@ -55,7 +57,7 @@ export function MafSiteNavbar() {
           overflow: "hidden",
         }}
       >
-        <Outlet context={setInGame} />
+        {children}
       </div>
     </div>
   );

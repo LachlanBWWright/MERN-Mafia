@@ -2,12 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { MafSiteNavbar } from "./components/MafSiteNavbar";
-import { FourOFour } from "./components/FourOFour";
-import { FAQPage } from "./components/FAQPage";
-import { SettingsPage } from "./components/SettingsPage";
+import { MafSiteNavbar } from "../../nextjs/src/components/MafSiteNavbar";
+import { FourOFour } from "../../nextjs/src/app/not-found";
+import { FAQPage } from "../../nextjs/src/app/faq/page";
+import { SettingsPage } from "../../nextjs/src/app/settings/page";
 import { PlayPage } from "./components/PlayPage";
-import { Stats } from "./components/Stats";
+import { Stats } from "../../nextjs/src/app/stats/page";
 import { RolesPage } from "./components/Roles";
 
 ReactDOM.render(

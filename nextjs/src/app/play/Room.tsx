@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, Button, ListGroup } from "react-bootstrap";
-import { PlayerItem } from "./PlayerItem";
-import { socket } from "../socket/socket";
+import { PlayerItem } from "../../components/PlayerItem";
+import { socket } from "~/socket/socket";
 
 type MsgType = {
   type: number;
