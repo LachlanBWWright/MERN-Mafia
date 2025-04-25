@@ -26,27 +26,26 @@ export function MafSiteNavbar({ children }: { children: React.ReactNode }) {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Link href="/">
-              <Nav.Link disabled={inGame}>Play</Nav.Link>
+          <Nav className="me-auto flex flex-row gap-2">
+            <Link className="text-white" href="/">
+              Play
             </Link>
-            <Link href="/faq">
-              <Nav.Link disabled={inGame}>FAQ</Nav.Link>
+            <Link className="text-white" href="/faq">
+              FAQ
             </Link>
-            <Link href="/roles">
-              <Nav.Link disabled={inGame}>Roles</Nav.Link>
+            <Link className="text-white" href="/roles">
+              Roles
             </Link>
-            <Link href="/stats">
-              <Nav.Link disabled={inGame}>Stats</Nav.Link>
+            <Link className="text-white" href="/stats">
+              Stats
             </Link>
           </Nav>
         </Navbar.Collapse>
 
         <Nav>
-          <Link href="/settings">
-            <Nav.Link disabled={inGame}>Settings</Nav.Link>
+          <Link className="text-white" href="/settings">
+            Settings
           </Link>
-          {/* <Nav.Link as={Link} to="/settings" className="justify-content-end" disabled={inGame}>Login Placeholder</Nav.Link> */}
         </Nav>
       </Navbar>
       <div

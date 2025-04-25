@@ -244,8 +244,12 @@ export function Room({
         let index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        tempPlayerList[index].role = playerJson.role;
-        tempPlayerList[index].isUser = true;
+
+        if (tempPlayerList[index] !== undefined) {
+          tempPlayerList[index].role = playerJson.role;
+          tempPlayerList[index].isUser = true;
+        }
+
         setRole(playerJson.role);
 
         return tempPlayerList;
@@ -269,7 +273,10 @@ export function Room({
         let index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        if (playerJson.role !== undefined)
+        if (
+          playerJson.role !== undefined &&
+          tempPlayerList[index] !== undefined
+        )
           tempPlayerList[index].role = playerJson.role;
         return tempPlayerList;
       });
@@ -282,9 +289,13 @@ export function Room({
         let index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        if (playerJson.role !== undefined)
-          tempPlayerList[index].role = playerJson.role;
-        tempPlayerList[index].isAlive = false;
+        if (tempPlayerList[index] !== undefined) {
+          if (playerJson.role !== undefined) {
+            tempPlayerList[index].role = playerJson.role;
+          }
+
+          tempPlayerList[index].isAlive = false;
+        }
         return tempPlayerList;
       });
     });
@@ -487,7 +498,7 @@ export function Room({
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <Form.Control
                   ref={chatRef}
-                  placeholder={"Whisper to " + playerList[whisperingTo].name}
+                  placeholder={"Whisper to " + playerList[whisperingTo]?.name}
                   value={textMessage}
                   onChange={(e) => changeText(e.target.value)}
                   maxLength={150}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 
-export function SettingsPage() {
+export default function SettingsPage() {
   return (
     <Card style={{ margin: "2vh", flex: 1 }}>
       <Card.Body>

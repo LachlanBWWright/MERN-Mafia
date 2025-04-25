@@ -1,13 +1,13 @@
 import React from "react";
-import { Card } from "react-bootstrap";
+import { Card, CardBody, CardTitle, CardText } from "react-bootstrap";
 
-export function Stats() {
+export default function Stats() {
   return (
     <Card style={{ flex: 1, margin: "2vh" }}>
-      <Card.Body>
-        <Card.Title className="text-center">Statistics</Card.Title>
-        <Card.Text>Stats go here! </Card.Text>
-      </Card.Body>
+      <CardBody>
+        <CardTitle className="text-center">Statistics</CardTitle>
+        <CardText>Stats go here! </CardText>
+      </CardBody>
     </Card>
   );
 }
