@@ -51,6 +51,7 @@ export function Room({
     false,
   ]);
   const [canNightVote, setCanNightVote] = useState(false);
+  const socketUp = useRef(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<HTMLInputElement>(null);
@@ -125,8 +126,11 @@ export function Room({
   }
 
   useEffect(() => {
+    if (socketUp.current) return; //strict mode fix
+    socketUp.current = true; //Set to true so that the socket doesn't reconnect when the component re-renders
+    console.log("Room useEffect");
     scrollRef.current?.addEventListener("scroll", scrollEvent);
-
+    socket.connect();
     socket.on("connect", () => {
       console.log("You connected to the socket with ID " + socket.id);
     });
@@ -343,7 +347,7 @@ export function Room({
             "Your selected username was the same as another player in the room.",
           );
         else if (callback === 3) setFailReason("The room was full.");
-        setRoom(false);
+        // setRoom(false);
         setName("");
         setRole("");
       } else {
@@ -353,6 +357,7 @@ export function Room({
     });
 
     return () => {
+      return; //strict mode fix
       scrollRef.current?.removeEventListener("scroll", scrollEvent);
 
       socket.off("receiveMessage");
@@ -366,7 +371,7 @@ export function Room({
       socket.off("update-player-role");
       socket.off("update-player-visit");
       socket.off("update-day-time");
-      socket.disconnect();
+      //socket.disconnect(); fix strict mode
     };
   }, []);
 

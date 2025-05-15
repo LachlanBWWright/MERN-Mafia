@@ -7,7 +7,7 @@ import { roles } from "~/app/info/roles";
 
 import ReCAPTCHA from "react-google-recaptcha";
 
-export default function PlayPage({ debug }: { debug: boolean }) {
+export default function PlayPage() {
   const [playerName, setPlayerName] = useState("");
   const [playerRoom, setPlayerRoom] = useState(false);
   const [playerRole, setPlayerRole] = useState("");
@@ -87,14 +87,7 @@ export default function PlayPage({ debug }: { debug: boolean }) {
             }}
           >
             <div style={{ flex: 1 }}></div>
-            <ReCAPTCHA
-              sitekey={"6Ld_zH4fAAAAAG24myzdi4un9qbSOtg9J08-xquF"}
-              onChange={(token) => {
-                if (token === null) return;
-                setCaptchaToken(token);
-                setCaptchaEntered(true);
-              }}
-            />
+
             <div style={{ flex: 1 }}></div>
           </div>
           <Button
@@ -103,9 +96,7 @@ export default function PlayPage({ debug }: { debug: boolean }) {
             style={{ width: "100%" }}
             onClick={() => {
               setPlayerRoom(true);
-              setCaptchaEntered(false);
             }}
-            disabled={!captchaEntered && !debug}
           >
             Join A Match!
           </Button>

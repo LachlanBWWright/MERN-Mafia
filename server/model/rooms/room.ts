@@ -1,5 +1,4 @@
 import Crypto from "crypto";
-import mongoose from "mongoose";
 import { RoleHandler } from "./initRoles/roleHandler.js";
 import { Player } from "../player/player.js";
 import { PlayerSocket, io } from "../../servers/socket.js";
@@ -9,15 +8,6 @@ import { BlankRole } from "../roles/blankRole.js";
 import { Framer } from "../roles/neutral/framer.js";
 import { Peacemaker } from "../roles/neutral/peacemaker.js";
 import { names } from "../player/names/namesList.js";
-
-const gameSchema = new mongoose.Schema({
-  roomName: String,
-  players: [{ playerName: String }],
-  messages: [{ message: String }],
-  winningFaction: String,
-  date: { type: Date, default: Date.now },
-});
-const Game = mongoose.model("Game", gameSchema);
 
 export class Room {
   name: string;
@@ -38,8 +28,6 @@ export class Room {
   confesserVotedOut = false; //Confessor role, who wants to get voted out
   peacemaker: Peacemaker | null = null; //Pleacemaker role, who wants to cause a tie by nobody dying for three days
 
-  gameDB;
-
   confesser?: Confesser;
 
   constructor(size: number) {
@@ -49,8 +37,6 @@ export class Room {
 
     //Data relating to the state of the game.
     this.sessionLength = this.size * 4000; //How long the days/nights initially last for. Decreases over time, with nights at half the length of days
-
-    this.gameDB = new Game({ name: this.name });
   }
 
   //Adds a new player to the room, and makes the game start if it is full. Returns error code if the user failed to join, or their username
@@ -95,9 +81,6 @@ export class Room {
         "The room is full! Starting the game!",
       );
       this.emitPlayerList(this.name);
-      this.playerList.forEach((player) =>
-        this.gameDB.players.push({ playerName: player.playerUsername }),
-      );
       this.startGame();
     }
     return playerUsername; //Successfully joined
@@ -699,7 +682,5 @@ export class Room {
     io.to(this.name).emit("receiveMessage", "Closing the room!");
     io.to(this.name).emit("blockMessages");
     io.in(this.name).disconnectSockets();
-    this.gameDB.winningFaction = winningFactionName;
-    this.gameDB.save();
   }
 }
