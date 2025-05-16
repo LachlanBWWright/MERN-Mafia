@@ -75,8 +75,8 @@ export default function PlayPage() {
             <a href="https://github.com/LachlanBWWright/MERN-Mafia">here.</a>
           </Card.Text>
           <Card.Text>
-            This is an online game similar to the 'mafia' party game. Most
-            players are members of the town, while a few are mafia.
+            This is an online game similar to the &apos;mafia&apos; party game.
+            Most players are members of the town, while a few are mafia.
           </Card.Text>
           <div style={{ flex: 1 }}></div>
           <div

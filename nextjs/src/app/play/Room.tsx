@@ -408,29 +408,28 @@ export function Room({
           <p>Players in room: {playerList.length}</p>
         )}
         <ListGroup style={{ flex: 1 }}>
-          {playerList &&
-            playerList.map((player, index) => (
-              <PlayerItem
-                key={player.name}
-                index={index}
-                handleVisit={handleVisit}
-                handleVote={handleVote}
-                whisperingTo={whisperingTo}
-                openWhisperMenu={openWhisperMenu}
-                dayNumber={dayNumber}
-                votingDisabled={votingDisabled}
-                visiting={visiting}
-                votingFor={votingFor}
-                canNightVote={canNightVote}
-                isUser={player.isUser ?? false}
-                username={player.name}
-                role={player.role}
-                isAlive={player.isAlive ?? true}
-                time={time}
-                canTalk={canTalk}
-                canVisit={canVisit}
-              />
-            ))}
+          {playerList.map((player, index) => (
+            <PlayerItem
+              key={player.name}
+              index={index}
+              handleVisit={handleVisit}
+              handleVote={handleVote}
+              whisperingTo={whisperingTo}
+              openWhisperMenu={openWhisperMenu}
+              dayNumber={dayNumber}
+              votingDisabled={votingDisabled}
+              visiting={visiting}
+              votingFor={votingFor}
+              canNightVote={canNightVote}
+              isUser={player.isUser ?? false}
+              username={player.name}
+              role={player.role}
+              isAlive={player.isAlive ?? true}
+              time={time}
+              canTalk={canTalk}
+              canVisit={canVisit}
+            />
+          ))}
         </ListGroup>
       </div>
 
@@ -450,27 +449,26 @@ export function Room({
             overflow: "auto",
           }}
         >
-          {messages &&
-            messages.map((msg, index) => {
-              //Msg Types - 0: Bold, black,
-              if (msg.type === 0)
-                return (
-                  <p key={index} style={{ fontWeight: "bold" }}>
-                    {msg.text}
-                  </p>
-                );
-              //0 - Bold message - Announcement
-              else if (msg.type === 1) return <p key={index}>{msg.text}</p>;
-              // 1 - Normal Message (No effects)
-              else if (msg.type === 2)
-                return (
-                  <p key={index} style={{ fontStyle: "italic" }}>
-                    {msg.text}
-                  </p>
-                );
-              // 2 - Whisper Message (Italics)
-              else return <p key={index}>{msg.text}</p>; // Fallback Message (No effects)
-            })}
+          {messages.map((msg, index) => {
+            //Msg Types - 0: Bold, black,
+            if (msg.type === 0)
+              return (
+                <p key={index} style={{ fontWeight: "bold" }}>
+                  {msg.text}
+                </p>
+              );
+            //0 - Bold message - Announcement
+            else if (msg.type === 1) return <p key={index}>{msg.text}</p>;
+            // 1 - Normal Message (No effects)
+            else if (msg.type === 2)
+              return (
+                <p key={index} style={{ fontStyle: "italic" }}>
+                  {msg.text}
+                </p>
+              );
+            // 2 - Whisper Message (Italics)
+            else return <p key={index}>{msg.text}</p>; // Fallback Message (No effects)
+          })}
           {showScrollDown && scrollNewMessages !== 0 && (
             <Button
               variant="secondary"
