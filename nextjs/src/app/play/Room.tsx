@@ -137,7 +137,7 @@ export function Room({
 
     socket.on("receiveMessage", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 0,
         text: inMsg,
       };
@@ -164,7 +164,7 @@ export function Room({
 
     socket.on("receive-chat-message", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 1,
         text: inMsg,
       };
@@ -196,7 +196,7 @@ export function Room({
 
     socket.on("receive-whisper-message", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 2,
         text: inMsg,
       };
@@ -244,8 +244,8 @@ export function Room({
       //Shows the player their own role, lets the client know that this is who they are playing as
 
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
 
@@ -273,8 +273,8 @@ export function Room({
     socket.on("update-faction-role", (playerJson) => {
       //Reveals the role of factional allies
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
         if (
@@ -289,8 +289,8 @@ export function Room({
     socket.on("update-player-role", (playerJson) => {
       //Updates player role upon their death
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
         if (tempPlayerList[index] !== undefined) {
@@ -319,7 +319,7 @@ export function Room({
       setWhisperingTo(null);
 
       let timeLeftLocal = infoJson.timeLeft;
-      let countDown = setInterval(() => {
+      const countDown = setInterval(() => {
         if (timeLeftLocal > 0) {
           setTimeLeft(timeLeftLocal - 1);
           timeLeftLocal--;

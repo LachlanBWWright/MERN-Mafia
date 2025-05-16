@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
 
 export function MafSiteNavbar({ children }: { children: React.ReactNode }) {
-  const [inGame, setInGame] = useState(false);
   return (
     <div
       style={{

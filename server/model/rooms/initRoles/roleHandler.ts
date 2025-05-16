@@ -84,7 +84,11 @@ export class RoleHandler {
           //The weaker the town, the higher the chance of a town member being added
           let index = Math.floor(Math.random() * randomTownList.length);
           let addedRole = randomTownList[index];
+          if (!addedRole) {
+            continue;
+          }
           roleList.push(addedRole);
+
           comparativePower += this.getPower(addedRole);
           if (this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
         } else {
@@ -93,6 +97,9 @@ export class RoleHandler {
             //Add Mafia
             let index = Math.floor(Math.random() * randomMafiaList.length);
             let addedRole = randomMafiaList[index];
+            if (!addedRole) {
+              continue;
+            }
             roleList.push(addedRole);
             comparativePower += this.getPower(addedRole);
             if (this.uniqueRoleCheck(addedRole))
@@ -101,6 +108,9 @@ export class RoleHandler {
             //Add neutral role
             let index = Math.floor(Math.random() * randomNeutralList.length);
             let addedRole = randomNeutralList[index];
+            if (!addedRole) {
+              continue;
+            }
             roleList.push(addedRole);
             comparativePower += this.getPower(addedRole);
             if (this.uniqueRoleCheck(addedRole))
@@ -111,6 +121,9 @@ export class RoleHandler {
         //Town is too powerful - Add mafia
         let index = Math.floor(Math.random() * randomMafiaList.length);
         let addedRole = randomMafiaList[index];
+        if (!addedRole) {
+          continue;
+        }
         roleList.push(addedRole);
         comparativePower += this.getPower(addedRole);
         if (this.uniqueRoleCheck(addedRole)) randomMafiaList.splice(index, 1);
@@ -118,6 +131,9 @@ export class RoleHandler {
         //Mafia is too powerful - Add town
         let index = Math.floor(Math.random() * randomTownList.length);
         let addedRole = randomTownList[index];
+        if (!addedRole) {
+          continue;
+        }
         roleList.push(addedRole);
         comparativePower += this.getPower(addedRole);
         if (this.uniqueRoleCheck(addedRole)) randomTownList.splice(index, 1);
@@ -129,15 +145,15 @@ export class RoleHandler {
   assignFactionsFromPlayerList(playerList: Player[]) {
     let factionList = [];
 
-    for (let i = 0; i < playerList.length; i++) {
-      if (playerList[i].role.name === "Lawman") {
+    for (const player of playerList) {
+      if (player.role.name === "Lawman") {
         factionList.push(new LawmanFaction());
         break;
       }
     }
 
-    for (let i = 0; i < playerList.length; i++) {
-      if (playerList[i].role.group === "mafia") {
+    for (const player of playerList) {
+      if (player.role.group === "mafia") {
         factionList.push(new MafiaFaction());
         break;
       }
