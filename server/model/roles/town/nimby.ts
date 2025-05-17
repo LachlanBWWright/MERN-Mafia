@@ -59,12 +59,12 @@ export class Nimby extends Role {
   handleVisits() {
     if (this.visiting != null) {
       for (let i = 0; i < this.visiting.visitors.length; i++) {
-        if (
-          this.visiting.visitors[i] != this &&
-          this.visiting.visitors[i] != this.visiting
-        ) {
-          if (this.visiting.visitors[i].damage == 0)
-            this.visiting.visitors[i].damage = 1;
+        const visitor: Role | undefined = this.visiting.visitors[i];
+
+        if (!visitor) continue;
+        // If the visitor is not the Nimby or the Nimby's target, and the visitor has no damage, set their damage to 1
+        if (visitor != this && visitor != this.visiting) {
+          if (visitor.damage == 0) visitor.damage = 1;
           //this.visiting.attackers.push(this); Deliberately excluded at this point
         }
       }

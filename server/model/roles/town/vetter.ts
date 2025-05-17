@@ -53,38 +53,46 @@ export class Vetter extends Role {
       if (this.visiting === null) return;
       this.visiting.receiveVisit(this);
       this.researchSlots--;
-      let randomPlayerOne = Math.floor(
+      let randomPlayerOneIdx = Math.floor(
         Math.random() * this.room.playerList.length,
       );
-      let randomPlayerTwo = randomPlayerOne;
+      let randomPlayerTwoIdx = randomPlayerOneIdx;
       while (
-        randomPlayerTwo == randomPlayerOne &&
+        randomPlayerTwoIdx == randomPlayerOneIdx &&
         this.room.playerList.length > 1
       )
-        randomPlayerTwo = Math.floor(
+        randomPlayerTwoIdx = Math.floor(
           Math.random() * this.room.playerList.length,
         );
+
+      const randomPlayerOne = this.room.playerList[randomPlayerOneIdx];
+      const randomPlayerTwo = this.room.playerList[randomPlayerTwoIdx];
+
+      if (!randomPlayerOne || !randomPlayerTwo) {
+        console.log("Random player not found");
+        return;
+      }
 
       if (Math.random() > 0.5) {
         io.to(this.player.socketId).emit(
           "receiveMessage",
           "You researched into " +
-            this.room.playerList[randomPlayerOne].playerUsername +
+            randomPlayerOne.playerUsername +
             " and " +
-            this.room.playerList[randomPlayerTwo].playerUsername +
+            randomPlayerTwo.playerUsername +
             ", finding that at least one of them is a " +
-            this.room.playerList[randomPlayerOne].role.name +
+            randomPlayerOne.role.name +
             ".",
         );
       } else {
         io.to(this.player.socketId).emit(
           "receiveMessage",
           "You researched into " +
-            this.room.playerList[randomPlayerOne].playerUsername +
+            randomPlayerOne.playerUsername +
             " and " +
-            this.room.playerList[randomPlayerTwo].playerUsername +
+            randomPlayerTwo.playerUsername +
             ", finding that at least one of them is a " +
-            this.room.playerList[randomPlayerTwo].role.name +
+            randomPlayerTwo.role.name +
             ".",
         );
       }

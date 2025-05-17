@@ -69,7 +69,7 @@ export const io = new Server<
   SocketData
 >(httpServer, {
   cors: {
-    origin: ["http://localhost:3000"],
+    //origin: ["http://localhost:3000"],
   },
 });
 
@@ -99,6 +99,7 @@ export function addSocketListeners(
     socket.on(
       "playerJoinRoom",
       async (captchaToken: string, cb: (code: string | number) => void) => {
+        console.log("playerJoinRoom");
         try {
           let res = await axios.post(
             `https://www.google.com/recaptcha/api/siteverify?response=${captchaToken}&secret=${process.env.CAPTCHA_KEY}`,
@@ -117,7 +118,6 @@ export function addSocketListeners(
               cb(result);
             }
           } else cb(2);
-          console.log("END");
         } catch (error) {
           console.log("CatchTest: " + error);
           //cb(2); //If a room isn't found, socketio tries to callback null.

@@ -1,17 +1,17 @@
 import React from "react";
-import { Card } from "react-bootstrap";
+import { Card, CardBody, CardTitle, CardText } from "react-bootstrap";
 
-export function FAQPage() {
+export default function FAQPage() {
   return (
     <Card style={{ margin: "2vh", flex: 1, overflow: "auto" }}>
-      <Card.Body>
-        <Card.Title className="text-center">
+      <CardBody>
+        <CardTitle className="text-center">
           Frequently Asked Questions
-        </Card.Title>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardTitle>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -24,11 +24,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -41,11 +41,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -58,11 +58,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -75,11 +75,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -92,11 +92,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -109,11 +109,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -126,11 +126,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -143,11 +143,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -160,11 +160,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -177,11 +177,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -194,11 +194,11 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-        <Card.Text style={{ fontWeight: "bold" }}>
+        </CardText>
+        <CardText style={{ fontWeight: "bold" }}>
           What is an example of placeholder text?
-        </Card.Text>
-        <Card.Text>
+        </CardText>
+        <CardText>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
           convallis eleifend lorem, sed luctus sapien auctor vitae. Mauris quis
           velit rutrum neque condimentum gravida. Maecenas sodales felis ac
@@ -211,8 +211,8 @@ export function FAQPage() {
           cursus ut, fermentum non libero. Curabitur in lorem diam. Proin
           sagittis, purus vitae tempor malesuada, lectus lectus ullamcorper
           urna, et sodales odio magna ac nulla. Nam in ipsum enim.
-        </Card.Text>
-      </Card.Body>
+        </CardText>
+      </CardBody>
     </Card>
   );
 }

@@ -57,10 +57,16 @@ export class Watchman extends Role {
             "Nobody visited your target.",
           );
         } else if (allVisitors == 2) {
-          let alibi =
+          let alibiPlayer =
             this.room.playerList[
               Math.floor(Math.random() * this.room.playerList.length)
-            ].role;
+            ];
+
+          if (!alibiPlayer) {
+            return;
+          }
+          const alibi = alibiPlayer.role;
+
           if (
             !alibi.player.isAlive ||
             alibi == this.visiting.visitors[0] ||
@@ -72,24 +78,25 @@ export class Watchman extends Role {
               io.to(this.player.socketId).emit(
                 "receiveMessage",
                 "Your target was visited by " +
-                  this.visiting.visitors[1].player.playerUsername +
+                  this.visiting.visitors[1]?.player.playerUsername +
                   ".",
               );
             } else {
               io.to(this.player.socketId).emit(
                 "receiveMessage",
                 "Your target was visited by " +
-                  this.visiting.visitors[0].player.playerUsername +
+                  this.visiting.visitors[0]?.player.playerUsername +
                   ".",
               );
             }
           } else {
             //Reveals the visitor, alongside the 'red herring' alibi.
-            let realVisitor;
-            if (this.visiting.visitors[0] == this) {
-              realVisitor = this.visiting.visitors[1];
-            } else {
-              realVisitor = this.visiting.visitors[0];
+            const realVisitor =
+              this.visiting.visitors[0] == this
+                ? this.visiting.visitors[1]
+                : this.visiting.visitors[0];
+            if (!realVisitor) {
+              return;
             }
 
             if (Math.random() > 0.5) {
@@ -114,25 +121,22 @@ export class Watchman extends Role {
           }
         } else {
           let visitorList = [];
-          for (let i = 0; i < this.visiting.visitors.length; i++) {
-            if (
-              this.visiting.visitors[i].player.isAlive &&
-              this.visiting.visitors[i] != this
-            ) {
+          for (const visitingVisitor of this.visiting.visitors) {
+            if (visitingVisitor.player.isAlive && visitingVisitor != this) {
               //Lists all visitors, excluding the watchman itself
-              visitorList.push(this.visiting.visitors[i]);
+              visitorList.push(visitingVisitor);
             }
           }
 
           let visitorAnnouncement = "The list of visitors is: ";
           for (let i = 0; i < visitorList.length - 1; i++) {
             visitorAnnouncement = visitorAnnouncement.concat(
-              visitorList[i].player.playerUsername + ", ",
+              visitorList[i]?.player.playerUsername + ", ",
             );
           }
           visitorAnnouncement = visitorAnnouncement.concat(
             "and " +
-              visitorList[visitorList.length - 1].player.playerUsername +
+              visitorList[visitorList.length - 1]?.player.playerUsername +
               ".",
           );
           io.to(this.player.socketId).emit(

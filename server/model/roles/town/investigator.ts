@@ -50,12 +50,15 @@ export class Investigator extends Role {
           //Give the targets role
           possibleRoles.push(this.visiting.name);
         } else {
-          //Give a random player's role
-          possibleRoles.push(
+          const randomPlayer =
             this.room.playerList[
               Math.floor(Math.random() * this.room.playerList.length)
-            ].role.name,
-          );
+            ];
+
+          //Give a random player's role
+          if (randomPlayer) {
+            possibleRoles.push(randomPlayer.role.name);
+          }
         }
       }
       io.to(this.player.socketId).emit(

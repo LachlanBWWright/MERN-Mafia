@@ -33,11 +33,9 @@ export class Framer extends Role {
     for (let i = 0; i < length; i++) {
       //console.log((index + i) % length)
       //console.log(this.room.playerList[(index + i) % length])
-      if (
-        this.room.playerList[(index + i) % length].role.group === "town" &&
-        this.room.playerList[(index + i) % length].isAlive
-      ) {
-        this.target = this.room.playerList[(index + i) % length];
+      const target = this.room.playerList[(index + i) % length];
+      if (target && target.role.group === "town" && target.isAlive) {
+        this.target = target ?? null;
         io.to(this.player.socketId).emit(
           "receiveMessage",
           "Your target is " +
@@ -55,11 +53,13 @@ export class Framer extends Role {
     let length = this.room.playerList.length;
     let index = Math.floor(Math.random() * length);
     for (let i = 0; i < length; i++) {
+      const potentialTarget = this.room.playerList[(index + i) % length];
       if (
-        this.room.playerList[(index + i) % length].role.group === "town" &&
-        this.room.playerList[(index + i) % length].isAlive
+        potentialTarget &&
+        potentialTarget.role.group === "town" &&
+        potentialTarget.isAlive
       ) {
-        this.target = this.room.playerList[(index + i) % length];
+        this.target = potentialTarget;
         io.to(this.player.socketId).emit(
           "receiveMessage",
           "Your new target is " +

@@ -5,6 +5,9 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  //Doesn't play nice with socketio useEffect hooks
+  reactStrictMode: false,
+};
 
 export default config;
