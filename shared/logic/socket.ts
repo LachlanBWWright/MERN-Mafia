@@ -1,4 +1,4 @@
-useEffect(() => {
+/* useEffect(() => {
   socket.on("connect", () => {
     console.log("You connected to the socket with ID " + socket.id);
   });
@@ -230,3 +230,4 @@ useEffect(() => {
     socket.disconnect();
   };
 }, []);
+ */

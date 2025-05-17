@@ -1,3 +1,45 @@
+export type EventType<T> = {
+  name: string;
+  data: T;
+};
+
+export type MessageToServer =
+  | {
+      name: "playerJoinRoom";
+      data: {
+        captchaToken: string;
+      };
+    }
+  | {
+      name: "messageSentByUser";
+      data: {
+        message: string;
+        isDay: boolean;
+      };
+    }
+  | {
+      name: "handleVote";
+      data: {
+        recipient: number | null;
+        isDay: boolean;
+      };
+    }
+  | {
+      name: "handleVisit";
+      data: {
+        recipient: number | null;
+        isDay: boolean;
+      };
+    }
+  | {
+      name: "handleWhisper";
+      data: {
+        recipient: number;
+        message: string;
+        isDay: boolean;
+      };
+    };
+
 export type ClientToServerEvents = {
   playerJoinRoom: (
     captchaToken: string,
@@ -27,6 +69,88 @@ type PlayerReturned = {
   nightVisitFaction: boolean;
   nightVote: boolean;
 };
+
+type SvrMsg = {
+  name: keyof ServerToClientEvents;
+};
+export type MessageToClient =
+  | {
+      name: "receiveMessage";
+      data: {
+        message: string;
+      };
+    }
+  | {
+      name: "blockMessages";
+    }
+  | {
+      name: "receive-new-player";
+      data: {
+        player: { name: string };
+      };
+    }
+  | {
+      name: "remove-player";
+      data: {
+        player: { name: string };
+      };
+    }
+  | {
+      name: "receive-player-list";
+      data: {
+        playerList: PlayerList[];
+      };
+    }
+  | {
+      name: "receive-chat-message";
+      data: {
+        message: string;
+      };
+    }
+  | {
+      name: "receive-whisper-message";
+      data: {
+        message: string;
+      };
+    }
+  | {
+      name: "update-day-time";
+      data: {
+        time: string;
+        dayNumber: number;
+        timeLeft: number;
+      };
+    }
+  | {
+      name: "disable-voting";
+    }
+  | {
+      name: "update-player-role";
+      data: {
+        name: string;
+        role?: string;
+      };
+    }
+  | {
+      name: "assign-player-role";
+      data: PlayerReturned;
+    }
+  | {
+      name: "update-faction-role";
+      data: {
+        name: string;
+        role: string;
+      };
+    }
+  | {
+      name: "receive-role";
+      data: {
+        role: string;
+      };
+    }
+  | {
+      name: "update-player-visit";
+    };
 
 export type ServerToClientEvents = {
   //receive-message
