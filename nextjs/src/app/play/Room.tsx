@@ -51,7 +51,6 @@ export function Room({
     false,
   ]);
   const [canNightVote, setCanNightVote] = useState(false);
-  const socketUp = useRef(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<HTMLInputElement>(null);
@@ -126,9 +125,6 @@ export function Room({
   }
 
   useEffect(() => {
-    if (socketUp.current) return; //strict mode fix
-    socketUp.current = true; //Set to true so that the socket doesn't reconnect when the component re-renders
-    console.log("Room useEffect");
     scrollRef.current?.addEventListener("scroll", scrollEvent);
     socket.connect();
     socket.on("connect", () => {
@@ -357,7 +353,6 @@ export function Room({
     });
 
     return () => {
-      return; //strict mode fix
       scrollRef.current?.removeEventListener("scroll", scrollEvent);
 
       socket.off("receiveMessage");
@@ -371,7 +366,7 @@ export function Room({
       socket.off("update-player-role");
       socket.off("update-player-visit");
       socket.off("update-day-time");
-      //socket.disconnect(); fix strict mode
+      socket.disconnect();
     };
   }, []);
 
