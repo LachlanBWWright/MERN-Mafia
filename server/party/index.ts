@@ -1,88 +1,45 @@
-import { Server, Socket } from "socket.io";
-import axios from "axios";
-import { httpServer } from "./httpServer.js";
-import { Room } from "../model/rooms/room.js";
+import type * as Party from "partykit/server";
 
-export type ClientToServerEvents = {
-  playerJoinRoom: (
-    captchaToken: string,
-    cb: (result: string | number) => void,
-  ) => Promise<void>;
-  disconnect: () => void;
-  messageSentByUser: (message: string, isDay: boolean) => void;
-  handleVote: (recipient: number | null, isDay: boolean) => void;
-  handleVisit: (recipient: number | null, isDay: boolean) => void;
-  handleWhisper: (recipient: number, message: string, isDay: boolean) => void;
-};
+//this.room.getConnection(conn.id)?.send("hello from server");
+export default class Server implements Party.Server {
+  constructor(readonly room: Party.Room) {}
 
-type PlayerList = {
-  name: string;
-  isAlive: boolean | undefined;
-  role: string;
-};
+  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+    // A websocket just connected!
+    console.log(
+      `Connected:
+  id: ${conn.id}
+  room: ${this.room.id}
+  url: ${new URL(ctx.request.url).pathname}`,
+    );
 
-type PlayerReturned = {
-  name: string;
-  role: string;
-  dayVisitSelf: boolean;
-  dayVisitOthers: boolean;
-  dayVisitFaction: boolean;
-  nightVisitSelf: boolean;
-  nightVisitOthers: boolean;
-  nightVisitFaction: boolean;
-  nightVote: boolean;
-};
+    // let's send a message to the connection
+    conn.send("hello from server");
+  }
 
-export type ServerToClientEvents = {
-  //receive-message
-  receiveMessage: (message: string) => void;
-  blockMessages: () => void;
-  "receive-new-player": (player: { name: string }) => void;
-  "remove-player": (player: { name: string }) => void;
-  "receive-player-list": (playerList: PlayerList[]) => void;
-  "receive-chat-message": (message: string) => void;
-  "receive-whisper-message": (message: string) => void;
-  "update-day-time": (data: {
-    time: string;
-    dayNumber: number;
-    timeLeft: number;
-  }) => void;
-  "disable-voting": () => void;
-  "update-player-role": (data: { name: string; role?: string }) => void;
-  "assign-player-role": (data: PlayerReturned) => void;
-  "update-faction-role": (data: { name: string; role: string }) => void;
-  "receive-role": (role: string) => void;
-  "update-player-visit": () => void;
-};
+  onMessage(message: string, sender: Party.Connection) {
+    // let's log the message
+    console.log(`connection ${sender.id} sent message: ${message}`);
 
-export type InterServerEvents = {};
+    // as well as broadcast it to all the other connections in the room...
+    this.room.broadcast(
+      `${sender.id}: ${message}`,
+      // ...except for the connection it came from
+      [sender.id],
+    );
+  }
 
-export type SocketData = {
-  roomObject: Room;
-  position: number;
-};
+  onClose(connection: Party.Connection): void | Promise<void> {
+    // A websocket just disconnected!
+    console.log(`Disconnected: ${connection.id}`);
+    // let's broadcast the disconnection to all other connections in the room
+    this.room.broadcast(`${connection.id} disconnected`, [connection.id]);
+  }
+}
 
-export const io = new Server<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
->(httpServer, {
-  cors: {
-    //origin: ["http://localhost:3000"],
-  },
-});
+Server satisfies Party.Worker;
 
-const playRoom: { current: Room | undefined } = {
-  current: undefined,
-};
-
-export type PlayerSocket = Socket<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
->;
+/* 
 
 export function addSocketListeners(
   io: Server<
@@ -194,3 +151,5 @@ export function addSocketListeners(
     });
   });
 }
+
+*/

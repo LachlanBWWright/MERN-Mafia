@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { MafSiteNavbar } from "./MafSiteNavbar";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -19,7 +20,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable}`}>
-      <body>{children}</body>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body>
+        <MafSiteNavbar>{children}</MafSiteNavbar>
+      </body>
     </html>
   );
 }

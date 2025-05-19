@@ -1,4 +1,4 @@
-import { PlayerSocket } from "../../servers/socket.js";
+import type { PlayerSocket } from "../../servers/socket.js";
 import { BlankRole } from "../roles/blankRole.js";
 import { Room } from "../rooms/room.js";
 

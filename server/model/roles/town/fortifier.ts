@@ -114,9 +114,13 @@ export class Fortifier extends Role {
           this.visiting.attackers[i] != this &&
           this.visiting.attackers[i] != this.visiting
         ) {
-          if (this.visiting.attackers[i].damage == 0)
-            this.visiting.attackers[i].damage = 1;
-          this.visiting.visitors[i].attackers.push(this);
+          const attacker = this.visiting.attackers[i];
+
+          if (attacker === undefined) {
+            continue;
+          }
+          if (attacker.damage == 0) attacker.damage = 1;
+          attacker.attackers.push(this);
         }
       }
     }

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, Button, ListGroup } from "react-bootstrap";
-import { PlayerItem } from "./PlayerItem";
-import { socket } from "../socket/socket";
+import { PlayerItem } from "../../components/PlayerItem";
+import { socket } from "~/socket/socket";
 
 type MsgType = {
   type: number;
@@ -126,14 +126,14 @@ export function Room({
 
   useEffect(() => {
     scrollRef.current?.addEventListener("scroll", scrollEvent);
-
+    socket.connect();
     socket.on("connect", () => {
       console.log("You connected to the socket with ID " + socket.id);
     });
 
     socket.on("receiveMessage", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 0,
         text: inMsg,
       };
@@ -160,7 +160,7 @@ export function Room({
 
     socket.on("receive-chat-message", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 1,
         text: inMsg,
       };
@@ -192,7 +192,7 @@ export function Room({
 
     socket.on("receive-whisper-message", (inMsg) => {
       //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      let msg = {
+      const msg = {
         type: 2,
         text: inMsg,
       };
@@ -240,12 +240,16 @@ export function Room({
       //Shows the player their own role, lets the client know that this is who they are playing as
 
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        tempPlayerList[index].role = playerJson.role;
-        tempPlayerList[index].isUser = true;
+
+        if (tempPlayerList[index] !== undefined) {
+          tempPlayerList[index].role = playerJson.role;
+          tempPlayerList[index].isUser = true;
+        }
+
         setRole(playerJson.role);
 
         return tempPlayerList;
@@ -265,11 +269,14 @@ export function Room({
     socket.on("update-faction-role", (playerJson) => {
       //Reveals the role of factional allies
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        if (playerJson.role !== undefined)
+        if (
+          playerJson.role !== undefined &&
+          tempPlayerList[index] !== undefined
+        )
           tempPlayerList[index].role = playerJson.role;
         return tempPlayerList;
       });
@@ -278,13 +285,17 @@ export function Room({
     socket.on("update-player-role", (playerJson) => {
       //Updates player role upon their death
       setPlayerList((playerList) => {
-        let tempPlayerList = [...playerList];
-        let index = tempPlayerList.findIndex(
+        const tempPlayerList = [...playerList];
+        const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-        if (playerJson.role !== undefined)
-          tempPlayerList[index].role = playerJson.role;
-        tempPlayerList[index].isAlive = false;
+        if (tempPlayerList[index] !== undefined) {
+          if (playerJson.role !== undefined) {
+            tempPlayerList[index].role = playerJson.role;
+          }
+
+          tempPlayerList[index].isAlive = false;
+        }
         return tempPlayerList;
       });
     });
@@ -304,7 +315,7 @@ export function Room({
       setWhisperingTo(null);
 
       let timeLeftLocal = infoJson.timeLeft;
-      let countDown = setInterval(() => {
+      const countDown = setInterval(() => {
         if (timeLeftLocal > 0) {
           setTimeLeft(timeLeftLocal - 1);
           timeLeftLocal--;
@@ -332,7 +343,7 @@ export function Room({
             "Your selected username was the same as another player in the room.",
           );
         else if (callback === 3) setFailReason("The room was full.");
-        setRoom(false);
+        // setRoom(false);
         setName("");
         setRole("");
       } else {
@@ -392,29 +403,28 @@ export function Room({
           <p>Players in room: {playerList.length}</p>
         )}
         <ListGroup style={{ flex: 1 }}>
-          {playerList &&
-            playerList.map((player, index) => (
-              <PlayerItem
-                key={player.name}
-                index={index}
-                handleVisit={handleVisit}
-                handleVote={handleVote}
-                whisperingTo={whisperingTo}
-                openWhisperMenu={openWhisperMenu}
-                dayNumber={dayNumber}
-                votingDisabled={votingDisabled}
-                visiting={visiting}
-                votingFor={votingFor}
-                canNightVote={canNightVote}
-                isUser={player.isUser ?? false}
-                username={player.name}
-                role={player.role}
-                isAlive={player.isAlive ?? true}
-                time={time}
-                canTalk={canTalk}
-                canVisit={canVisit}
-              />
-            ))}
+          {playerList.map((player, index) => (
+            <PlayerItem
+              key={player.name}
+              index={index}
+              handleVisit={handleVisit}
+              handleVote={handleVote}
+              whisperingTo={whisperingTo}
+              openWhisperMenu={openWhisperMenu}
+              dayNumber={dayNumber}
+              votingDisabled={votingDisabled}
+              visiting={visiting}
+              votingFor={votingFor}
+              canNightVote={canNightVote}
+              isUser={player.isUser ?? false}
+              username={player.name}
+              role={player.role}
+              isAlive={player.isAlive ?? true}
+              time={time}
+              canTalk={canTalk}
+              canVisit={canVisit}
+            />
+          ))}
         </ListGroup>
       </div>
 
@@ -434,27 +444,26 @@ export function Room({
             overflow: "auto",
           }}
         >
-          {messages &&
-            messages.map((msg, index) => {
-              //Msg Types - 0: Bold, black,
-              if (msg.type === 0)
-                return (
-                  <p key={index} style={{ fontWeight: "bold" }}>
-                    {msg.text}
-                  </p>
-                );
-              //0 - Bold message - Announcement
-              else if (msg.type === 1) return <p key={index}>{msg.text}</p>;
-              // 1 - Normal Message (No effects)
-              else if (msg.type === 2)
-                return (
-                  <p key={index} style={{ fontStyle: "italic" }}>
-                    {msg.text}
-                  </p>
-                );
-              // 2 - Whisper Message (Italics)
-              else return <p key={index}>{msg.text}</p>; // Fallback Message (No effects)
-            })}
+          {messages.map((msg, index) => {
+            //Msg Types - 0: Bold, black,
+            if (msg.type === 0)
+              return (
+                <p key={index} style={{ fontWeight: "bold" }}>
+                  {msg.text}
+                </p>
+              );
+            //0 - Bold message - Announcement
+            else if (msg.type === 1) return <p key={index}>{msg.text}</p>;
+            // 1 - Normal Message (No effects)
+            else if (msg.type === 2)
+              return (
+                <p key={index} style={{ fontStyle: "italic" }}>
+                  {msg.text}
+                </p>
+              );
+            // 2 - Whisper Message (Italics)
+            else return <p key={index}>{msg.text}</p>; // Fallback Message (No effects)
+          })}
           {showScrollDown && scrollNewMessages !== 0 && (
             <Button
               variant="secondary"
@@ -487,7 +496,7 @@ export function Room({
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <Form.Control
                   ref={chatRef}
-                  placeholder={"Whisper to " + playerList[whisperingTo].name}
+                  placeholder={"Whisper to " + playerList[whisperingTo]?.name}
                   value={textMessage}
                   onChange={(e) => changeText(e.target.value)}
                   maxLength={150}
