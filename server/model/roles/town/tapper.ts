@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 export class Tapper extends Role {
   name = "Tapper";
@@ -24,45 +23,61 @@ export class Tapper extends Role {
   handleDayAction(recipient: Player) {
     //Handles the class' daytime action
     if (recipient == this.player) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You cannot tap yourself.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You cannot tap yourself." },
+      });
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have chosen to tap " + recipient.playerUsername + ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message: "You have chosen to tap " + recipient.playerUsername + ".",
+        },
+      });
       this.dayVisiting = recipient.role;
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid choice." },
+      });
     }
   }
 
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You cannot tap yourself.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You cannot tap yourself." },
+      });
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have chosen to tap " + recipient.playerUsername + ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message: "You have chosen to tap " + recipient.playerUsername + ".",
+        },
+      });
       this.visiting = recipient.role;
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid choice." },
+      });
     }
   }
 
   dayVisit() {
     //Visits a player, so that the wiretapper can see any messages that they send overnight.
     if (this.dayVisiting != null) {
-      io.to(this.dayVisiting.player.socketId).emit(
-        "receiveMessage",
-        "You have been wiretapped! Any message you send can be heard by a tapper.",
+      this.room.socketHandler.sendPlayerMessage(
+        this.dayVisiting.player.socketId,
+        {
+          name: "receiveMessage",
+          data: {
+            message:
+              "You have been wiretapped! Any message you send can be heard by a tapper.",
+          },
+        },
       );
       if (this.dayVisiting !== null && this.dayVisiting !== undefined)
         this.dayVisiting.receiveDayVisit(this);

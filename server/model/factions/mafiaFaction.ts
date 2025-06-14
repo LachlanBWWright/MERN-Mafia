@@ -1,10 +1,10 @@
-import { io } from "../../servers/socket.js";
 import { Faction } from "./abstractFaction.js";
 import { Player } from "../player/player.js";
 import { Role } from "../roles/abstractRole.js";
 
 export class MafiaFaction extends Faction {
   attackList: Player[] = [];
+  room?: any;
 
   findMembers(playerList: Player[]) {
     //Go through a list of members, add them to the this.memberList
@@ -40,18 +40,25 @@ export class MafiaFaction extends Faction {
   }
 
   handleNightMessage(message: string, playerUsername: string) {
-    //Mafia only chat
+    // Mafia only chat
     let nightMessage = playerUsername + ": " + message;
-
-    //Sends the message to every member of the faction.
+    if (!this.room) return;
+    // Sends the message to every member of the faction.
     for (const member of this.memberList) {
-      io.to(member.socketId).emit("receive-chat-message", nightMessage);
+      this.room.socketHandler.sendPlayerMessage(member.socketId, {
+        name: "receive-chat-message",
+        data: { message: nightMessage },
+      });
     }
   }
 
   sendMessage(message: string) {
+    if (!this.room) return;
     for (const member of this.memberList) {
-      io.to(member.socketId).emit("receiveMessage", message);
+      this.room.socketHandler.sendPlayerMessage(member.socketId, {
+        name: "receiveMessage",
+        data: { message },
+      });
     }
   }
 

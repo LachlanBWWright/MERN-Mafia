@@ -11,4 +11,5 @@ export abstract class SocketHandler {
     });
   }
   abstract sendRoomMessage(roomId: string, message: MessageToClient): void;
+  abstract disconnectSockets(roomId: string): void;
 }

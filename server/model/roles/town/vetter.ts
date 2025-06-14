@@ -1,7 +1,6 @@
 import { Role } from "../abstractRole.js";
 import { Room } from "../../rooms/room.js";
 import { Player } from "../../player/player.js";
-import { io } from "../../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
 export class Vetter extends Role {
@@ -27,22 +26,27 @@ export class Vetter extends Role {
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (this.researchSlots == 0)
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have no research sessions left!",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You have no research sessions left!" },
+      });
     else if (this.visiting == null) {
       this.visiting = this;
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have decided to stay home and research into people's history.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message:
+            "You have decided to stay home and research into people's history.",
+        },
+      });
     } else {
       this.visiting = null;
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have decided not to research into people's history.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message: "You have decided not to research into people's history.",
+        },
+      });
     }
   }
 
@@ -74,32 +78,36 @@ export class Vetter extends Role {
       }
 
       if (Math.random() > 0.5) {
-        io.to(this.player.socketId).emit(
-          "receiveMessage",
-          "You researched into " +
-            randomPlayerOne.playerUsername +
-            " and " +
-            randomPlayerTwo.playerUsername +
-            ", finding that at least one of them is a " +
-            randomPlayerOne.role.name +
-            ".",
-        );
+        this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+          name: "receiveMessage",
+          data: {
+            message:
+              "You researched into " +
+              randomPlayerOne.playerUsername +
+              " and found out they are " +
+              randomPlayerOne.role.group +
+              ".",
+          },
+        });
       } else {
-        io.to(this.player.socketId).emit(
-          "receiveMessage",
-          "You researched into " +
-            randomPlayerOne.playerUsername +
-            " and " +
-            randomPlayerTwo.playerUsername +
-            ", finding that at least one of them is a " +
-            randomPlayerTwo.role.name +
-            ".",
-        );
+        this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+          name: "receiveMessage",
+          data: {
+            message:
+              "You researched into " +
+              randomPlayerTwo.playerUsername +
+              " and found out they are " +
+              randomPlayerTwo.role.group +
+              ".",
+          },
+        });
       }
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        `You have ${this.researchSlots} research sessions left.`,
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message: `You have ${this.researchSlots} research sessions left.`,
+        },
+      });
     } catch (error) {
       console.log(error);
     }

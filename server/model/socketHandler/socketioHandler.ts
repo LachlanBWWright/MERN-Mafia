@@ -11,6 +11,10 @@ export class SocketIoHandler extends SocketHandler {
     SocketIoHandler.sendIoMessage(roomId, message);
   }
 
+  disconnectSockets(roomId: string): void {
+    io.in(roomId).disconnectSockets();
+  }
+
   private static sendIoMessage(recipientId: string, message: MessageToClient) {
     switch (message.name) {
       case "receiveMessage":

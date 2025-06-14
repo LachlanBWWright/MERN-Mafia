@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { RoleMafia } from "./abstractMafiaRole.js";
-import { io } from "../../../servers/socket.js";
 
 export class MafiaInvestigator extends RoleMafia {
   attackVote: Player | null = null;
@@ -26,18 +25,24 @@ export class MafiaInvestigator extends RoleMafia {
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You cannot inspect yourself.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You cannot inspect yourself." },
+      });
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have chosen to inspect " + recipient.playerUsername + ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message:
+            "You have chosen to inspect " + recipient.playerUsername + ".",
+        },
+      });
       this.visiting = recipient.role;
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid choice." },
+      });
     }
   }
 
@@ -45,13 +50,16 @@ export class MafiaInvestigator extends RoleMafia {
     //This visits a role and attacks them. this.visiting is dictated by the faction Class.
     if (this.visiting != null) {
       this.visiting.receiveVisit(this);
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        this.visiting.player.playerUsername +
-          "'s role is " +
-          this.visiting.name +
-          ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message:
+            this.visiting.player.playerUsername +
+            "'s role is " +
+            this.visiting.name +
+            ".",
+        },
+      });
     }
   }
 }

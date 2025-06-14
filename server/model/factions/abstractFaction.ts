@@ -1,4 +1,3 @@
-import { io } from "../../servers/socket.js";
 import { Player } from "../player/player.js";
 
 export abstract class Faction {
@@ -8,10 +7,18 @@ export abstract class Faction {
     for (const member of this.memberList) {
       member.role.assignFaction(this);
       for (const secondMember of this.memberList) {
-        io.to(secondMember.socketId).emit("update-faction-role", {
-          name: member.playerUsername,
-          role: member.role.name,
-        });
+        if (secondMember.role.room) {
+          secondMember.role.room.socketHandler.sendPlayerMessage(
+            secondMember.socketId,
+            {
+              name: "update-faction-role",
+              data: {
+                name: member.playerUsername,
+                role: member.role.name,
+              },
+            },
+          );
+        }
       }
     }
   }

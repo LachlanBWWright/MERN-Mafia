@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 export abstract class RoleMafia extends Role {
   attackVote: Player | null = null;
@@ -30,7 +29,10 @@ export abstract class RoleMafia extends Role {
       );
       this.attackVote = this.attackVote.role; //uses role for easier visiting
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid Vote.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid Vote." },
+      });
     }
   }
 
@@ -41,10 +43,10 @@ export abstract class RoleMafia extends Role {
 
   cancelNightAction() {
     //Faction-based classes should override this function
-    io.to(this.player.socketId).emit(
-      "receiveMessage",
-      "You have cancelled your class' nighttime action.",
-    );
+    this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+      name: "receiveMessage",
+      data: { message: "You have cancelled your class' nighttime action." },
+    });
     this.visiting = null;
   }
 
@@ -61,10 +63,10 @@ export abstract class RoleMafia extends Role {
   visitOverride() {
     //This visits a role and attacks them. this.visiting is dictated by the faction Class.
     if (this.visiting != null) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have been chosen to do the mafia's dirty work.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You have been chosen to do the mafia's dirty work." },
+      });
       this.visiting.receiveVisit(this);
       if (this.visiting.damage == 0) this.visiting.damage = 1; //Attacks the victim
       this.visiting.attackers.push(this);

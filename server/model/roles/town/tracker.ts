@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 export class Tracker extends Role {
   name = "Tracker";
@@ -24,18 +23,23 @@ export class Tracker extends Role {
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You cannot track yourself.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You cannot track yourself." },
+      });
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have chosen to track " + recipient.playerUsername + ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message: "You have chosen to track " + recipient.playerUsername + ".",
+        },
+      });
       this.visiting = recipient.role;
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid choice." },
+      });
     }
   }
 
@@ -50,17 +54,20 @@ export class Tracker extends Role {
     try {
       if (this.visiting != null) {
         if (this.visiting.visiting)
-          io.to(this.player.socketId).emit(
-            "receiveMessage",
-            "Your target visited " +
-              this.visiting.visiting.player.playerUsername +
-              ".",
-          );
+          this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+            name: "receiveMessage",
+            data: {
+              message:
+                "Your target visited " +
+                this.visiting.visiting.player.playerUsername +
+                ".",
+            },
+          });
         else
-          io.to(this.player.socketId).emit(
-            "receiveMessage",
-            "Your target didn't visit anyone.",
-          );
+          this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+            name: "receiveMessage",
+            data: { message: "Your target didn't visit anyone." },
+          });
       }
     } catch (error) {
       console.log(error);

@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 //This class judges the alignment of the selected target (usually!)
 export class Investigator extends Role {
@@ -25,18 +24,24 @@ export class Investigator extends Role {
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (recipient == this.player) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You cannot inspect yourself.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You cannot inspect yourself." },
+      });
     } else if (recipient.playerUsername != undefined && recipient.isAlive) {
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have chosen to inspect " + recipient.playerUsername + ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message:
+            "You have chosen to inspect " + recipient.playerUsername + ".",
+        },
+      });
       this.visiting = recipient.role;
     } else {
-      io.to(this.player.socketId).emit("receiveMessage", "Invalid choice.");
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "Invalid choice." },
+      });
     }
   }
 
@@ -61,17 +66,20 @@ export class Investigator extends Role {
           }
         }
       }
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        this.visiting.player.playerUsername +
-          "'s role might be " +
-          possibleRoles[0] +
-          ", " +
-          possibleRoles[1] +
-          ", or " +
-          possibleRoles[2] +
-          ".",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: {
+          message:
+            this.visiting.player.playerUsername +
+            "'s role might be " +
+            possibleRoles[0] +
+            ", " +
+            possibleRoles[1] +
+            ", or " +
+            possibleRoles[2] +
+            ".",
+        },
+      });
     }
   }
 }

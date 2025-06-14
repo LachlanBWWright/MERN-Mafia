@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 export class Nimby extends Role {
   alertSlots = 3;
@@ -26,22 +25,22 @@ export class Nimby extends Role {
   handleNightAction(recipient: Player) {
     //Vote on who should be attacked
     if (this.alertSlots == 0)
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have no alerts left!",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You have no alerts left!" },
+      });
     else if (this.visiting == null) {
       this.visiting = this;
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have decided to go on alert.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You have decided to go on alert." },
+      });
     } else {
       this.visiting = null;
-      io.to(this.player.socketId).emit(
-        "receiveMessage",
-        "You have decided not to go on alert.",
-      );
+      this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+        name: "receiveMessage",
+        data: { message: "You have decided not to go on alert." },
+      });
     }
   }
 

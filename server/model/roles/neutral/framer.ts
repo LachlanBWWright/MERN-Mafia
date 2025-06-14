@@ -1,7 +1,6 @@
 import { Player } from "../../player/player.js";
 import { Room } from "../../rooms/room.js";
 import { Role } from "../abstractRole.js";
-import { io } from "../../../servers/socket.js";
 
 export class Framer extends Role {
   victoryCondition = false;
@@ -36,12 +35,15 @@ export class Framer extends Role {
       const target = this.room.playerList[(index + i) % length];
       if (target && target.role.group === "town" && target.isAlive) {
         this.target = target ?? null;
-        io.to(this.player.socketId).emit(
-          "receiveMessage",
-          "Your target is " +
-            this.target.playerUsername +
-            ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
-        );
+        this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+          name: "receiveMessage",
+          data: {
+            message:
+              "Your target is " +
+              this.target.playerUsername +
+              ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
+          },
+        });
         break;
       }
     }
@@ -60,12 +62,15 @@ export class Framer extends Role {
         potentialTarget.isAlive
       ) {
         this.target = potentialTarget;
-        io.to(this.player.socketId).emit(
-          "receiveMessage",
-          "Your new target is " +
-            this.target.playerUsername +
-            ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
-        );
+        this.room.socketHandler.sendPlayerMessage(this.player.socketId, {
+          name: "receiveMessage",
+          data: {
+            message:
+              "Your new target is " +
+              this.target.playerUsername +
+              ". You will win the game if you get them voted out. If your target dies before day 5, they will be replaced.",
+          },
+        });
         break;
       }
     }

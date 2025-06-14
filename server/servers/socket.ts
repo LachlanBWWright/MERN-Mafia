@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import axios from "axios";
 import { httpServer } from "./httpServer.js";
 import { Room } from "../model/rooms/room.js";
+import { SocketIoHandler } from "../model/socketHandler/socketioHandler.js";
 
 export type ClientToServerEvents = {
   playerJoinRoom: (
@@ -108,7 +109,7 @@ export function addSocketListeners(
             console.log("Captcha Success");
             //Blocks players from joining if ReCaptcha V3 score is too low, allows regardless if debug mode is on
             if (playRoom.current?.started || playRoom.current === undefined)
-              playRoom.current = new Room(roomSize);
+              playRoom.current = new Room(roomSize, new SocketIoHandler());
             console.log("playroomCurrent", playRoom.current);
             if (playRoom.current !== undefined) {
               socket.data.roomObject = playRoom.current;

@@ -1,7 +1,6 @@
 import { Player } from "../player/player.js";
 import { Faction } from "./abstractFaction.js";
 import { Room } from "../rooms/room.js";
-import { io } from "../../servers/socket.js";
 
 export class LawmanFaction extends Faction {
   room?: Room;
@@ -49,19 +48,24 @@ export class LawmanFaction extends Faction {
 
   handleNightMessage(message: string, playerUsername: string) {
     //Tells the player that they cannot speak at night.
+    if (!this.room) return;
     for (const member of this.memberList) {
       if (member.playerUsername == playerUsername) {
-        io.to(member.socketId).emit(
-          "receiveMessage",
-          "You cannot speak at night.",
-        );
+        this.room.socketHandler.sendPlayerMessage(member.socketId, {
+          name: "receiveMessage",
+          data: { message: "You cannot speak at night." },
+        });
       }
     }
   }
 
   sendMessage(message: string) {
+    if (!this.room) return;
     for (const member of this.memberList) {
-      io.to(member.socketId).emit("receiveMessage", message);
+      this.room.socketHandler.sendPlayerMessage(member.socketId, {
+        name: "receiveMessage",
+        data: { message },
+      });
     }
   }
 
