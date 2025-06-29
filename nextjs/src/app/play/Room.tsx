@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, Button, ListGroup } from "react-bootstrap";
 import { PlayerItem } from "../../components/PlayerItem";
-import { socket } from "~/socket/socket";
+import type { AbstractSocketClient } from "../../socket/AbstractSocketClient";
 
 type MsgType = {
   type: number;
@@ -21,12 +21,14 @@ export function Room({
   setName,
   setRoom,
   setRole,
+  socketClient,
 }: {
   captchaToken: string;
   setFailReason: React.Dispatch<React.SetStateAction<string>>;
   setName: React.Dispatch<React.SetStateAction<string>>;
   setRoom: React.Dispatch<React.SetStateAction<boolean>>;
   setRole: React.Dispatch<React.SetStateAction<string>>;
+  socketClient: AbstractSocketClient;
 }) {
   const [textMessage, setTextMessage] = useState("");
   const [canTalk, setCanTalk] = useState(true);
@@ -62,11 +64,10 @@ export function Room({
   function handleVisit(playerIndex: number) {
     if (visiting !== playerIndex) {
       setVisiting(playerIndex);
-      socket.emit("handleVisit", playerIndex, time === "Day");
+      socketClient.sendHandleVisit(playerIndex, time === "Day");
     } else {
       setVisiting(null);
-      setVisiting(null);
-      socket.emit("handleVisit", null, time === "Day");
+      socketClient.sendHandleVisit(null, time === "Day");
     }
   }
 
@@ -86,7 +87,7 @@ export function Room({
       textMessage.length <= 150 &&
       whisperingTo !== null
     ) {
-      socket.emit("handleWhisper", whisperingTo, textMessage, time === "Day");
+      socketClient.sendHandleWhisper(whisperingTo, textMessage, time === "Day");
     }
     setTextMessage("");
     setWhisperingTo(null);
@@ -96,17 +97,17 @@ export function Room({
 
   function handleVote(playerIndex: number) {
     if (votingFor !== playerIndex) {
-      setVotingFor(playerIndex); //this.setState({ votingFor: playerIndex });
-      socket.emit("handleVote", playerIndex, time === "Day");
+      setVotingFor(playerIndex);
+      socketClient.sendHandleVote(playerIndex, time === "Day");
     } else {
       setVotingFor(null);
-      socket.emit("handleVote", null, time === "Day");
+      socketClient.sendHandleVote(null, time === "Day");
     }
   }
 
   function sendMessage() {
     if (textMessage.length > 0 && textMessage.length <= 150) {
-      socket.emit("messageSentByUser", textMessage, time === "Day"); //Sends to server
+      socketClient.sendMessageSentByUser(textMessage, time === "Day");
       setTextMessage("");
     }
   }
@@ -126,20 +127,11 @@ export function Room({
 
   useEffect(() => {
     scrollRef.current?.addEventListener("scroll", scrollEvent);
-    socket.connect();
-    socket.on("connect", () => {
-      console.log("You connected to the socket with ID " + socket.id);
-    });
 
-    socket.on("receiveMessage", (inMsg) => {
-      //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      const msg = {
-        type: 0,
-        text: inMsg,
-      };
-
+    // Register listeners using the abstract client
+    socketClient.onReceiveMessage((inMsg) => {
+      const msg = { type: 0, text: inMsg };
       if (scrollRef.current === null) return;
-
       if (
         scrollRef.current.scrollHeight -
           scrollRef.current.scrollTop -
@@ -149,56 +141,37 @@ export function Room({
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
-
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
-        setScrollNewMessages(scrollNewMessages + 1);
+        setScrollNewMessages((prev) => prev + 1);
       }
     });
 
-    socket.on("receive-chat-message", (inMsg) => {
-      //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      const msg = {
-        type: 1,
-        text: inMsg,
-      };
-
+    socketClient.onReceiveChatMessage((inMsg) => {
+      const msg = { type: 1, text: inMsg };
       if (!scrollRef.current) return;
-
       if (
         scrollRef.current.scrollHeight -
           scrollRef.current.scrollTop -
           scrollRef.current.clientHeight <=
         scrollRef.current.clientHeight / 5
       ) {
-        console.log(messages);
-        console.log(msg);
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
-        //Adds message to message list.
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
-        console.log(messages);
-        console.log(msg);
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
-        setScrollNewMessages(scrollNewMessages + 1);
-        //Adds message to message list.
+        setScrollNewMessages((prev) => prev + 1);
       }
     });
 
-    socket.on("receive-whisper-message", (inMsg) => {
-      //Scrolls down if the user is close to the bottom, doesn't if they've scrolled up the review the chat history (By more than 1/5th of the window's height)
-      const msg = {
-        type: 2,
-        text: inMsg,
-      };
-
+    socketClient.onReceiveWhisperMessage((inMsg) => {
+      const msg = { type: 2, text: inMsg };
       if (!scrollRef.current) return;
-
       if (
         scrollRef.current.scrollHeight -
           scrollRef.current.scrollTop -
@@ -208,53 +181,41 @@ export function Room({
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(false);
         setScrollNewMessages(0);
-        //Adds message to message list.
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       } else {
         setMessages((messages) => [...messages, msg]);
         setShowScrollDown(true);
-        setScrollNewMessages(scrollNewMessages + 1);
-        //Adds message to message list.
+        setScrollNewMessages((prev) => prev + 1);
       }
     });
 
-    socket.on("receive-player-list", (listJson) => {
-      //Receive all players upon joining, and the game starting
+    socketClient.onReceivePlayerList((listJson) => {
       setPlayerList(listJson);
     });
 
-    socket.on("receive-new-player", (playerJson) => {
-      //Called when a new player joins the lobby
-      setPlayerList([...playerList, playerJson]);
+    socketClient.onReceiveNewPlayer((playerJson) => {
+      setPlayerList((prev) => [...prev, playerJson]);
     });
 
-    socket.on("remove-player", (playerJson) => {
-      //Called when a player leaves the lobby before the game starts
-      console.log("Removing player " + playerJson.name);
+    socketClient.onRemovePlayer((playerJson) => {
       setPlayerList((playerList) => {
         return playerList.filter((player) => player.name !== playerJson.name);
       });
     });
 
-    socket.on("assign-player-role", (playerJson) => {
-      //Shows the player their own role, lets the client know that this is who they are playing as
-
+    socketClient.onAssignPlayerRole((playerJson) => {
       setPlayerList((playerList) => {
         const tempPlayerList = [...playerList];
         const index = tempPlayerList.findIndex(
           (player) => player.name === playerJson.name,
         );
-
         if (tempPlayerList[index] !== undefined) {
           tempPlayerList[index].role = playerJson.role;
           tempPlayerList[index].isUser = true;
         }
-
         setRole(playerJson.role);
-
         return tempPlayerList;
       });
-
       setCanVisit([
         playerJson.dayVisitSelf,
         playerJson.dayVisitOthers,
@@ -266,8 +227,7 @@ export function Room({
       setCanNightVote(playerJson.nightVote);
     });
 
-    socket.on("update-faction-role", (playerJson) => {
-      //Reveals the role of factional allies
+    socketClient.onUpdateFactionRole((playerJson) => {
       setPlayerList((playerList) => {
         const tempPlayerList = [...playerList];
         const index = tempPlayerList.findIndex(
@@ -282,8 +242,7 @@ export function Room({
       });
     });
 
-    socket.on("update-player-role", (playerJson) => {
-      //Updates player role upon their death
+    socketClient.onUpdatePlayerRole((playerJson) => {
       setPlayerList((playerList) => {
         const tempPlayerList = [...playerList];
         const index = tempPlayerList.findIndex(
@@ -293,27 +252,22 @@ export function Room({
           if (playerJson.role !== undefined) {
             tempPlayerList[index].role = playerJson.role;
           }
-
           tempPlayerList[index].isAlive = false;
         }
         return tempPlayerList;
       });
     });
 
-    socket.on("update-player-visit", () => {
-      //Updates player to indicate that the player is visiting them
-      //JSON contains player name
-      //Get player by name, update properties, update JSON
+    socketClient.onUpdatePlayerVisit(() => {
+      // Implement as needed
     });
 
-    socket.on("update-day-time", (infoJson) => {
-      //Gets whether it is day or night, and how long there is left in the session
+    socketClient.onUpdateDayTime((infoJson) => {
       setTime(infoJson.time);
       setDayNumber(infoJson.dayNumber);
-      setVisiting(null); //Resets who the player is visiting
+      setVisiting(null);
       setVotingFor(null);
       setWhisperingTo(null);
-
       let timeLeftLocal = infoJson.timeLeft;
       const countDown = setInterval(() => {
         if (timeLeftLocal > 0) {
@@ -325,16 +279,16 @@ export function Room({
       }, 1000);
     });
 
-    socket.on("disable-voting", () => {
+    socketClient.onDisableVoting(() => {
       setVotingDisabled(true);
     });
 
-    socket.on("blockMessages", () => {
+    socketClient.onBlockMessages(() => {
       setCanTalk(false);
     });
 
-    socket.emit("playerJoinRoom", captchaToken, (callback) => {
-      console.log("CALLBACK:" + callback);
+    // Join room
+    socketClient.sendPlayerJoinRoom(captchaToken, (callback) => {
       if (typeof callback == "number") {
         if (callback === 1)
           setFailReason("Your socket ID was equal to existing player in room.");
@@ -343,7 +297,6 @@ export function Room({
             "Your selected username was the same as another player in the room.",
           );
         else if (callback === 3) setFailReason("The room was full.");
-        // setRoom(false);
         setName("");
         setRole("");
       } else {
@@ -354,21 +307,10 @@ export function Room({
 
     return () => {
       scrollRef.current?.removeEventListener("scroll", scrollEvent);
-
-      socket.off("receiveMessage");
-      socket.off("receive-chat-message");
-      socket.off("receive-whisper-message");
-      socket.off("blockMessages");
-      socket.off("receive-role");
-      socket.off("receive-player-list");
-      socket.off("receive-new-player");
-      socket.off("remove-player");
-      socket.off("update-player-role");
-      socket.off("update-player-visit");
-      socket.off("update-day-time");
-      socket.disconnect();
+      socketClient.removeAllListeners();
+      socketClient.sendDisconnect();
     };
-  }, []);
+  }, [captchaToken, setFailReason, setName, setRole, socketClient]);
 
   useEffect(() => {
     if (scrollDownRequest) {

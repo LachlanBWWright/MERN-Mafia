@@ -25,4 +25,7 @@ export class PartyKitHandler extends SocketHandler {
     }
     this.room.broadcast(JSON.stringify(message));
   }
+
+  //No partykit disconnect method, so this is a no-op
+  disconnectSockets(): void {}
 }
